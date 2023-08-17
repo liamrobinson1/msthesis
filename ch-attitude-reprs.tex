@@ -1,0 +1,59 @@
+\ProvidesFile{ch-attitude-reprs.tex}[Attitude representations]
+
+\chapter{ATTITUDE REPRESENTATIONS}
+
+When we talk about the orientation -- also known as attitude -- of a rigid body in three dimensions, that orientation is always implicitly relative to some other reference frame. The orientation of a book can be expressed using a frame fixed in the table it sits on. If that same book was sitting in an empty void, we would have no way to talk -- or even think -- about its orientation. Orientation itself is a three-dimensional quantity. Consider a coordinate system fixed in a rigid object and a second reference frame in which we want to express the orientation of the object. For convenience, we will call the frame fixed in the object the body frame, and the second frame the world frame. Any effective attitude representation must let us express the directions of all three body axes in terms of the world frame basis vectors. This raises an important question: how many numbers do we need to express an object's attitude? We can express the direction of any unit vector with two numbers -- the azimuth and elevation of that vector. Naïvely, we might extrapolate from this to conclude that we will need six numbers to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, we know we can express $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, indicating that only three quantities are necessary to express the relative orientation of two reference frames. The most obvious parameterization for attitude is the direction cosine matrix (DCM), a $3\times3$ symmetric matrix with determinant 1. We notate the DCM with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes vectors in the $\rf{n}$ frame to the $\rf{b}$ frame:
+
+\begin{equation}
+    \vrf{b}{r} = \dcm{bn} \vrf{n}{r}
+\end{equation}
+
+The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$. 
+
+Another core attitude representation is the Euler angle-axis form. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation via CITEHERE: survey att reprs:
+
+\begin{equation}
+    \theta = \cos^{-1}\left(\frac{1}{2} \left[C_{1,1} + C_{2,2} + C_{3,3} - 1 \right] \right)
+\end{equation}
+
+\begin{equation}
+    \hat{\lambda} = \frac{1}{2\sin{\theta}} 
+    \begin{bmatrix} C_{2,3} - C_{3,2} \\ C_{3,1}-C_{1,3} \\ C_{1,2} - C_{2,1}\end{bmatrix}
+\end{equation}
+
+Where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$. The mapping from PRP to DCM is also relatively straightforward:
+
+\begin{equation}
+    C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2
+\end{equation}
+
+Where $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as:
+
+\begin{equation}
+    \matcp{\vctr{v}} = \begin{bmatrix}
+        0 & -v_3 & v_2 \\
+        v_3 & 0 & -v_1 \\
+        -v_2 & v_1 & 0
+    \end{bmatrix}
+\end{equation}
+
+This operator is useful in that it takes care of cross products for us, i.e. $\vctr{v} \times \vctr{u} = \matcp{\vctr{v}}\vctr{u}$. While the PRP $\{\theta, \hat{\lambda}\}$ is a four element set, there are only three degrees of freedom due to the unit norm constraint on $\hat{\lambda}$. This means that we can multiply the Euler angle by the axis, yielding a closely related attitude representation known as the rotation vector (RV), generally denoted $\vctr{p}$. 
+
+\begin{equation} \labelAndRemember{eq:prp2rv}
+    {\vctr{p} = \theta\hat{\lambda}}
+\end{equation}
+
+The RV is the first truly three dimensional representation we have come across so far. This is advantageous for visualizing sets of orientations, but there are multiple notable issues with any three dimensional embedding of $SO(3)$. Any representation embedded in \rthree loses some of the spherical qualities of \sthree, leading to singularities -- regions where attitudes are not uniquely defined or are impossible to compute in the first place.
+
+To summarize, we can transform to and from all attitude representations with relatively simple algebraic operations:
+
+\begin{table}[]
+\begin{tabular}{|l|l|l|l|l|}
+\cline{1-5}
+\textbf{} & DCM & PRP & RV & MRP \\ \cline{1-5}
+DCM       & --    &     &    &     \\ \cline{1-5}
+PRP       &     &  --   &  \recalleq{prp2rv}   &     \\ \cline{1-5}
+RV        &     &     &  --  &     \\ \cline{1-5}
+MRP       &     &     &    &    -- \\ \cline{1-5}
+\end{tabular}
+\end{table}

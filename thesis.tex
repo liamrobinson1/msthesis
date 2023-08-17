@@ -1,0 +1,469 @@
+\ProvidesFile{thesis.tex}[2022-10-05 PurdueThesis thesis.tex file]
+
+%
+%  The home page for the PurdueThesis software is
+%      https://engineering.purdue.edu/~mark/PurdueThesis/
+%
+%  Be sure to sign up for the PurdueThesis mailing list at
+%      https://engineering.purdue.edu/ECN/mailman/listinfo/purduethesis-list
+%  so you learn of new versions of this software.  You must be on that
+%  mailing list to receive help with this software.
+%
+%  This is the template root file for an example thesis (for master's
+%  degree) or dissertation (for a Ph.D.).  From now on "thesis" will
+%  refer to both of these unless stated otherwise.
+%
+%  LaTeX systems include auxiliary programs to do bibliographies,
+%  indexes, etc.  The latexmk program runs the fewest programs needed
+%  to update your thesis.  latexmk runs automatically on Overleaf.  If
+%  you're LaTeXing your document on a non-Overleaf system you may need
+%  to run latexmk manually.
+%
+%  This thesis contains Feynman diagrams in the ap-physics.tex file.
+%  For these to be processed correctly you must use the lualatex
+%  program:
+%      latexmk -lualatex thesis
+%  (If your thesis doesn't have Feynman diagrams---the
+%      \include{ap-physics}
+%  command may be commented out by prefixing it with a
+%  '%') use pdflatex instead of lualatex:
+%      latexmk thesis
+%
+%  To make a final PDF file before you turn in your thesis do
+%      latexmk -g thesis
+%  This makes sure than everything is done for your final version.
+%
+%  References cited below:
+%
+%  TM2017 is short for Thesis Manual 2017:
+%    A Manual for the Preparation of Graduate Theses,
+%    eighth revised edition,
+%    Thesis and Dissertation Office,
+%    Purdue University,
+%    2017,
+%    revised August 30, 2017,
+%    http://www.purdue.edu/gradschool/documents/thesis/graduate-thesis-manual.pdf,
+%    last retrieved on May, 8, 2021.
+%
+%  In this file, change the example information to your information.
+%
+
+\def\ZZinstitution{Purdue University}
+\def\ZZcampus{West\space Lafayette}
+\def\ZZprogram{Aeronautics and Astronautics}
+\def\ZZdegree{Master of Science in Aeronautics and Astronautics}
+\def\ZZauthor{Liam Robinson}
+\def\ZZdocument{A Thesis}
+\def\ZZgraduation{December 2023}
+
+% title
+% If you need to manually split the title,
+% over several lines do, for example,
+%     \def\ZZtitle{%
+%       This is the First Line\\[-6pt]
+%       and this is the Second Line%
+%     }
+\def\ZZtitle{An Integrated Framework for Light Curve Simulation and Shape Inversion of Human-Made Space Objects}
+% Must all be false
+\def\ZZshowcolophon{false}
+\def\ZZshowdiagonalline{false}
+\def\ZZshowgridlines{false}
+\def\ZZshowmarginlines{false}
+\def\ZZshowtimestamp{false}
+\def\ZZtodonotes{false}
+
+\documentclass{PurdueThesis}
+\def\ZZatinformation{}
+\graphicspath{{graphics/}}
+\makeatletter
+  \def\input@path{{packages/}}
+\makeatother
+\ConfigureBibliography
+
+%
+% This is only done if you are using BibLaTeX.
+%
+%
+% If you don't want to ignore urldate fields,
+% comment out (put "%" before) the next ten lines.
+%
+\DeclareSourcemap
+  {
+    \maps[datatype=bibtex]
+    {
+      % Ignore "urldate = {...}" in .bib files.
+      % See the first complete example on page 201 of
+      %     https://mirrors.rit.edu/CTAN/macros/latex/contrib/biblatex/doc/biblatex.pdf
+      \map
+        {
+          \step[fieldset=urldate, null]
+        }
+        % Enter approximate (circa) dates using, for example,
+        % "year = c2020"  See
+        %     https://tex.stackexchange.com/questions/224617/what-is-the-correct-way-to-handle-approximate-dates-in-biblatex
+      \map[overwrite=false]
+        {
+          \step[fieldsource=year]
+          \step[fieldset=sortyear, origfieldval, final]
+          \step[fieldsource=sortyear, match={c}, replace={}]
+        }
+    }
+  }
+
+% To let {\bfseries\scshape text} work as expected.
+% See
+%     https://tex.stackexchange.com/questions/27411/small-caps-and-bold-face
+\usepackage{bold-extra}
+
+
+% For typesetting cryptography pseudocode, algorithms, and protocols.
+% See
+%     https://mirror.las.iastate.edu/tex-archive/macros/latex/contrib/cryptocode/cryptocode.pdf
+\usepackage
+[
+  n,
+  advantage,
+  operators,
+  sets,
+  adversary,
+  landau,
+  probability,
+  notions,
+  logic,
+  ff,
+  mm,
+  primitives,
+  events,
+  complexity,
+  oracles,
+  asymptotics,
+  keys,
+]
+{cryptocode}
+
+\usepackage{fancyvrb}
+  \DefineShortVerb{\|}  % so "|verbatim|" will be verbatim
+
+% For \InpuutIfFileExists.
+\usepackage{filehook}
+
+% So "_" will work in URLs when using BibTeX.
+\usepackage[T1]{fontenc}
+
+% For nlui testing.
+\usepackage{listings}
+
+
+\usepackage{cancel}
+
+
+\usepackage{etoc}
+\usepackage{makeidx}
+  % By default \index ignores its argument.
+  % This activates indexing.
+  \makeindex
+  % The "chapter name" for the index.
+  \renewcommand{\indexname}{INDEX}
+
+\usepackage{mathtools}
+
+% Define \includemedia.
+\usepackage{media9}
+
+% Define \begin{multicols}{number_of_columns} ... \end{multicolumns}.
+% Used in ap-text.tex.
+\usepackage{multicol}
+
+% Define \ditto.
+\usepackage{pa-ditto}
+
+% Define \FigureDash.
+% \FigureDash is a dash the width of a digit in the current font.
+\usepackage{pa-figure-dash}
+
+% For PurdueThesis, PuTh, TeX, LaTeX, METAFONT, METAPOST, etc. related logos.
+\usepackage{pa-logos}
+
+% (Or maybe use isomath instead?  -mark  2021-06-20)
+% Follow ISO 80000-2:2019
+%     o   put e, i, j, and pi in upright font automatically
+%     o   use, for example, "\di x" to get "\,mathrm{d}\/x"
+% This loads
+%     o   amsmath.sty (which is already loaded above)
+%     o   mathtools.sty
+%     o   upgreek.sty
+% Load the package.
+\usepackage{pa-mismath}
+  % Tell mismath to put e, i, j, and pi in upright font automatically.
+  \enumber
+  \inumber
+  \jnumber
+  \pinumber
+  % To typeset math italic e, i, j, and pi use
+  %     \mathit e
+  %     \mathit i
+  %     \mathit j
+  %     \itpi
+
+% Define \MyRepeat{what}{repeat}.
+% Do "what" "repeat" number of times.
+\usepackage{pa-repeat}
+
+% Define \FloatBarrier.
+% \FloatBarrier process all unproccesed floats (tables, figures, etc.).
+\usepackage{placeins}
+
+% Define \hl.
+% Undefine \st so soul will load without an error.
+% I hope \st wasn't used for something important!
+\let\st\relax
+\usepackage{soul}
+
+% Define \textcent.
+\usepackage{textcomp}
+
+% !!! This doesn't work yet, figure it out later.
+% For \textprimstress.
+% \usepackage{tipa}
+
+% Needed for chapter "Graphics", section "TikZ and PGF".
+\usepackage{tikz}
+  % Needed to customize arrows.
+  \usetikzlibrary{arrows.meta}
+  % For electrical diagrams.
+  % Uses the TikZ package.
+  % The circuitikz name is short for "circuit TikZ".
+  \usepackage{circuitikz}
+  %
+  \usepackage{menukeys}
+  %
+  % Needed for 3D TikZ stuff.
+  \usetikzlibrary{3d}
+  %
+  % Needed for pa-typographic-conventions package.
+  \usetikzlibrary{calc,shadows,shapes.misc,shapes.symbols}
+  %
+  % Needed for putting text along a path.
+  \usetikzlibrary{decorations.text}
+  %
+  % Draw TikZ decorations.
+  % Needed for at least the Kalman filter system model graphic.
+  \usetikzlibrary{decorations.pathmorphing} % noisy shapes
+  %
+  % Fit shapes to coordinates.
+  % Needed for at least the Kalman filter system model graphic.
+  \usetikzlibrary{fit}
+  %
+  % Draw the background after the foreground.
+  \usetikzlibrary{backgrounds}	% drawing the background after the foreground
+
+% Needed for the Feynman diagram in ap-physics.tex.
+% Tikz-feynman requires LuaLaTeX instead of pdflatex be run.
+% LuaLaTeX screws up spacing in the list of figures so this
+% is not loaded and LuaLaTeX should not be used.
+\usepackage[compat=1.1.0]{tikz-feynman}
+
+% The vertical space between a table heading and the table contents
+% in a tabular environment.
+\newcommand{\tabularspace}{\noalign{\vspace*{2pt}}}
+
+% For \sfrac, used to do slanted fractions, similar to, e.g., 1/2,
+% but 1 is small and high and 2 is small and low.
+\usepackage{xfrac}
+
+
+% Define \I.
+% \I1 does \indent once, \I2 does \indent twice, etc.
+\newcommand{\I}[1]{\MyRepeat{\indent}{#1}}
+
+% Define \MyI.
+% Typeset my input.
+\long\def\MyI#1%
+  {%
+    {%
+      \fontsize{8}{10}\tt
+      \VerbatimInput
+        [
+          firstnumber = 1,
+          numbers     = left,
+          xleftmargin = 0.33in,
+        ]%
+        {#1}
+    }%
+  }
+
+% Define \MyIO.
+% Typeset my input and output.
+% The input will all be on the same page.
+% The output may be split over multiple pages.
+\newcommand{\MyIO}
+  {%
+    \input{z.out}
+
+    {%
+      \fontsize{8}{10}\tt
+      \VerbatimInput
+        [
+          firstnumber = 1,
+          numbers     = left,
+          xleftmargin = 0.33in,
+        ]
+        {z.out}
+    }
+    \FloatBarrier
+  }
+
+% Define \MyIOS.
+% Typeset my input and output.
+% The input may be split over multiple pages.
+% The output may be split over multiple pages.
+% This doesn't work right:
+%     o  Putting a \vbox around the input and output
+%        does not allow todoindex entries to be listed.
+%     o  Using \vfilneg at beginning and end of definition
+%        screws up vertical spacing.
+% \newcommand{\MyIOS}
+% {%
+%   \input{z.out}
+%
+%   {%
+%     \fontsize{8}{10}\tt
+%     \VerbatimInput
+%     [
+%       firstnumber = 1,
+%       numbers     = left,
+%       xleftmargin = 0.33in,
+%     ]{z.out}%
+%   }
+% }
+
+% Define \MyIOT.
+% Typset my input and output together on the same page.
+% This doesn't work right:
+%     o  Putting a \vbox around the input and output
+%        does not allow todoindex entries to be listed.
+%     o  Using \vfilneg at beginning and end of definition
+%        screws up vertical spacing.
+% \def\MyIOT
+% {%
+%   \vfilneg
+%   % \vbox
+%   {%
+%     \input{z.out}%
+%     \fontsize{8}{10}\tt
+%     \VerbatimInput[
+%       firstnumber = 1,
+%       numbers     = left,
+%       xleftmargin = 0.33in,
+%     ]{z.out}%
+%   }%
+%   \FloatBarrier
+%   \vfilneg
+% }
+
+% Define \NL (newline) so LaTeX goes to the next output line.
+% Just doing \\ complains
+%     ! LaTeX Error: There's no line here to end.
+% \mbox{} is an empty math box.
+\newcommand{\NL}{\mbox{}\\}
+
+% Print a list of files used and their version numbers in the log file.
+\listfiles
+
+
+\usepackage{pa-typographic-conventions}
+
+
+% For the \begin{example} ... \end{example} environment
+% used in ap-linguistics.tex.
+\usepackage{covington}
+\usepackage{slgloss}
+
+% "CTAN---Comprehensive" did not get hyphenated and extended
+% into the right margin when using BibLaTeX and the apa style.
+% These did not change it:
+%     \hyphenation{Com-pre-hen-sive}
+%     \hyphenation{CTAN---Com-pre-hen-sive}
+% I changed    publisher = {CTAN---Comprehensive TeX Archive Network},
+% to           publisher = {CTAN---Com\-pre\-hen\-sive TeX Archive Network},
+% in my all-biblatex.bib file and it worked as expeceted.
+% If you need to change the hyphenation points of a word in the text
+% you can do, for example,
+%     \hyphenation{ve-ry-od-dly-hy-phen-at-ed}
+
+\newcommand\labelAndRemember[2]
+  {\expandafter\gdef\csname labeled:#1\endcsname{#2}%
+   \label{#1}#2}
+\newcommand\recallLabel[1]
+   {\csname labeled:#1\endcsname}
+\newcommand{\recalleq}[1]{$\recallLabel{eq:#1}$}
+
+\newcommand{\vctr}[1]{\mathbf{#1}}
+\newcommand{\unitv}[1]{\hat{\mathbf{#1}}}
+\newcommand{\preup}[1]{\prescript{#1}{}{}}
+\newcommand{\rf}[1]{\mathcal{\MakeUppercase{#1}}}
+\newcommand{\dcm}[1]{\left[\rf{#1}\right]}
+\newcommand{\vrf}[2]{\preup{\rf{#1}}\vctr{#2}}
+
+\newcommand{\matcp}[1]{\left[#1 \times\right]}
+\newcommand{\rthree}[0]{$\mathbb{R}^3$\:}
+\newcommand{\sthree}[0]{$\mathbb{S}^3$\:}
+\newcommand{\sothree}[0]{$SO_3$}
+\begin{document}
+
+\setcounter{tocdepth}{3}
+
+\maketitle
+
+
+\include{ch-front}
+
+% \include{ch-introduction}
+
+\include{ch-meshes}
+% \include{ch-attitude-reprs}
+\include{ch-lighting}
+
+%
+% This is only done if you are using BibLaTeX.
+%
+\makeatletter  % commented out on 2022-01-26
+  \defbibenvironment{bibliography}
+    {%
+      \list
+        {%
+          \printtext[labelnumberwidth]%
+          {%
+            \printfield{prefixnumber}%
+            \printfield{labelnumber}%
+          }%
+        }%
+        {%
+          \setlength{\bibhang}{1in} %%%%% was 0pt
+          \setlength{\itemindent}{1in}%  -\leftmargin} %%%%% was 0pt
+          \setlength{\itemsep}{\bibitemsep}%
+          \setlength{\leftmargin}{0pt}%  .22in} % 0.42in}
+          \setlength{\parsep}{\bibparsep}%
+           \setlength{\rightmargin}{0.33in}%
+        }%
+    }
+    {\endlist}
+    {\item}
+\makeatother  % commented out on 2022-01-26
+
+% \immediate\setlength{\labelnumberwidth}{1.5in} %%%%% was commented out
+\setlength{\labelwidth}{1.5in}
+\def\sllnsez{[999] }
+
+{%
+  % Make _ in URLs visible.
+  % \def\t{\char'137}%
+  \catcode`*=\active
+  \def*{\char'137}%  \char'137 is _
+  \PrintBibliography
+}
+
+% LaTeX won't read after the \end{document} command.
+% You can put notes to yourself or LaTeX input not
+% ready for use after "\end{document}" if you'd like.
+\end{document}

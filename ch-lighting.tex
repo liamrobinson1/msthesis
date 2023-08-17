@@ -1,0 +1,28 @@
+\ProvidesFile{ch-lighting.tex}[Lighting]
+\graphicspath{{../PyLightCurves/docs/source/gallery/01-light_curves/images}}
+
+\chapter{LIGHTING}
+
+Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, we must model all important optical interactions. In broad terms, this boils down to determining how the object is lit and how it is shadowed. 
+
+At the microscopic scale, the surface of an object is composed of facets -- small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of the facets. If the facets are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the facets normals are at large angles to each other, the surface may appear dull as the outgoing direction of the light may be completely independent from the incoming direction. Subsurface effects -- where incoming light rays scatter \textit{inside} the surface can also change the macroscopic properties of the material. 
+
+This discussion raises an important question; how can we model the macroscopic outcomes of the true microscopic interactions of incident light on a surface? The bidirectional reflectance distribution function (BRDF) is a tool developed in computer graphics to address this exact problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by: TODO CITE DUVENHAGE2013
+
+\begin{equation}
+    f_r(\vctr{x}, L \rightarrow O) = \frac{d\mathcal{R}\left(\vctr{x} \rightarrow O\right)}{d\mathcal{I}\left(L \rightarrow \vctr{x}\right)}.
+    \label{eq:brdf_def}
+\end{equation}
+
+In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface the BRDF is evaluated at. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy a few additional constraints. Assuming that the material is not luminescent, more light cannot be reflected from a unit of surface area than what hit it. This means that integrating the BRDF over the hemisphere centered around the surface normal vector should yield a value smaller or equal to one.
+
+\begin{figure}[ht]
+  \includegraphics{sphx_glr_brdf_renders_002_2_00x.png}
+  \caption
+  {%
+    By default figures are not centered.
+    This is a long caption to demonstrate that captions are single spaced.
+    This is a long caption to demonstrate that captions are single spaced.%
+  }
+  \label{fi:not-centered}
+\end{figure}
