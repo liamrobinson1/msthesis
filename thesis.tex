@@ -55,6 +55,7 @@
 \def\ZZauthor{Liam Robinson}
 \def\ZZdocument{A Thesis}
 \def\ZZgraduation{December 2023}
+\def\ZZinscampro{pu-wl-aae}
 
 % title
 % If you need to manually split the title,
@@ -152,7 +153,7 @@
 
 % For nlui testing.
 \usepackage{listings}
-
+\usepackage{minted}
 
 \usepackage{cancel}
 
@@ -313,66 +314,12 @@
     \FloatBarrier
   }
 
-% Define \MyIOS.
-% Typeset my input and output.
-% The input may be split over multiple pages.
-% The output may be split over multiple pages.
-% This doesn't work right:
-%     o  Putting a \vbox around the input and output
-%        does not allow todoindex entries to be listed.
-%     o  Using \vfilneg at beginning and end of definition
-%        screws up vertical spacing.
-% \newcommand{\MyIOS}
-% {%
-%   \input{z.out}
-%
-%   {%
-%     \fontsize{8}{10}\tt
-%     \VerbatimInput
-%     [
-%       firstnumber = 1,
-%       numbers     = left,
-%       xleftmargin = 0.33in,
-%     ]{z.out}%
-%   }
-% }
-
-% Define \MyIOT.
-% Typset my input and output together on the same page.
-% This doesn't work right:
-%     o  Putting a \vbox around the input and output
-%        does not allow todoindex entries to be listed.
-%     o  Using \vfilneg at beginning and end of definition
-%        screws up vertical spacing.
-% \def\MyIOT
-% {%
-%   \vfilneg
-%   % \vbox
-%   {%
-%     \input{z.out}%
-%     \fontsize{8}{10}\tt
-%     \VerbatimInput[
-%       firstnumber = 1,
-%       numbers     = left,
-%       xleftmargin = 0.33in,
-%     ]{z.out}%
-%   }%
-%   \FloatBarrier
-%   \vfilneg
-% }
-
-% Define \NL (newline) so LaTeX goes to the next output line.
-% Just doing \\ complains
-%     ! LaTeX Error: There's no line here to end.
-% \mbox{} is an empty math box.
 \newcommand{\NL}{\mbox{}\\}
 
 % Print a list of files used and their version numbers in the log file.
 \listfiles
 
-
 \usepackage{pa-typographic-conventions}
-
 
 % For the \begin{example} ... \end{example} environment
 % used in ap-linguistics.tex.
@@ -386,7 +333,7 @@
 %     \hyphenation{CTAN---Com-pre-hen-sive}
 % I changed    publisher = {CTAN---Comprehensive TeX Archive Network},
 % to           publisher = {CTAN---Com\-pre\-hen\-sive TeX Archive Network},
-% in my all-biblatex.bib file and it worked as expeceted.
+% in my refs.bib file and it worked as expeceted.
 % If you need to change the hyphenation points of a word in the text
 % you can do, for example,
 %     \hyphenation{ve-ry-od-dly-hy-phen-at-ed}
@@ -409,20 +356,38 @@
 \newcommand{\rthree}[0]{$\mathbb{R}^3$\:}
 \newcommand{\sthree}[0]{$\mathbb{S}^3$\:}
 \newcommand{\sothree}[0]{$SO_3$}
+\newcommand{\pogslla}[0]{$32.900^\circ \textrm{ N}, -105.533^\circ \textrm{ W} \textrm{ }$}
+
+\newcommand{\figbig}[0]{0.8\textwidth}
+\newcommand{\figmed}[0]{0.6\textwidth}
+\newcommand{\figsmall}[0]{0.4\textwidth}
+
+\DeclareMathOperator{\atantwo}{atan2}
+
 \begin{document}
 
 \setcounter{tocdepth}{3}
 
 \maketitle
 
-
+%%% INTRODUCTION
 \include{ch-front}
+\include{ch-introduction}
+\include{ch-literature}
 
-% \include{ch-introduction}
-
+%%% BACKGROUND
+\include{ch-coordinate-systems}
 \include{ch-meshes}
-% \include{ch-attitude-reprs}
+\include{ch-attitude-reprs}
 \include{ch-lighting}
+\include{ch-light-curves}
+
+%%% METHOD
+\include{ch-background-signals}
+\include{ch-light-curve-simulation}
+
+%%% RESULTS
+\include{ch-appendices}
 
 %
 % This is only done if you are using BibLaTeX.

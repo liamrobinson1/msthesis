@@ -1,0 +1,63 @@
+\ProvidesFile{ch-coordinate-systems.tex}[Coordinate Systems]
+
+\section{Coordinate Systems}
+
+\subsection{International Terrestrial Reference Frame}
+
+The most intuitive Earth-centered reference frame is Earth-centered Earth-fixed (ECEF). An ECEF
+frame has its origin at the center of mass of the Earth and its axes fixed in the crust. The
+fundamental plane of the frame is defined to be the equator ---  defining the $z$-axis through Earth's
+instantaneous spin axis, and the reference direction through the intersection of the prime meridian
+and the equator ---  defining the $x$-axis. Completing the right-handed system the $y$-axis yields a
+reference frame that remains fixed, neglecting continental drift and other pesky (but sufficiently
+negligible) realities. 
+
+\subsection{Right Ascension and Declination}
+
+Right ascension and declination, often shortened to RA/Dec, are useful angles from describing the angular position of an object
+on the celestial sphere from the perspective of an observer. Right ascension is defined as the angle
+of the observation projected onto the inertial $x-y$ plane, measured counterclockwise from inertial
+$\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
+with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
+Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x, y, z \right]^T$ in
+inertial space, we can compute RA/Dec via Eq \ref{eq:eci_to_ra_dec}.
+
+\begin{equation} \label{eq:eci_to_ra_dec}
+  \begin{bmatrix}
+	\alpha \\
+	\delta
+  \end{bmatrix} = 
+  \begin{bmatrix}
+	\atantwo(y, x) \\
+	\atantwo(z, \sqrt(x^2 + y^2))
+  \end{bmatrix}
+\end{equation}
+
+\subsection{Azimuth and Elevation}
+
+Azimuth and elevation, often shortened to Az/El, are similar angular quantities to right ascension and declination, but instead of being based on
+the inertial sphere, they are referenced to an arbitrary reference frame. For a telescope making
+observations of an object, the local East-North-Up (ENU) frame may be used. For a satellite star
+tracker, star azimuth and elevation might be reported in the satellite body frame. In either case,
+Eq \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\hat{v} = \left[ x, y, z
+\right]^T$ is expressed in the frame of interest.
+
+\begin{equation} \label{eq:enu_to_az_el}
+  \begin{bmatrix}
+	Az \\
+	El
+  \end{bmatrix} = 
+  \begin{bmatrix}
+	\atantwo(y, x) \\
+	\atantwo(z, \sqrt(x^2 + y^2))
+  \end{bmatrix}
+\end{equation}
+
+Note that Eq \ref{eq:enu_to_az_el} references azimuth to the $x$-axis, proceeding in the
+counterclockwise direction. Often, this reference axis and direction may be changed depending on the
+reference frame being used. For example, ground station observations may be referenced to local
+North ---  the second axis of the ENU system ---  proceeding clockwise. This would require the
+substitution $Az' = \frac{\pi}{2} - Az$. Notice that this substitution leads to $Az'$ leaking
+outside the domain of $[0, 2\pi)$. This is not an issue for later coordinate transformations, but
+may be undesirable for plots. Wrapping the result back to the standard azimuth range via
+$Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.

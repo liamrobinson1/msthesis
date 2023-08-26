@@ -219,7 +219,7 @@
 % Frank Mittelbach <frank.mittelbach@latex-project.org> wrote on 2022-05-19:
 %     expl3 (under the name of L3 programming layer) is now part of LaTeX,
 %     so there is no need to load it as a package and you can say you are
-%     programming LaTeX if you use it -- over time we will move more and
+%     programming LaTeX if you use it ---  over time we will move more and
 %     more of the internals to the new programming methodology
 %     (I tested this and he apparently means in TeX Live 2022.)
 % Use LaTeX 3 programming constructs in LaTeX 2e.
@@ -535,9 +535,9 @@
   %
   %  1.  If you removed the string in the "BIBLATEX" section you'll be
   %      running BibLaTeX.  You also need to change
-  %          % \addbibresource{all-biblatex.bib}
+  %          % \addbibresource{refs.bib}
   %      to
-  %          \addbibresource{all-biblatex.bib}
+  %          \addbibresource{refs.bib}
   %      since the information for the references is in the all.bib file.
   %
   %  2.  If you did this in the "BIBTEX" section you'll be running BibTeX.
@@ -568,7 +568,7 @@
       \ifthen{\equal{pu-fw-bio}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -577,7 +577,7 @@
       \ifthen{\equal{pu-fw-cme?}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -586,7 +586,7 @@
       \ifthen{\equal{pu-fw-comm}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -595,7 +595,7 @@
       \ifthen{\equal{pu-fw-ece}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -604,7 +604,7 @@
       \ifthen{\equal{pu-fw-engl}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=apa,          dashed=false, locallabelwidth=true, sortcites=true, style=apa]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -613,7 +613,7 @@
       \ifthen{\equal{pu-fw-sped}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -622,7 +622,7 @@
       \ifthen{\equal{pu-ha-bio}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -631,7 +631,7 @@
       \ifthen{\equal{pu-ha-cdfs}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -640,7 +640,7 @@
       \ifthen{\equal{pu-ha-cit}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -649,7 +649,7 @@
       \ifthen{\equal{pu-ha-ece}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -658,7 +658,7 @@
       \ifthen{\equal{pu-ha-hist}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -667,7 +667,7 @@
       \ifthen{\equal{pu-ha-mce}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -676,7 +676,7 @@
       \ifthen{\equal{pu-in-bio}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -685,7 +685,7 @@
       \ifthen{\equal{pu-in-bme}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -694,7 +694,7 @@
       \ifthen{\equal{pu-in-ccb?}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -703,7 +703,7 @@
       \ifthen{\equal{pu-in-cis?}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -712,7 +712,7 @@
       \ifthen{\equal{pu-in-ece}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -721,7 +721,7 @@
       \ifthen{\equal{pu-in-fis?}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -730,7 +730,7 @@
       \ifthen{\equal{pu-in-math}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -739,7 +739,7 @@
       \ifthen{\equal{pu-in-me}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -748,7 +748,7 @@
       \ifthen{\equal{pu-in-mste}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -757,7 +757,7 @@
       \ifthen{\equal{pu-in-neu?}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -766,7 +766,7 @@
       \ifthen{\equal{pu-in-phys}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -775,7 +775,7 @@
       \ifthen{\equal{pu-we-bio}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -784,7 +784,7 @@
       \ifthen{\equal{pu-we-cdfs}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -793,7 +793,7 @@
       \ifthen{\equal{pu-we-ece}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -802,7 +802,7 @@
       \ifthen{\equal{pu-we-hist}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -811,7 +811,7 @@
       \ifthen{\equal{pu-we-mce}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -820,7 +820,7 @@
       \ifthen{\equal{pu-wl-aae}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{../PyLightCurves/docs/source/_static/refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -829,7 +829,7 @@
       \ifthen{\equal{pu-wl-abe}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -838,7 +838,7 @@
       \ifthen{\equal{pu-wl-ad}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -847,7 +847,7 @@
       \ifthen{\equal{pu-wl-agecon}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -856,7 +856,7 @@
       \ifthen{\equal{pu-wl-agry}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -865,7 +865,7 @@
       \ifthen{\equal{pu-wl-amst}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -874,7 +874,7 @@
       \ifthen{\equal{pu-wl-ansc}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -883,7 +883,7 @@
       \ifthen{\equal{pu-wl-anth}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -892,7 +892,7 @@
       \ifthen{\equal{pu-wl-bchm}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -901,7 +901,7 @@
       \ifthen{\equal{pu-wl-bcm}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -910,7 +910,7 @@
       \ifthen{\equal{pu-wl-biol}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -919,7 +919,7 @@
       \ifthen{\equal{pu-wl-bme}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -928,7 +928,7 @@
       \ifthen{\equal{pu-wl-bms}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -937,7 +937,7 @@
       \ifthen{\equal{pu-wl-btny}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -946,7 +946,7 @@
       \ifthen{\equal{pu-wl-ce}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -955,7 +955,7 @@
       \ifthen{\equal{pu-wl-cgt}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -964,7 +964,7 @@
       \ifthen{\equal{pu-wl-chem}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -973,7 +973,7 @@
       \ifthen{\equal{pu-wl-che}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -982,7 +982,7 @@
       \ifthen{\equal{pu-wl-cit}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -991,7 +991,7 @@
       \ifthen{\equal{pu-wl-cmpl}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1000,7 +1000,7 @@
       \ifthen{\equal{pu-wl-com}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1009,7 +1009,7 @@
       \ifthen{\equal{pu-wl-cpb}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1018,7 +1018,7 @@
       \ifthen{\equal{pu-wl-csr}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1027,7 +1027,7 @@
       \ifthen{\equal{pu-wl-cs}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, bibstyle=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1048,7 +1048,7 @@
       \ifthen{\equal{pu-wl-ece}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1116,7 +1116,7 @@
       \ifthen{\equal{pu-wl-econ}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1125,7 +1125,7 @@
       \ifthen{\equal{pu-wl-edci}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1134,7 +1134,7 @@
       \ifthen{\equal{pu-wl-edst}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1143,7 +1143,7 @@
       \ifthen{\equal{pu-wl-eee}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1152,7 +1152,7 @@
       \ifthen{\equal{pu-wl-ene}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1161,7 +1161,7 @@
       \ifthen{\equal{pu-wl-engl}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=apa,          dashed=false, locallabelwidth=true, sortcites=true, style=apa]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1170,7 +1170,7 @@
       \ifthen{\equal{pu-wl-entm}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1179,7 +1179,7 @@
       \ifthen{\equal{pu-wl-fnr}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1188,7 +1188,7 @@
       \ifthen{\equal{pu-wl-fs}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1197,7 +1197,7 @@
       \ifthen{\equal{pu-wl-hdfs}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1206,7 +1206,7 @@
       \ifthen{\equal{pu-wl-hist}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1215,7 +1215,7 @@
       \ifthen{\equal{pu-wl-hk}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1224,7 +1224,7 @@
       \ifthen{\equal{pu-wl-hort}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1233,7 +1233,7 @@
       \ifthen{\equal{pu-wl-hsci}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1242,7 +1242,7 @@
       \ifthen{\equal{pu-wl-htm}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1251,7 +1251,7 @@
       \ifthen{\equal{pu-wl-ibsc}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1260,7 +1260,7 @@
       \ifthen{\equal{pu-wl-ie}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1269,7 +1269,7 @@
       \ifthen{\equal{pu-wl-ipph}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1278,7 +1278,7 @@
       \ifthen{\equal{pu-wl-lc}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1287,7 +1287,7 @@
       \ifthen{\equal{pu-wl-ling}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1296,7 +1296,7 @@
       \ifthen{\equal{pu-wl-math}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1305,7 +1305,7 @@
       \ifthen{\equal{pu-wl-mcmp}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1314,7 +1314,7 @@
       \ifthen{\equal{pu-wl-me}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1323,7 +1323,7 @@
       \ifthen{\equal{pu-wl-mgmt}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1332,7 +1332,7 @@
       \ifthen{\equal{pu-wl-ne}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1341,7 +1341,7 @@
       \ifthen{\equal{pu-wl-nur}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1350,7 +1350,7 @@
       \ifthen{\equal{pu-wl-nutr}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1359,7 +1359,7 @@
       \ifthen{\equal{pu-wl-obhr}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1368,7 +1368,7 @@
       \ifthen{\equal{pu-wl-owl}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1377,7 +1377,7 @@
       \ifthen{\equal{pu-wl-phillit}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1386,7 +1386,7 @@
       \ifthen{\equal{pu-wl-phil}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1395,7 +1395,7 @@
       \ifthen{\equal{pu-wl-phpr}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1404,7 +1404,7 @@
       \ifthen{\equal{pu-wl-phys}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1413,7 +1413,7 @@
       \ifthen{\equal{pu-wl-pol}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1422,7 +1422,7 @@
       \ifthen{\equal{pu-wl-psd}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1431,7 +1431,7 @@
       \ifthen{\equal{pu-wl-psy}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1440,7 +1440,7 @@
       \ifthen{\equal{pu-wl-satt}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1449,7 +1449,7 @@
       \ifthen{\equal{pu-wl-slhs}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1458,7 +1458,7 @@
       \ifthen{\equal{pu-wl-soc}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1467,7 +1467,7 @@
       \ifthen{\equal{pu-wl-stat}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1476,7 +1476,7 @@
       \ifthen{\equal{pu-wl-tech}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1485,7 +1485,7 @@
       \ifthen{\equal{pu-wl-tdo}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1494,7 +1494,7 @@
       \ifthen{\equal{pu-wl-thtr}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1503,7 +1503,7 @@
       \ifthen{\equal{pu-wl-tli}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1523,7 +1523,7 @@
       \ifthen{\equal{pu-wl-ydae}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}
@@ -1532,7 +1532,7 @@
       \ifthen{\equal{uh-manoa-econ}{\ZZinscampro}}
         {
           \usepackage[backend=biber, citestyle=numeric-comp, dashed=false, locallabelwidth=true, sortcites=true, style=ieee]{biblatex}
-          \addbibresource{all-biblatex.bib}
+          \addbibresource{refs.bib}
           % See
           % https://tex.stackexchange.com/questions/134191/line-breaks-of-long-urls-in-biblatex-bibliography
           \setcounter{biburllcpenalty}{7000}

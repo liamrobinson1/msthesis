@@ -1,0 +1,31 @@
+\ProvidesFile{ch-light-curve-simulation.tex}[Light Curve Simulation]
+
+\chapter{Light Curve Simulation}
+
+\subsection{Simulating Convex Objects}
+
+Light curve simulation for convex geometry can be solved semi-analytically as each facet's contribution 
+to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
+Determining whether a face is illuminated requires two horizon checks to determine visibility 
+from the Sun and to the observer. For a facet $i$ at timestep $j$ these horizon checks are 
+expressed by the shadowing condition $\mu_{ij}$. 
+
+\begin{equation} \label{eq:cvx_shadow_cond}
+  \mu_{ij} = \begin{cases}
+    1 \text{ if } \left( \hat{O}_j \cdot \hat{n}_i \right) > 0 \text{ and } \left( \hat{S}_j \cdot \hat{n}_i \right) > 0 
+	  \text{ and } \delta_{ij,\text{ss}} = 0 \text{ and } \delta_{ij,\text{os}} = 0\\
+    0 \text{ otherwise } \\
+  \end{cases}
+\end{equation}
+
+The unit vectors $\hat{O}$ and $\hat{S}$ point from the  center of mass of the object to the observer and Sun, respectively. 
+We choose the outward-pointing facet normal unit vector $\hat{n}$ by convention for all mesh operations. 
+The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, 
+are always zero for convex polyhedra but are crucial for accurately simulating non-convex geometry. 
+For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing 
+refers to otherwise visible faces blocked by other portions of the geometry.
+
+The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all facets, 
+composed of specular and diffuse contributions. We express each contribution as the product of the
+normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
+the object to yield the noiseless received irradiance.

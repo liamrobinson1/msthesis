@@ -11,3 +11,7 @@
 *.run*
 *.syn*
 *.toc*
+*.DS_Store
+*.bbl
+*.blg
+_minted*
