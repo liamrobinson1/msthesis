@@ -14,10 +14,10 @@ catch-all term for a variety of units.
 
 Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
 surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
-\: [m]$ area would experience $10 \: [W]$ of incident energy. The Sun's irradiance is approximately
+\: [m]$ area would experience $10 \: [W]$ of incident power. The Sun's irradiance is approximately
 $1361 \: \left[ \frac{W}{m^2} \right]$ at a distance of $1$ AU. 
 
-Visual magnitude ---  also known as apparent or relative magnitude ---  is a reverse logarithmic scale
+Visual magnitude ---  also known as apparent or relative magnitude --- is a reverse logarithmic scale
 that originates in astronomy. Stellar sources span many orders of magnitude of brightness, making a
 logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
 expresses brightness at the observer's location; absolute magnitude is a different quantity that
@@ -54,10 +54,6 @@ at a distance $r$ in meters from an object is converted to normalized irradiance
   \hat{I} = r^2 I
 \end{equation}
 
-\subsection{Candela}
-
-Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. 
-
 \subsection{$S_{10}$}
 
 While magnitude and irradiance do a good job describing the flux of point sources, other units exist
@@ -78,8 +74,7 @@ speed of light in vacuum.
 
 \subsection{Magnitudes per Square Arcsecond}
 
-A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$. This quantity can be
-thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
+A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitudes per square arcsecond) or SQM (sky quality meter). This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
 magnitude in a solid angle, we measure the equivalent magnitude of a single point source. A surface
 brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
 $\left[ \frac{mag}{arcsec^2} \right]$ via Eq \ref{s10_to_mag_per_a2}.
@@ -89,7 +84,34 @@ $\left[ \frac{mag}{arcsec^2} \right]$ via Eq \ref{s10_to_mag_per_a2}.
 \end{equation}
 
 In Eq \ref{s10_to_mag_per_a2} we first convert $S_{10}$ to the total irradiance per square degree,
-convert square degrees to square arcseconds, and transform the result back into apparent magnitude.
+convert square degrees to square arcseconds, and transform the result back into apparent magnitude. We can convert from MPSAS to irradiance per steradian via Eq \ref{eq:mpsas_to_irrad_per_ster} using \ref{eq:mag_to_irradiance}.
+
+\begin{equation} \label{eq:mpsas_to_irrad_per_ster}
+  I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}
+\end{equation}
+
+\subsection{Candela} \label{sec:candela}
+
+Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, we convert from candela $B_{cd}$ to watts per steradian $B_{wsr}$ via \ref{eq:cd_to_w_per_sr}.
+
+\begin{equation} \label{eq:cd_to_w_per_sr}
+  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}
+\end{equation}
+
+The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; we adopt that of Sharpe et al. \cite{sharpe2005}, displayed in Figure \ref{fig:luminous_efficiency}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_luminous_efficiency_001_2_00x.png}
+  \caption{Luminous effiency function from \cite{sharpe2005}}
+  \label{fig:luminous_efficiency}
+\end{figure}
+
+Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding Eq \ref{eq:cd_per_m2_to_mpsas}, which is still a function of the source's wavelength.
+
+\begin{equation} \label{eq:cd_per_m2_to_mpsas}
+  MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_0} \right)
+\end{equation}
 
 \subsection{Photoelectron Counts}
 

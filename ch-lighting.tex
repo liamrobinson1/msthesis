@@ -3,26 +3,68 @@
 
 \chapter{LIGHTING}
 
+\section{The Bidirectional Reflectance Distribution Function}
+
 Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, we must model all important optical interactions. In broad terms, this boils down to determining how the object is lit and how it is shadowed. 
 
 At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of the facets. If the facets are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the facets normals are at large angles to each other, the surface may appear dull as the outgoing direction of the light may be completely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface can also change the macroscopic properties of the material. 
 
-This discussion raises an important question; how can we model the macroscopic outcomes of the true microscopic interactions of incident light on a surface? The bidirectional reflectance distribution function (BRDF) is a tool developed in computer graphics to address this exact problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by: \cite{duvenhage2013}
+This discussion raises an important question; how can we model the macroscopic outcomes of the true microscopic interactions of incident light on a surface? The bidirectional reflectance distribution function (BRDF) is a tool developed in computer graphics to address this exact problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by Eq \ref{eq:brdf_def} \cite{duvenhage2013}.
 
 \begin{equation}
     f_r(\vctr{x}, L \rightarrow O) = \frac{d\mathcal{R}\left(\vctr{x} \rightarrow O\right)}{d\mathcal{I}\left(L \rightarrow \vctr{x}\right)}.
     \label{eq:brdf_def}
 \end{equation}
 
-In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface the BRDF is evaluated at. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy a few additional constraints. Assuming that the material is not luminescent, more light cannot be reflected from a unit of surface area than what hit it. This means that integrating the BRDF over the hemisphere centered around the surface normal vector should yield a value smaller or equal to one.
+In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface the BRDF is evaluated at. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L \rightarrow O)$ and $f_r(L \rightarrow O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot leave the surface than was incident on it, neglective thermal effects. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs must take on nonnegative values for all inputs \cite{montes2012}. A surface cannot reflect negative light, so this should feel natural. Explicitly, energy conservation is expressed by Eq \ref{eq:brdf_energy_cons} \cite{montes2012}.
+
+\begin{equation} \label{eq:brdf_energy_cons}
+  \forall L \in \Omega : \:\: \int_{O \in \Omega} f_r(L \rightarrow O) \: d\Omega \leq 1
+\end{equation}
+
+Eq \ref{eq:brdf_energy_cons} states that for all possible illumination directions $L$ on the hemisphere $\Omega$ you can integrate all possible outgoing observer directions $O$ on the hemisphere and end up with equal or less energy than you started with. Reciprocity can also be formalized via \ref{eq:brdf_reciprocity}.
+
+\begin{equation} \label{eq:brdf_reciprocity}
+  \forall L, O \in \Omega : \:\: f_r(L \rightarrow O) = f_r(O \rightarrow L)
+\end{equation}
+
+\subsection{BRDF Formulations}
+
+The following BRDFs are all energy conserving, reciprocal, and nonnegative. \textit{Caveat emptor}: this does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
+
+\subsubsection{Lambertian}
+
+The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
+
+\begin{equation} \label{eq:brdf_lambertian}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi}
+\end{equation}
+
+In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. If $C_d = 0.4$, we know that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
+
+\subsubsection{Phong}
+
+A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
+
+\begin{equation} \label{eq:brdf_phong}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
+\end{equation}
+
+In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfectly mirror reflection. Now that we have two coefficients of reflection, we must add an new constraint to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
+
+\subsubsection{Blinn-Phong}
+
+The Blinn-Phong BRDF is similar to to the Phong BRDF, but parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+
+\begin{equation} \label{eq:brdf_blinn_phong}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}
+\end{equation}
+
+\subsubsection{Glossy}
 
 \begin{figure}[ht]
   \includegraphics{sphx_glr_brdf_renders_002_2_00x.png}
   \caption
-  {%
-    By default figures are not centered.
-    This is a long caption to demonstrate that captions are single spaced.
-    This is a long caption to demonstrate that captions are single spaced.%
-  }
-  \label{fi:not-centered}
+  {Implemented BRDFs rendered with arbitrary parameters. Figure demonstrates the qualitative differences in each lighting model.}
+  \label{fig:brdf_renders}
 \end{figure}
