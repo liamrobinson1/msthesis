@@ -1,0 +1,20 @@
+\ProvidesFile{ch-orbits.tex}[Orbits]
+
+\chapter{Orbits}
+
+\section{Relative Two Body Dynamics}
+
+Given a state vector $\vctr{x} = \left[ x, y, z, \dot{x}, \dot{y}, \dot{z} \right]^T$ we can compute the state derivative in the relative two body problem with Eq \ref{eq:two_body_dynamics}.
+
+\begin{equation} \label{eq:two_body_dynamics}
+    \dot{\vctr{x}}
+    =
+    \left[\begin{matrix}
+        \dot{x}\\
+        \dot{y}\\
+        \dot{z}\\
+        -\frac{\mu x}{\left(x^2+y^2+z^2\right)^{1.5}}
+        \\-\frac{\mu y}{\left(x^2+y^2+z^2\right)^{1.5}}
+        \\-\frac{\mu z}{\left(x^2+y^2+z^2\right)^{1.5}}
+        \\\end{matrix}\right]
+\end{equation}

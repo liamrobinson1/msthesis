@@ -29,7 +29,7 @@ mean airglow signal in ADU per pixel is simply given by Eq \ref{eq:airglow_adu}
 \end{equation}
 
 In Eq \ref{eq:airglow_adu}, $\frac{1}{\cos(\theta_z)}$ is known as the Van Rhijn factor, which
-accounts for the accumulation of airmass near the horizon \ref{frueh2019notes}.
+accounts for the accumulation of airmass near the horizon \cite{frueh2019notes}.
 
 \begin{figure}[ht]
   \centering
@@ -77,7 +77,7 @@ Even after the Sun sets, scattered sunlight in the upper atmosphere creates a si
   B_{twi,z} = 11.84 + 1.518(\gamma - 95^\circ) - 0.057 (\gamma -  95^\circ)^2
 \end{equation}
 
-Eq \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105^\circ$. Before $\gamma 95^\circ$, we take the zenith brightness to be constant and equal to the brightness at $\gamma 95^\circ$. This is not accurate, but is sufficiently bright to correctly forbid daytime observations by lowering the SNR drastically. After $\gamma = 105^\circ$ we set the zenith surface brightness to $B_{twi,z} == 22$ MPSAS to match the optimal observation condition of the light pollution model \cite{krag2003}. Zenith twilight brightness is plotted as a function of $\gamma$ in Figure \ref{twilight_model}.
+Eq \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105^\circ$. Before $\gamma 95^\circ$, we take the zenith brightness to be constant and equal to the brightness at $\gamma 95^\circ$. This is not accurate, but is sufficiently bright to correctly forbid daytime observations by lowering the SNR drastically. After $\gamma = 105^\circ$ we set the zenith surface brightness to $B_{twi,z} == 22$ MPSAS to match the optimal observation condition of the light pollution model \cite{krag2003}. Zenith twilight brightness is plotted as a function of $\gamma$ in Figure \ref{fig:twilight_model}.
 
 \begin{figure}[ht]
   \centering

@@ -362,7 +362,10 @@
 \newcommand{\figmed}[0]{0.6\textwidth}
 \newcommand{\figsmall}[0]{0.4\textwidth}
 
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
 \DeclareMathOperator{\atantwo}{atan2}
+\DeclareMathOperator{\fl}{floor}
 
 \begin{document}
 
@@ -377,14 +380,17 @@
 
 %%% BACKGROUND
 \include{ch-coordinate-systems}
-\include{ch-meshes}
+\include{ch-orbits}
 \include{ch-attitude-reprs}
+
+\include{ch-meshes}
 \include{ch-lighting}
 \include{ch-light-curves}
 
 %%% METHOD
 \include{ch-background-signals}
 \include{ch-light-curve-simulation}
+\include{ch-light-curve-inversion}
 
 %%% RESULTS
 \include{ch-appendices}

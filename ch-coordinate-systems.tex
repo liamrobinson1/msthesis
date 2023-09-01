@@ -65,9 +65,55 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
 \section{Time Systems}
 
+\subsection{Julian Date}
+
+Most tasks in space domain awareness and astrodynamics more generally are easier when using a continuous time system. For that reason, we adopt the Julian date. This quantity is defined is the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, we can compute the Julian date via Eq \ref{eq:date_to_jd}.
+
+\begin{equation} \label{eq:date_to_jd}
+  JD = 376Y - \fl{\left[ \frac{7Y + 7 \cdot \fl{\left(\frac{M + 9}{12} \right)}}{4} \right]}
+      + \fl{\left(\frac{275M}{9}\right)} 
+      + d
+      + 1721013.5
+      + \frac{\frac{\left(\frac{s}{60} + 60\right)}{60} + h}{24}
+\end{equation}
+
+Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch. In particular, we will often use the J2000.0 epoch, resulting in Eq \ref{eq:jd_to_t} \cite{vallado4ed}.
+
+\begin{equation} \label{eq:jd_to_t}
+  T = \frac{JD - 2451545.0}{36535}
+\end{equation}
+
+Often we need to be more specific about the time scale being used in Eq \ref{eq:jd_to_t}. For example, if we wanted the number of Julian centuries for an input date in UT1, we would compute $T_{UT1}$ using $JD_{UT1}$, which is in turn a function a date timestamp expressed in UT1. 
+
+\subsection{Solar and Sidereal Time}
+
+Due to Earth's orbit around the Sun, we need to differentiate between solar and sidereal time. A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. 
+
+We can compute the sidereal time in seconds via Eq \ref{eq:date_to_sidereal}.
+
+\begin{equation} \label{eq:date_to_sidereal}
+  \theta_{GMST} = 67310.54841
+        + (3.15576e+09 + 8640184.812866) T_{UT1}
+        + 0.093104 T_{UT1}^2
+        - 6.2 \cdot 10^{-6} T_{UT1}^3
+\end{equation}
+
+\subsection{Time Scales}
+
+There are many slightly different scales for measuring the passage of time. What follows is a minimal treatment of each. For a more comprehensive overview, see the descriptions in Vallado that this section draws from \cite{vallado4ed}. International Atomic Time (TAI) is based on measurements from atomic clocks. Universal Time (UT0) is derived directly from observations of the apparent position of the stars. UT1 is derived from UT0 by adjusting for polar motion. UT1 is offset from TAI by $\Delta UT1$, which is a dynamic quantity that must be continually observed. Universal Coordinated Time (UTC) is a truncation of UT1 that uses an integer number of leap seconds $\Delta AT$ to stay within $0.9$ seconds of TAI. Terrestrial Time (TT) is defined by a constant offset of $32.184$ seconds from TAI and preceeding at the same rate as TAI. Global Positioning System (GPS) time is also defined by a constant offset of $19.0$ seconds from TAI and preceeds at the same rate as TAI. These time scale relations are summarized in Eq \ref{eq:time_scale_conversions}.
+
+\begin{align*}  \label{eq:time_scale_conversions} \numberthis
+  UTC &= UT1 - \Delta UT1 \\
+  TAI &= UTC + \Delta AT \\
+  TT &= TAI + 32.184^s \\
+  TAI &= GPS + 19.0^s
+\end{align*}
+
+Figure \ref{fig:time_scales} shows the evolution of UTC, UT1, and TT with respect to TAI. Notice that $\Delta UT1$ continually changes while $\Delta AT$ is always an integer.
+
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_time_systems_001.png}
-  \caption{Time systems relative to TAI}
-  \label{fig:time_systems}
+  \caption{Time scales relative to TAI}
+  \label{fig:time_scales}
 \end{figure}

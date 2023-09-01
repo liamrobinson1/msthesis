@@ -1,4 +1,16 @@
 \ProvidesFile{ch-introduction.tex}[Introduction]
 \chapter{Introduction}
 
-This is the introduction
+The uncontrolled proliferation of human-made space debris puts space operations at risk. Determining the current state and predicting the future dynamics of space objects is critical for many fields within Space Domain Awareness (SDA) \cite{frueh2019notes}. Estimating the shape of an object helps analysts characterize it, but doing so is difficult as distance and atmospheric turbulence prevents direct imaging \cite{fan2020thesis}. As a result, passive techniques for object characterization often rely on light curves --— optical brightness measurements collected over time. Light curves are particularly efficient for the task as they are inexpensive to collect and contain information about the shape, orientation, and material properties of the object that produced them [2], [3]. Solving light curve inversion in a general case would enable robust active debris removal, anomaly detection, and collision avoidance, all of which rely on accurate shape information.
+
+\subsection{Contributions}
+
+The framework detailed in this work contributes to the light curve simulation and shape inversion literature in a few notable areas. 
+
+\subsubsection{Simulation Advances}
+
+A high-fidelity light curve simulator called LightCurveEngine was developed to support inversion algorithm development. The simulator is one to four orders of magnitude faster than ray tracing-based renderers commonly used in literature \cite{fan2019, allworth2020}. It supports variable material properties, a variety of reflection functions, and dynamic solar panel rotation. In concert with the comprehensive background signal model and observer constraints, the engine generates realistic light curves for inactive debris, highly non-convex objects, and actively-controlled satellites. 
+
+\subsubsection{Shape Inversion Advances for Convex Objects}
+
+This work presents a suite of changes that robustify the classical shape inversion algorithm for convex shapes \cite{robinson2022}. New resampling and merging steps in the Extended Gaussian Image optimization stage yield sparser and more accurate shapes that are easier to reconstruct. An alternative optimization method for the shape support vector decreases convergence time for highly symmetric objects where the classical optimization algorithm fails
