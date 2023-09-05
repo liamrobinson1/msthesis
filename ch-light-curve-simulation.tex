@@ -1,6 +1,141 @@
 \ProvidesFile{ch-light-curve-simulation.tex}[Light Curve Simulation]
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
 \chapter{Light Curve Simulation}
+
+\section{Implicit and Explicit Shape Representations}
+
+A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, signed distance functions (SDFs) may be used to implicitly define ray traced shapes. An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the object. The object is then easily rendered via ray marching. A ray is cast for each pixel of the screen, each of which performs distance queries along its length eminating from the camera until it intersects the object or diverges. 
+
+By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the simplest case, object faces --- equivalently called facets --- are defined by triangles. This means that at the scale of the individual facets, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for our application. Human-made space objects like most satellites are mostly composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
+
+\section{The Wavefront OBJ File Format}
+
+One common text file format for 3D model files is \texttt{.obj}, developed by Wavefront Technologies in the early 1990s \cite{obj_format}. Each OBJ file consists of a list of vertex positions and facet definitions, with optional vertex normals and tangents. To illustrate this, the \texttt{.obj} listing for a cube is included for reference in the appendix \ref{sec:obj_listing}. Given the vertex positions and adjacency information stored in the model file, useful properties of the object can be computed for use later in both light curve simulation and shape inversion. For each triangular facet of the model defined by vertices $\left(v_1, v_2, v_3\right)$, the outward-pointing facet normal is computed with
+
+\begin{equation} \label{eq:facet_normal}
+    \hat{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
+\end{equation}
+
+The face area is computed with
+
+\begin{equation} \label{eq:facet_areas}
+    a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
+\end{equation}
+
+The support of each face --- the perpendicular distance from the origin to the plane defining the facet --- is computed with
+
+\begin{equation} \label{eq:facet_support}
+    h = v_1 \cdot \hat{n}.
+\end{equation}
+
+The volume of the entire object is compute with
+
+\begin{equation} \label{eq:object_volume}
+    \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vec{h}_i \cdot \vec{a}_i.
+\end{equation}
+
+In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of facets defining the object. $\vec{h}$ and $\vec{a}$ are column vectors collecting all facet supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th facet with
+
+\begin{equation} \label{eq:egi_definition}
+    \vec{E}_i = \vec{a}_i \vec{n}_i.
+\end{equation}
+
+\section{Selected Satellite Models}
+
+Most of the analysis in this work used one of the 3D model files shown in Figure \ref{fig:satellite_lineup}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\figbig]{sphx_glr_satellite_lineup_001.png}
+    \caption{Selected space objects with soccer field for size reference. In order, the objects are TESS, Starlink V1, TDRS, Landsat 8, Hispasat 30W-6, Saturn V SII, TELSTAR 19V, HYLAS 4, and simplified ASTRA.
+    }
+    \label{fig:satellite_lineup}
+\end{figure}
+
+Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
+
+\section{The Bidirectional Reflectance Distribution Function}
+
+Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, all important optical interactions must be modeled. In broad terms, this boils down to determining how the object is lit and how it is shadowed. 
+
+At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of the facets. If the facets are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the facets normals are at large angles to each other, the surface may appear dull as the outgoing direction of the light may be completely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface can also change the macroscopic properties of the material. 
+
+This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool developed in computer graphics to address this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by Eq \ref{eq:brdf_def} \cite{duvenhage2013}.
+
+\begin{equation}
+    f_r(\vctr{x}, L \rightarrow O) = \frac{d\mathcal{R}\left(\vctr{x} \rightarrow O\right)}{d\mathcal{I}\left(L \rightarrow \vctr{x}\right)}.
+    \label{eq:brdf_def}
+\end{equation}
+
+In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface the BRDF is evaluated at. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L \rightarrow O)$ and $f_r(L \rightarrow O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot leave the surface than was incident on it, neglective thermal effects. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs must take on nonnegative values for all inputs \cite{montes2012}. A surface cannot reflect negative light, so this should feel natural. Explicitly, energy conservation is expressed by Eq \ref{eq:brdf_energy_cons} \cite{montes2012}.
+
+\begin{equation} \label{eq:brdf_energy_cons}
+  \forall L \in \Omega : \:\: \int_{O \in \Omega} f_r(L \rightarrow O) \: d\Omega \leq 1
+\end{equation}
+
+Eq \ref{eq:brdf_energy_cons} states that for all possible illumination directions $L$ on the hemisphere $\Omega$ you can integrate all possible outgoing observer directions $O$ on the hemisphere and end up with equal or less energy than you started with. Reciprocity can also be formalized via \ref{eq:brdf_reciprocity}.
+
+\begin{equation} \label{eq:brdf_reciprocity}
+  \forall L, O \in \Omega : \:\: f_r(L \rightarrow O) = f_r(O \rightarrow L)
+\end{equation}
+
+\subsection{BRDF Formulations}
+
+The following BRDFs are all energy conserving, reciprocal, and nonnegative. \textit{Caveat emptor}: this does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
+
+\subsubsection{Lambertian}
+
+The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
+
+\begin{equation} \label{eq:brdf_lambertian}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi}
+\end{equation}
+
+In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
+
+\subsubsection{Phong}
+
+A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
+
+\begin{equation} \label{eq:brdf_phong}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
+\end{equation}
+
+In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfectly mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
+
+\subsubsection{Blinn-Phong}
+
+The Blinn-Phong BRDF is similar to to the Phong BRDF, but parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+
+\begin{equation} \label{eq:brdf_blinn_phong}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}
+\end{equation}
+
+\subsubsection{Glossy}
+
+TODO
+
+\subsubsection{Cook-Torrance}
+
+TODO
+
+\subsubsection{Oren-Nayar}
+
+TODO
+
+\subsubsection{Ashikhmin-Shirley}
+
+TODO
+
+\subsubsection{Summary}
+
+\begin{figure}[ht]
+  \includegraphics{sphx_glr_brdf_renders_002_2_00x.png}
+  \caption
+  {Implemented BRDFs rendered with arbitrary parameters, demonstrating the qualitative differences between lighting models}
+  \label{fig:brdf_renders}
+\end{figure}
 
 \section{Simulating Convex Objects}
 
@@ -26,15 +161,17 @@ For objects with concavities, self-shadowing refers to shadows cast by an object
 refers to otherwise visible faces blocked by other portions of the geometry.
 
 The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all facets, 
-composed of specular and diffuse contributions. We express each contribution as the product of the
+composed of specular and diffuse contributions. Each contribution is expressed as the product of the
 normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
 the object to yield the noiseless received irradiance.
 
+TODO: add L = Ga stuff
+
 \section{Simulating Non-Convex Objects}
 
-Many existing light curve simulation methods for non-convex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation is necessarily complex as there may be significant self-shadowing at large phase angles. As a result, we cannot assume $\delta_{ij,\text{ss}} = 0$ and $\delta_{ij,\text{os}} = 0$ \cite{frueh2014,fan2020thesis}. In the absense of a bounding volume hierarchy or other techniques to reduce the number of rays cast, ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ facets. For this reason, ray traced shadows quickly become infeasible for complex reference geometries without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
+Many existing light curve simulation methods for non-convex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation is necessarily complex as there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. In the absense of a bounding volume hierarchy or other techniques to reduce the number of rays cast, ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ facets. For this reason, ray traced shadows quickly become infeasible for complex reference geometries without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
 
-For faster and more accurate simulated light curves, we use shadow mapping computed on the GPU. Shadow mapping is a well understood, if dated, technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation, once the inherent aliasing or `shadow acne' was addressed using standard remedies \cite{kolivand2013}. Because shadow mapping shades individual pixel fragments instead of entire facets, it offers increasing shadow quality over facetwise ray tracing as the number of mesh faces falls.
+In the LightCurveEngine, shadow mapping is used for faster and more accurate self-shadowing. Shadow mapping is a well understood, if dated, technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation, once the inherent aliasing or `shadow acne' was addressed using standard remedies \cite{kolivand2013}. Because shadow mapping shades individual pixel fragments instead of entire facets, it offers increasing shadow quality over facetwise ray tracing as the number of mesh faces falls.
 
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 \begin{figure}[!htb]
@@ -44,7 +181,7 @@ For faster and more accurate simulated light curves, we use shadow mapping compu
   \label{hst_shadows_ray}
 \end{figure}
 
-\subsection{Importance of Self-Shadowing for Human-Made Objects}
+\subsection{The Importance of Self-Shadowing}
 
 To motivate the importance of accurate shadowing computation for human-made space objects, consider the error introduced by neglecting shadows for different types of space objects. Kaasalainen and Torppa's work on asteroids reasonably assumed that shadowing was a negligible contribution to the measured light curve. Human-made objects do not afford the same luxury. Figure \ref{fig:hst_bennu_shadows} displays light curves for the asteroid Bennu and the Hubble Space Telescope with and without accurate shadows under a single-axis attitude profile with inertially fixed Sun and observer vectors. Without accurate shadowing, the light curve's magnitude and time derivatives are both dramatically effected.
 
@@ -55,7 +192,7 @@ To motivate the importance of accurate shadowing computation for human-made spac
   \label{fig:hst_bennu_shadows}
 \end{figure}
 
-\subsection{Shadow Mapping for Light Curve Simulation}
+\subsection{Shadow Mapping}
 
 \begin{figure}[!htb]
   \centering
@@ -65,3 +202,5 @@ To motivate the importance of accurate shadowing computation for human-made spac
 \end{figure}
 
 Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, forming a second depth texture. This second texture is used to find the closest fragment along each ray to the Sun, determining the self-shadowing condition \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{lc_func_diffuse}. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL using raylib \cite{raylib}.
+
+TODO: add algorithm pseudocode for lighting shader

@@ -1,0 +1,177 @@
+\ProvidesFile{ch-photometry.tex}[Photometry]
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+
+\chapter{Photometry}
+
+\section{Unresolved Imaging}
+
+TODO: add SNR reduction on CCD image, discuss what it means to be unresolved
+
+\subsection{The Light Curve}
+
+A light curve is a time series of unresolved optical brightness measurements. Once an object is far
+enough away from the observer to become unresolved, all geometric data is lost and the only
+information that remains in the individual measurements is the total brightness. 
+
+\section{Brightness Units}
+
+In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear.
+
+\subsection{Irradiance}
+
+Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
+surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
+\: [m]$ area would experience $10 \: [W]$ of incident power. The Sun's irradiance at a distance of $1$ AU is known as the solar constant and is approximately $1361 \: \left[ \frac{W}{m^2} \right]$. 
+
+Visual magnitude ---  also known as apparent or relative magnitude --- is a reverse logarithmic scale
+that originates in astronomy. Stellar sources span many orders of magnitude of brightness, making a
+logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
+expresses brightness at the observer's location; absolute magnitude is a different quantity that
+normalizes brightness from a distance of $10$ parsecs. Apparent magnitude $m$
+is computed from irradiance via Eq \ref{eq:irradiance_to_mag}.
+
+\begin{equation} \label{eq:irradiance_to_mag}
+  m = -2.5 \log_{10}\left( \frac{I}{I_0} \right)
+\end{equation}
+
+In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_0$ is
+irradiance of the zero-point source. This makes sense; substituting $I = I_0$ returns
+$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_0 = 2.518021002\cdot
+10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
+
+We can rearrange Eq \ref{eq:irradiance_to_mag} to compute irradiance from a given apparent magnitude,
+yielding Eq \ref{eq:mag_to_irradiance}.
+
+\begin{equation} \label{eq:mag_to_irradiance}
+  I = I_0 \cdot 10^{-\frac{m}{2.5}}
+\end{equation}
+
+\subsection{Normalized Irradiance}
+
+The light curve simulation methods presented in this work heavily use normalized irradiance, 
+the irradiance of a source observed from a distance of $1$ meter. This is a non-standard quantity in the literature, but proves useful for the same reasons
+absolute magnitude is used by astronomers. Adjusting sources to be at a standard distance allows us
+to simulate and invert light curves in a non-dimensionalized space. This simplifies simulation and
+makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed
+at a distance $r$ in meters from an object is converted to normalized irradiance $\hat{I}$ in watts via Eq
+\ref{eq:irradiance_to_norm_irradiance}.
+
+\begin{equation} \label{eq:irradiance_to_norm_irradiance}
+  \hat{I} = r^2 I
+\end{equation}
+
+\subsection{$S_{10}$}
+
+While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
+to describe diffuse or extended sources where brightness is spread over an
+area. $S_{10}$ is a unit of surface brightness representing the number of 10th magnitude stars per square degree that would produce the same flux as a given diffuse source.
+Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ rad^2 \right]$ can be converted to total irradiance $I \: \left[ \frac{W}{m^2} \right]$ via Eq \ref{eq:s10toirrad}.
+
+\begin{equation} \label{eq:s10toirrad}
+ \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
+  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}
+\end{equation}
+
+In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
+representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
+spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
+\frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
+speed of light in vacuum. Quantum efficiency has units of photoelectrons which conveys the fraction of incident photons which are (proportionally) converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm} and \ref{data:qe}.
+
+\subsection{Magnitude per Square Arcsecond}
+
+A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond). This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
+magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
+brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
+$\left[ \frac{mag}{arcsec^2} \right]$ via Eq \ref{s10_to_mag_per_a2}.
+
+\begin{equation} \label{s10_to_mag_per_a2}
+	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right)
+\end{equation}
+
+In Eq \ref{s10_to_mag_per_a2} $S_{10}$ is first converted to the total irradiance per square degree,
+convert square degrees to square arcseconds, and transform the result back into apparent magnitude. MPSAS is converted to irradiance per steradian via Eq \ref{eq:mpsas_to_irrad_per_ster} using \ref{eq:mag_to_irradiance}.
+
+\begin{equation} \label{eq:mpsas_to_irrad_per_ster}
+  I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}
+\end{equation}
+
+\subsection{Candela} \label{sec:candela}
+
+Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \ref{eq:cd_to_w_per_sr}.
+
+\begin{equation} \label{eq:cd_to_w_per_sr}
+  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}
+\end{equation}
+
+The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al. is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_luminous_efficiency_001_2_00x.png}
+  \caption{Luminous effiency function from \cite{sharpe2005}}
+  \label{fig:luminous_efficiency}
+\end{figure}
+
+Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding Eq \ref{eq:cd_per_m2_to_mpsas}, which is still a function of the source's wavelength.
+
+\begin{equation} \label{eq:cd_per_m2_to_mpsas}
+  MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_0} \right)
+\end{equation}
+
+\subsection{Photoelectron Counts}
+
+Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron
+counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single
+pixel obtained is directly proportional (via the CCD's gain) to the number of
+photons incident on that pixel during the integration time. Higher order effects in the silicon of
+the CCD makes this description incomplete, but for non-resolved imaging applications
+concerned about, effects smaller than the sensor readout noise and dark current can be safely neglected
+\cite{frueh2019notes}. Irradiance can be converted back and forth to ADU via the conversion factor $SINT$
+in Eq \ref{eq:sint} \cite{krag2003}.
+
+\begin{equation} \label{eq:sint}
+ \textrm{SINT} = \frac{\pi D^2}{4}
+	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+  \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
+\end{equation}
+
+In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
+$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun (generally taken to be
+the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$. Read literally, the integral term as
+units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
+radiation and second of integration time. The aperture diameter factor outside the imtegral accounts
+for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
+\right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
+in seconds will yield the count of photoelectrons $S$ in ADU as shown in Eq \ref{eq:irrad_to_count}.
+
+\begin{equation} \label{eq:irrad_to_count}
+  S = \textrm{SINT} \cdot I \cdot \Delta t
+\end{equation}
+
+For completeness, irradiance can be recovered from a signal in ADU and the integration time via Eq
+\ref{eq:count_to_irrad}.
+
+\begin{equation} \label{eq:count_to_irrad}
+  I = \frac{S}{\textrm{SINT} \cdot \Delta t}
+\end{equation}
+
+\section{Astronomical Spectra}
+
+Four of the quantities needed for the background model vary with wavelength. These are the atmospheric
+transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.  
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_astro_spectra_001_2_00x.png}
+  \caption{Astronomical Spectra}
+  \label{fig:spectra}
+\end{figure}
+
+In practice, the quantum efficiency curve varies by sensor and the thermal conditions of the
+observation. The curve adopted in this work is that used by Krag; modern sensors will often
+perform better.
+
+\section{Telescope Filter Passbands}
+
+TODO: add curves for JC UBVRI and discuss

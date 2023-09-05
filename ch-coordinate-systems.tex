@@ -1,17 +1,32 @@
 \ProvidesFile{ch-coordinate-systems.tex}[Coordinate Systems]
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
+\chapter{Background}
+
 \section{Coordinate Systems}
 
-\subsection{International Terrestrial Reference Frame}
+\subsection{Latitude, Longitude and Altitude}
 
-The most intuitive Earth-centered reference frame is Earth-centered Earth-fixed (ECEF). An ECEF
+\subsubsection{Altitude References}
+
+TODO: ellipsoid, geoid, terrain
+
+\subsection{Topocentric Reference Frame}
+
+TODO: ENU here
+
+\subsection{International Terrestrial Reference Frame (ITRF)}
+
+The most intuitive class of Earth-centered reference frames is the Earth-centered Earth-fixed (ECEF) system. An ECEF
 frame has its origin at the center of mass of the Earth and its axes fixed in the crust. The
-fundamental plane of the frame is defined to be the equator ---  defining the $z$-axis through Earth's
+fundamental plane of the frame is defined to be the equator ---  orienting the $z$-axis through Earth's
 instantaneous spin axis, and the reference direction through the intersection of the prime meridian
-and the equator ---  defining the $x$-axis. Completing the right-handed system the $y$-axis yields a
-reference frame that remains fixed, neglecting continental drift and other pesky (but sufficiently
-negligible) realities. 
+and the equator ---  defining the $x$-axis. Completing the right-handed system with $\hat{y} = \hat{z} \times \hat{x}$ yields a
+reference frame that remains fixed, neglecting effects like continental drift.
+
+\subsection{International Celestial Reference Frame (ICRF)}
+
+TODO
 
 \subsection{Right Ascension and Declination}
 
@@ -21,7 +36,7 @@ of the observation projected onto the inertial $x-y$ plane, measured countercloc
 $\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
 Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x, y, z \right]^T$ in
-inertial space, we can compute RA/Dec via Eq \ref{eq:eci_to_ra_dec}.
+inertial space, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec}.
 
 \begin{equation} \label{eq:eci_to_ra_dec}
   \begin{bmatrix}
@@ -30,13 +45,15 @@ inertial space, we can compute RA/Dec via Eq \ref{eq:eci_to_ra_dec}.
   \end{bmatrix} = 
   \begin{bmatrix}
 	\atantwo(y, x) \\
-	\atantwo(z, \sqrt(x^2 + y^2))
+	\atantwo(z, \sqrt{x^2 + y^2})
   \end{bmatrix}
 \end{equation}
 
+TODO: add visual for the Az/El like Frueh notes fig 4.13
+
 \subsection{Azimuth and Elevation}
 
-Azimuth and elevation, often shortened to Az/El, are similar angular quantities to right ascension and declination, but instead of being based on
+Azimuth and elevation, often shortened to Az/El, are similar angular quantities to right ascension and declination. Instead of being based on
 the inertial sphere, they are referenced to an arbitrary reference frame. For a telescope making
 observations of an object, the local East-North-Up (ENU) frame may be used. For a satellite star
 tracker, star azimuth and elevation might be reported in the satellite body frame. In either case,
@@ -50,7 +67,7 @@ Eq \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\hat{v} = 
   \end{bmatrix} = 
   \begin{bmatrix}
 	\atantwo(y, x) \\
-	\atantwo(z, \sqrt(x^2 + y^2))
+	\atantwo(z, \sqrt{x^2 + y^2})
   \end{bmatrix}
 \end{equation}
 
@@ -65,9 +82,29 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
 \section{Time Systems}
 
+\subsection{Time Scales}
+
+There are many slightly different scales for measuring time. What follows is a minimal treatment of each. For a more comprehensive overview, see Section 3.5 of \cite{vallado4ed}. International Atomic Time (TAI) is based on measurements from atomic clocks and is independent of astronomical effects or observations. By definition, TAI proceeds at the rate of $1$ SI second per second. Universal Time (UT0) is derived directly from observations of the apparent position of the stars. UT1 is derived from UT0 by adjusting for polar motion. UT1 is offset from TAI by $\Delta UT1$, which is a dynamic quantity that must be continually observed. Universal Coordinated Time (UTC) is a truncation of UT1 that uses an integer number of leap seconds $\Delta AT$ to stay within $0.9$ seconds of TAI. Terrestrial Time (TT) is defined by a constant offset of $TT - TAI = 32.184$ seconds from TAI and preceeding at the same rate as TAI. Global Positioning System (GPS) time is defined by a different constant offset of $GPS - TAI = -19.0$ seconds from TAI and preceeds at the same rate as TAI. These time scale relations are summarized in Eq \ref{eq:time_scale_conversions}.
+
+\begin{align*}  \label{eq:time_scale_conversions} \numberthis
+  UTC &= UT1 - \Delta UT1 \\
+  TAI &= UTC + \Delta AT \\
+  TT &= TAI + 32.184^s \\
+  TAI &= GPS + 19.0^s
+\end{align*}
+
+Figure \ref{fig:time_scales} shows the evolution of UTC, UT1, and TT with respect to TAI. Notice that $\Delta UT1$ continually changes while $\Delta AT$ is always truncated to a nearby integer.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_time_systems_001.png}
+  \caption{Time scales relative to TAI}
+  \label{fig:time_scales}
+\end{figure}
+
 \subsection{Julian Date}
 
-Most tasks in space domain awareness and astrodynamics more generally are easier when using a continuous time system. For that reason, we adopt the Julian date. This quantity is defined is the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, we can compute the Julian date via Eq \ref{eq:date_to_jd}.
+Most tasks in astrodynamics are easier when using a continuous time system. For this reason, the Julian date is adopted. This quantity is defined is the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, the Julian date is computed via Eq \ref{eq:date_to_jd}. Note that Eq \ref{eq:date_to_jd} is always a function of the time scale used in the input, i.e., a UTC timestamp yields $JD_{UTC}$ whereas a UT1 timestamp yields $JD_{UT1}$.
 
 \begin{equation} \label{eq:date_to_jd}
   JD = 376Y - \fl{\left[ \frac{7Y + 7 \cdot \fl{\left(\frac{M + 9}{12} \right)}}{4} \right]}
@@ -77,19 +114,17 @@ Most tasks in space domain awareness and astrodynamics more generally are easier
       + \frac{\frac{\left(\frac{s}{60} + 60\right)}{60} + h}{24}
 \end{equation}
 
-Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch. In particular, we will often use the J2000.0 epoch, resulting in Eq \ref{eq:jd_to_t} \cite{vallado4ed}.
+Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch. The J2000.0 epoch is used unless otherwise stated, resulting in Eq \ref{eq:jd_to_t} \cite{vallado4ed}.
 
 \begin{equation} \label{eq:jd_to_t}
   T = \frac{JD - 2451545.0}{36535}
 \end{equation}
 
-Often we need to be more specific about the time scale being used in Eq \ref{eq:jd_to_t}. For example, if we wanted the number of Julian centuries for an input date in UT1, we would compute $T_{UT1}$ using $JD_{UT1}$, which is in turn a function a date timestamp expressed in UT1. 
+Often, more specificity is needed with respect to the time scale used in Eq \ref{eq:jd_to_t}. For example, computing $T$ with an input date in UT1 yields $T_{UT1}$ using $JD_{UT1}$, which is in turn a function a date timestamp expressed in UT1. 
 
 \subsection{Solar and Sidereal Time}
 
-Due to Earth's orbit around the Sun, we need to differentiate between solar and sidereal time. A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. 
-
-We can compute the sidereal time in seconds via Eq \ref{eq:date_to_sidereal}.
+A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. Due to the Earth's orbit around the Sun, the sidereal day is about 4 minutes shorter than the solar day \cite{vallado4ed}. The sidereal time is computed in seconds via Eq \ref{eq:date_to_sidereal}.
 
 \begin{equation} \label{eq:date_to_sidereal}
   \theta_{GMST} = 67310.54841
@@ -97,23 +132,3 @@ We can compute the sidereal time in seconds via Eq \ref{eq:date_to_sidereal}.
         + 0.093104 T_{UT1}^2
         - 6.2 \cdot 10^{-6} T_{UT1}^3
 \end{equation}
-
-\subsection{Time Scales}
-
-There are many slightly different scales for measuring the passage of time. What follows is a minimal treatment of each. For a more comprehensive overview, see the descriptions in Vallado that this section draws from \cite{vallado4ed}. International Atomic Time (TAI) is based on measurements from atomic clocks. Universal Time (UT0) is derived directly from observations of the apparent position of the stars. UT1 is derived from UT0 by adjusting for polar motion. UT1 is offset from TAI by $\Delta UT1$, which is a dynamic quantity that must be continually observed. Universal Coordinated Time (UTC) is a truncation of UT1 that uses an integer number of leap seconds $\Delta AT$ to stay within $0.9$ seconds of TAI. Terrestrial Time (TT) is defined by a constant offset of $32.184$ seconds from TAI and preceeding at the same rate as TAI. Global Positioning System (GPS) time is also defined by a constant offset of $19.0$ seconds from TAI and preceeds at the same rate as TAI. These time scale relations are summarized in Eq \ref{eq:time_scale_conversions}.
-
-\begin{align*}  \label{eq:time_scale_conversions} \numberthis
-  UTC &= UT1 - \Delta UT1 \\
-  TAI &= UTC + \Delta AT \\
-  TT &= TAI + 32.184^s \\
-  TAI &= GPS + 19.0^s
-\end{align*}
-
-Figure \ref{fig:time_scales} shows the evolution of UTC, UT1, and TT with respect to TAI. Notice that $\Delta UT1$ continually changes while $\Delta AT$ is always an integer.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_time_systems_001.png}
-  \caption{Time scales relative to TAI}
-  \label{fig:time_scales}
-\end{figure}
