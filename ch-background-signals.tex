@@ -2,7 +2,7 @@
 \chapter{Background Model}
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
-Whenever an optical telescope is observing a space object, the object's signal is necessarily superimposed on whatever signals exist in the background. In this context, background does not only refer to sources physically further than the object, but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. Background signals can be broken up into atmospheric effects, exoatmospheric effects, and sensor effects. 
+Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much further than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
 \section{Background Signal Sources}
 
@@ -13,7 +13,7 @@ Certain chemical reactions from 80-110 km altitude in the upper atmosphere relea
 airglow. Since these reactions are assumed to be isotropic ---  equally intense when integrated along any
 vertical line extending upwards from the surface. The airglow signal $\textrm{AINT}$ is modeled in a
 similar fashion to integrated starlight. Given the airglow spectra $\textrm{GLINT}(\lambda) \:
-\left[ \frac{W}{m^2\cdot m \cdot rad^2} \right]$, the airglow signal is computed via Eq \ref{eq:aint}.
+\left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the airglow signal is computed via Eq \ref{eq:aint}.
 
 \begin{equation} \label{eq:aint}
  \textrm{AINT} = \frac{\pi D^2}{4}
@@ -21,15 +21,27 @@ similar fashion to integrated starlight. Given the airglow spectra $\textrm{GLIN
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
 \end{equation}
 
-The quantity $\textrm{AINT}$ has units $\left[ \frac{1}{s\cdot rad^2} \right]$, meaning that the
+The quantity $\textrm{AINT}$ has units $\left[ \frac{1}{s\cdot sr} \right]$, meaning that the
 mean airglow signal in ADU per pixel is simply given by Eq \ref{eq:airglow_adu}
 
 \begin{equation} \label{eq:airglow_adu}
-  \bar{S}_{airglow} = AINT \cdot \frac{1}{\cos(\theta_z)} \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
+  \bar{S}_{airglow} = AINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
 \end{equation}
 
-In Eq \ref{eq:airglow_adu}, $\frac{1}{\cos(\theta_z)}$ is known as the Van Rhijn factor, which
-accounts for the accumulation of airmass near the horizon \cite{frueh2019notes}.
+In Eq \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass function which accounts for the accumulation of air along the optical path at different zenith angles \cite{frueh2019notes}. This airmass is termed \textit{relative} as it relates the ratio of absolute airmass at a zenith angle to the absolute airmass at zenith. Often, this function is approximated by the Van-Rhijn factor $\textrm{AM}(\theta_z) = \sec{\theta_z}$ which remains accurate up to $\theta_z \approx 70^\circ$ before diverging to infinity. Instead, a function proposed by Pickering is used \cite{pickering2002}.
+
+\begin{equation} \label{eq:pickering_airmass}
+  \textrm{AM}(\theta_z) = \frac{1}{\sin\left((90 - \theta_z) +  \frac{244}{165 + 47 * \left(90 - \theta_z \right)^{1.1}}\right)}
+\end{equation}
+
+Using Eq \ref{eq:pickering_airmass} instead of the Van-Rhijn factor is important for computing background signals near the horizon. Figure \ref{fig:airmass_fcns} displays this comparison in action.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_vr_factor_001.png}
+  \caption{Airmass function comparison. The Van-Rhijn factor diverges to $+\infty$ while Pickering's function reaches the correct maximum of $\textrm{AM}(\theta_z) \approx 40$.}
+  \label{fig:airmass_fcns}
+\end{figure}
 
 \begin{figure}[ht]
   \centering
@@ -41,12 +53,12 @@ accounts for the accumulation of airmass near the horizon \cite{frueh2019notes}.
 
 \subsection{Light Pollution}
 
-The final source of background noise light pollution. On a cloudless night with negligible light
-pollution, the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2}
+Another source of background noise light pollution. On a cloudless night with low levels of atmospheric aerosols, 
+the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2}
 \right]$ (MPSAS) \cite{krag2003}. As light pollution increases, this zenith brightness may dip down to
 $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith brightness values,
 we use the 2015 World Atlas of Sky Brightness dataset \cite{falchi2016_data}. The data is reported in $\left[
-	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring a conversion to MPSAS. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit Falchi et al.'s example conversions \cite{falchi2016}.  
+	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring conversion to a more useful unit. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit Falchi et al.'s example conversions \cite{falchi2016}.  
 
 \begin{figure}[ht]
   \centering
@@ -55,10 +67,10 @@ we use the 2015 World Atlas of Sky Brightness dataset \cite{falchi2016_data}. Th
   \label{fig:pollution_data}
 \end{figure}
 
-The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{poll,z}$ in MPSAS is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via \ref{eq:pollution_adu}. Note that Krag does not implement a specific light pollution model, but instead takes the dark sky site zenith brightness of $22$ MPSAS as an input to an atmospherically scattered light model. This is simply an adaptation of Krag's model with a variable zenith brightness.
+The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{poll,z}$ in MPSAS, linearly interpolated from the World Atlas dataset, is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via \ref{eq:pollution_adu}. Note that Krag does not implement a specific light pollution model, but instead takes the dark sky site zenith brightness of $22$ MPSAS as input to an atmospherically scattered light model. This is simply an adaptation of Krag's model with a variable zenith brightness.
  
 \begin{equation} \label{eq:pollution_adu}
-  \bar{S}_{pollution} = B_{poll,z} \cdot SINT \cdot \frac{1}{\cos(\theta_z)} \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
+  \bar{S}_{pollution} = B_{poll,z} \cdot SINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
 \end{equation}
 
 \begin{figure}[ht]
@@ -71,13 +83,13 @@ The mean light pollution CCD signal in ADU per pixel is formulated similarly to 
 
 \subsection{Twilight}
 
-Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on our CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. Patat et al.'s model fits a second-degree polynomial in $\gamma$ to approximately 2000 observations, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
+Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on our CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. Patat et al.'s model fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
 
 \begin{equation} \label{eq:b_zenith_twilight}
   B_{twi,z} = 11.84 + 1.518(\gamma - 95^\circ) - 0.057 (\gamma -  95^\circ)^2
 \end{equation}
 
-Eq \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105^\circ$. Before $\gamma 95^\circ$, the zenith brightness is taken to be constant and equal to the brightness at $\gamma 95^\circ$. This is not accurate, but is sufficiently bright to correctly forbid daytime observations by lowering the SNR drastically. After $\gamma = 105^\circ$ the zenith surface brightness is set to $B_{twi,z} == 22$ MPSAS to match the optimal observation condition of the light pollution model \cite{krag2003}. Zenith twilight brightness is plotted as a function of $\gamma$ in Figure \ref{fig:twilight_model}.
+Eq \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105^\circ$. While $\gamma \le 95^\circ$, the zenith brightness is taken to be constant and equal to the brightness at $\gamma = 95^\circ$. This is not accurate, as it predicts daylight to be the brightness of twilight, but is sufficiently bright to correctly forbid daytime observations by lowering the SNR drastically. After $\gamma = 105^\circ$ the zenith surface brightness is set to $B_{twi,z} = 22$ MPSAS to match the optimal observation condition of the light pollution model \cite{krag2003}. Zenith twilight brightness is plotted as a function of $\gamma$ in Figure \ref{fig:twilight_model}.
 
 \begin{figure}[ht]
   \centering
@@ -89,7 +101,7 @@ Eq \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105^\circ
 Computing the mean CCD signal in ADU per pixel due to the twilight brightness proceeds identically to the light pollution formulation. 
 
 \begin{equation} \label{eq:twilight_adu}
-  \bar{S}_{twilight} = B_{twi,z} \cdot SINT \cdot \frac{1}{\cos(\theta_z)} \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
+  \bar{S}_{twilight} = B_{twi,z} \cdot SINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
 \end{equation}
 
 \begin{figure}[ht]
@@ -102,20 +114,19 @@ Computing the mean CCD signal in ADU per pixel due to the twilight brightness pr
 
 \subsection{Integrated Starlight}
 
-Stars are almost always present in optical images of space objects. The brightest stars streaking across the field of view in Figure \ref{fig:pollution_hemi} have high SNRs and stand out clearly against the dark background. This raises a question: if the telescope observes a full $1^\circ \times 1^\circ$ area of the sky, where are the rest of the stars given that the Milky Way alone contains approximately $1\cdot10^{11}$ stars? The answer is relatively obvious: many more stars are present in the image, most of them falling into the background. This residual faint starlight is called "integrated" starlight. 
+Stars are almost always present in optical images of space objects. The brightest stars streaking across the field of view in Figure \ref{fig:pogs_observation_example} have high SNRs and stand out clearly against the dark background. This raises a question: if the telescope observes a full $1^\circ \times 1^\circ$ area of the sky, where are the rest of the stars? The Milky Way alone contains approximately $1\cdot10^{11}$ stars. The answer is clear: many more stars are present in the image, most of them falling into the background. This residual faint starlight is called "integrated" starlight. 
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\figmed]{static_images/static_pogs_raw_image.png}
-  \caption{Raw image of three GEO objects with stars streaking through the background. Taken by the Purdue Optical Ground station at \pogslla by Nathan Houtz}
+  \includegraphics[width=\figmed]{static_images/static_pogs_annotated.png}
+  \caption{Raw image of three GEO objects with stars streaking through the background. As expected the star signals have a variety of signal-to-noise ratios. Taken by the Purdue Optical Ground station at \pogslla by Nathan Houtz.}
   \label{fig:pogs_observation_example}
 \end{figure}
 
-In Figure \ref{fig:pogs_observation_example}, most stars are too faint to appear as points of light on the image plane. Instead, they merge into the background. The signal due to these faint stars is known as integrated starlight.
 Krag \cite{krag2003} modeled this signal by building a $1^\circ \times 1^\circ$ grid of surface
-brightness values for the full right ascension (RA) and declination (Dec) sphere. Krag used the
-Guide Star catalog, which contains 15 million stars down to magnitude 16. Exponential extrapolation
-was used to predict star counts in each bin for higher magnitudes \cite{krag2003}. Twenty years later, larger star catalogs exist that are nearly complete to much dimmer magnitudes. The integrated
+brightness values for the full inertial sphere, parameterized by RA/Dec. Krag used the
+Guide Star catalog, which contains 15 million stars down to apparent magnitude 16. Exponential extrapolation
+was used to predict star counts in each bin for higher magnitudes \cite{krag2003}. Twenty years later, larger star catalogs exist that are nearly complete to much higher apparent magnitudes. The integrated
 starlight catalog used in this work was built from the GAIA catalog with approximately 1.5 billion
 stars down to magnitude 21-22 \cite{gaia_dr3}. The same $1^\circ \times 1^\circ$ grid was computed
 using the \texttt{astroquery.gaia} Python package \cite{astroquery_gaia}. Figure
@@ -145,11 +156,11 @@ through the telescope aperture due to integrated starlight.
 
 \begin{equation} \label{eq:starlightmean}
   \bar{S}_{star} = 10^{-4} \cdot BINT \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot
-  b_{cat}
+  b_{is}
 \end{equation}
 
-In Eq \ref{eq:starlightmean}, $b_{cat}$ is the patched catalog brightness in $\left[ S_{10}
-\right]$, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$, and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
+In Eq \ref{eq:starlightmean}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
+\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaia_patched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$, and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
 
 \begin{figure}[ht]
   \centering
@@ -173,7 +184,7 @@ Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^
   F_{mt} = f(\theta) \left[ F_{rs}(\lambda) + F_{ms}(\lambda) \right]
 \end{equation}
 
-in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness is reflected at an observer viewing the Moon an angle $\theta$ from the Sun vector. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined in Eq \ref{eq:krag_f_corr}.
+in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness is reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined in Eq \ref{eq:krag_f_corr}.
 
 \begin{equation} \label{eq:krag_f_corr}
   f_{corr} = \frac{I_0}{SUN(550 \: \left[\textrm{nm}\right])}
@@ -195,7 +206,7 @@ With all these pieces, the mean scattered moonlight signal in ADU per pixel is c
 
 \subsection{Zodiacal Light}
 
-Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an area that is not of interest --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972}. This reports the surface brightness of the zodiacal light in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via Eq \ref{eq:zodiacal_adu}.
+Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via Eq \ref{eq:zodiacal_adu}.
 
 \begin{equation} \label{eq:zodiacal_adu}
   \bar{S}_{zod} = BINT \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot ZOD \cdot 10^{-4}
@@ -211,15 +222,15 @@ As in the integrated starlight signal, the $10^{-4}$ factor reconciles the $S_{1
   \label{fig:zod_hemi}
 \end{figure}
 
-\subsection{Sampling Background}
+\subsection{Sampling The Background}
 
-Notice that each background signal is only defined in terms of its mean. On a pixel-by-pixel basis, the signal for an exposure is sampled from a Poisson distribution for each background term. This distribution can be interpreted as modeling the number of independent events that occur during a time period. In our case, this translates to individual photons being incident on our sensor. A Poisson distribution is defined on the positive integers by a single parameter $\lambda$ which is both the mean and variance of the distribution. The probability density function (PDF) for the Poisson distribution takes the form of Eq \ref{eq:poisson_pdf} \cite{frueh2019notes}.
+Each background signal is only defined in terms of its mean. On a pixel-by-pixel basis, the signal for an exposure is sampled from a Poisson distribution for each background term. This distribution models the number of independent and identically distributed events that occur during a time period. For CCD astronomy, this translates to the event of a photon hitting the sensor. A Poisson distribution is defined on the positive integers by a single parameter $\lambda$ which is both the mean and variance of the distribution. The probability density function (PDF) for the Poisson distribution takes the form of Eq \ref{eq:poisson_pdf} \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:poisson_pdf}
   P_\lambda(x=k) = \frac{\lambda^k e^{-\lambda}}{k!}
 \end{equation}
 
-This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. Since our background sources are assumed to be independent as sources like moonlight and zodiacal light are clearly distinct; if the Moon vanished, interplanetary dust across the solar system would reflect light identically. As a result, the total background signal is equivalent to a single Poisson variable.
+This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. Our background sources are reasonably assumed to be independent as they each originate from distinct physical processes.
 
 \begin{equation} \label{eq:background_poisson}
   \lambda_{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_{moon} + \bar{S}_{zod}
@@ -231,10 +242,10 @@ Drawing samples from the Poisson distribution defined by $\lambda_{background}$ 
 
 Some background signals are more impactful than others. Table \ref{tb:signal_importance} details the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
 
-\begin{table}[] \label{tb:signal_importance}
+\begin{table}[]
   \begin{tabular}{|l|l|}
   \hline
-  \textbf{Signal source} & \textbf{Magnitude} $\mathbf{\left[ e^- / \textbf{pix}\right]}$ \\ \hline
+  \textbf{Source} & \textbf{Magnitude} $\mathbf{\left[ e^- / \textbf{pix}\right]}$ \\ \hline
   Airglow                & $10^3 - 10^4$                              \\ \hline
   Scattered moonlight    & $0 - 10^5$                                 \\ \hline
   Integrated starlight   & $10^1 - 10^2$                              \\ \hline
@@ -243,6 +254,7 @@ Some background signals are more impactful than others. Table \ref{tb:signal_imp
   Twilight               & $10^1 - 10^7$                              \\ \hline
   \end{tabular}
   \caption{Background signal importance}
+  \label{tb:signal_importance}
 \end{table}
 
 \section{Sensor Effects}

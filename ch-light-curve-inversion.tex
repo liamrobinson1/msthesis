@@ -4,7 +4,7 @@
 
 \section{Direct Inversion}
 
-Traditionally, direct light curve inversion involves two distinct steps: a linear least squares problem to fit an EGI to the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis}. The first step uses data-driven estimation to yield a valid and accurate EGI through a linear optimization. The second step is highly nonlinear and scales badly with facet count and geometric asymmetry, as discussed by Fan in \cite{fan2019}.
+Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to fit an EGI to the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}.
 
 \subsection{The Extended Gaussian Image} \label{sec:egi_definition}
 
@@ -16,57 +16,61 @@ The discrete EGI $\vec{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit v
 
 In the context of shape inversion, the $m$ vectors $\hat{n}$ should be a relatively uniform tessellation of the unit sphere. A convex polytope can be uniquely represented by an EGI of facet normal vectors scaled by each facet's area. The set of normal vectors in an EGI is denoted $\mathcal{N}$ with the set of areas denoted $\mathcal{A}$. The vector of facet areas is denoted $\vec{a} \in \mathbb{R}^{m \times 1}$. The norm of the EGI is nottated $\| \vec{E} \| = \vec{a}$ with the `size' of the EGI $\|\vec{E}\| = m$.
 
-The solution to the Minkowski problem proves the existence and uniqueness of a convex polytope for an EGI that satisfies the closure condition in Eq. \ref{egi_closure} \cite{minkowski1909}. Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polytope --- with no open boundaries, up to a translation.
+The solution to the Minkowski problem proves the existence and uniqueness of a convex polytope for any EGI satisfying the closure condition in Eq \ref{eq:egi_closure} \cite{minkowski1909}. Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polytope --- with no open boundaries, up to a translation.
 
-\begin{equation} \label{egi_closure}
+\begin{equation} \label{eq:egi_closure}
   \sum_{i=1}^m a_i \hat{n}_i = [0, 0, 0]
 \end{equation}
 
-While a given EGI uniquely represents a polytope, it is shared by an infinite number of non-convex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family} where larger circles indicate greater relative areas assigned to a given normal vector.
+While a given EGI uniquely represents a polytope, that same EGI could also be interpreted to be an infinite number of non-convex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family}.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{convex_non_open_egis.png}
-  \caption{Simplified convex, non-convex, and open EGI nonuniqueness}
+  \caption{Simplified convex, non-convex, and open EGI nonuniqueness. Larger circles indicate greater relative areas assigned to a given normal vector.}
   \label{fig:egi_family}
 \end{figure}
 
 \subsection{EGI Optimization}
 
-The EGI fulfills two important criteria when applied to light curve inversion: it can be estimated directly from the light curve, attitude profile, and material properties, and uniquely represents a convex object \cite{kaasalainen2001}. Furthermore, convex geometry can be reconstructed from the EGI and vice versa through the dual transform \cite{little1985} and the Minkowski problem \cite{minkowski1909}. 
+The EGI fulfills two important criteria for the shape inversion problem: it can be estimated directly from the light curve, attitude profile, and material properties, and uniquely represents a convex object \cite{kaasalainen2001}. Further, the EGI can be transformed into a unique convex object and vice versa through the dual transform and Minkowski problem \cite{little1985, minkowski1909}. 
 
-Once a light curve is obtained, direct shape inversion schemes sample $m$ candidate normal vectors $\hat{n}$ on the unit sphere to fit an EGI to the observed light curve $\vec{L}_\textrm{ref} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vec{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares problem and can be solved efficiently for large numbers of normal vectors and light curve data points:
+Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\hat{n}$ on the unit sphere to fit an EGI to the observed light curve $\vec{L}_\textrm{ref} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vec{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares problem and can be solved efficiently for large numbers of normal vectors and light curve data points:
 
-\begin{equation} \label{area_opt_convex}
-  \min_{a}{\|\vec{L}_{\textrm{ref}} - G \vec{a}\|_2} \:\:\: \textrm{ subject to } \vec{a}_i \geq 0, \: \sum_{i = 1}^{m} \vec{a}_i \hat{n}_i = [0, 0, 0].
+TODO: add description of NNLS and FNNLS
+
+\begin{equation} \label{eq:area_opt_convex}
+  \min_{a}{\|\vec{L}_{\textrm{ref}} - G \vec{a}\|_2} \:\:\: \textrm{ subject to } \vec{a}_i \geq 0.
 \end{equation}
 
-It is important to note that the area estimated with Eq. \ref{area_opt_convex} is necessarily \textit{albedo-area} due to the diffuse reflectivity coefficient $C_d$ in Eq. \ref{lc_func_diffuse}. If the value of $C_d$ is uniform but unknown, the recovered geometry will incorrectly scaled without impacting the face adjacency or relative feature sizes.
+It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is necessarily \textit{albedo-area} due to the diffuse reflectivity coefficient $C_d$ in Eq. \ref{lc_func_diffuse}. If the value of $C_d$ is uniform but unknown, the recovered geometry will incorrectly scaled without impacting the face adjacency or relative feature sizes.
 
-The convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $[g]_{ij}$ defined at time $i$ for each facet $j$ is defined as the normalized received facet irradiance per unit facet area:
+The convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined as the normalized received facet irradiance per unit facet area:
 
 \begin{equation} \label{ref_cond_matrix}
-  [g]_{ij} = \frac{I_{ij}}{I_\textrm{Sun} a_j}.
+  [g]_{ij} = \frac{I_{ij}}{I_0 a_j}.
 \end{equation}
 
-This relationship between the object irradiance and area defines the normalized convex light curve $\vec{L}_{\textrm{convex}}$, that produced by a convex object of facet areas $\vec{a}$ under the attitude profile and lighting conditions that yield $G$.
+This relationship between the object irradiance and area defines the normalized convex light curve $\vec{I}_{\textrm{convex}}$, that produced by a convex object of facet areas $\vec{a}$ under the attitude profile and lighting conditions that yield $G$.
 
 \begin{equation} \label{convex_lc_with_g}
   \vec{L}_{\textrm{convex}} = G \vec{a}
 \end{equation}
 
-The optimization in Eq. \ref{area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibbonaci mapping described by Keinert et al. in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{initial_ico_resampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
+The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibbonaci mapping described by Keinert et al. in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{eq:initial_ico_resampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=150px]{ico_initial_egi.png}
   \caption{Initial icosahedron EGI optimization before resampling}
-  \label{initial_ico_resampling}
+  \label{eq:initial_ico_resampling}
 \end{figure}
+
+TODO: re-do this figure with 2-sphere in python \ref{eq:initial_ico_resampling}
 
 \subsection{EGI Resampling}
 
-We propose a normal vector resampling step to promote a more accurate and sparse EGI. The normal vectors used in Eq. \ref{initial_ico_resampling} are generally correct, with each group clustering around a normal vector of the truth geometry. This clustering behavior occurs when none of the candidate normal vectors are sufficiently close to the truth. Resampling in a cone centered on each initial EGI normal vector provides more accurate candidates for EGI estimation. This process mimics a single optimization step with a much larger $m$, where the coarse EGI is used to exclude areas on the sphere with little or no normal area.
+We propose a normal vector resampling step to promote a more accurate and sparse EGI. The normal vectors used in Eq. \ref{eq:initial_ico_resampling} are generally correct, with each group clustering around a normal vector of the truth geometry. This clustering behavior occurs when none of the candidate normal vectors are sufficiently close to the truth. Resampling in a cone centered on each initial EGI normal vector provides more accurate candidates for EGI estimation. This process mimics a single optimization step with a much larger $m$, where the coarse EGI is used to exclude areas on the sphere with little or no normal area.
 
 Uniformly sampling a cone of half-angle $\phi$ is accomplished by strategically sampling points on the unit sphere. 
 
@@ -78,36 +82,41 @@ Uniformly sampling a cone of half-angle $\phi$ is accomplished by strategically 
   \end{bmatrix}
 \end{equation}
 
-In Eq. \ref{cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest.
+In Eq. \ref{cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\hat{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. This means that we can define the principal rotation parameter form of this transformation, which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}, as
 
-The number of new candidates sampled per initial solution vector and the cone half-angle should be adjusted on a case-by-case basis depending on the compute power available and light curve data quality.
+\begin{align*} \label{eq:cone_sampling_rv} \numberthis
+  \theta &= \cos^{-1}\left( \hat{n}_{cone,z} \right) \\
+  \lambda &= \hat{n}_{cone} \times [0, 0, 1]^T.
+\end{align*}
 
-Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedman \cite{friedman2020}, and Cabrera \cite{cabrera2021} are limited by a single normal vector sampling step, leading to a lack of accuracy and sparsity in the optimized EGI. High-density normal vector sampling in regions known to contain non-zero area leads to EGI solutions that are generally more sparse and cluster more tightly about true normal vectors.
+The number of new candidates sampled per initial solution vector and the cone half-angle should be adjusted on a case-by-case basis depending on the compute power available and light curve data quality. Multiple iterative methods exist for solving nonnegatively constrained least squares (NNLS) problems. The classical NNLS algorithm was published by Lawson and Hanson and improved later by Bro and De Jong in their Fast NNLS (FNNLS) approach \cite{lawson1976, bro1996}.
 
-This process is shown in Figure \ref{resampled_ico_ns} for the same icosahedron with a half-angle $\phi = \frac{\pi}{20}$ and sampling density of $50$ candidate vectors per cone.
+Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedman \cite{friedman2020}, and Cabrera \cite{cabrera2021} are limited by a single normal vector sampling step, leading to a lack of sparsity in the optimized EGI. High-density normal vector sampling in regions known to contain non-zero area leads to EGI solutions that are generally more sparse and cluster more tightly about true normal vectors.
+
+This process is shown in Figure \ref{fig:resampled_ico_ns} for the same icosahedron with a half-angle $\phi = \frac{\pi}{20}$ and sampling density of $50$ candidate vectors per cone.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=350px]{ico_resampled_with_flower.png}
   \caption{Resampled normal vectors (left) with reoptimized EGI (right)}
-  \label{resampled_ico_ns}
+  \label{fig:resampled_ico_ns}
 \end{figure}
+
+TODO: remake this figure with 2-sphere
 
 \subsection{EGI Merging}
 
-After resampling and reoptimizing with Eq. \ref{area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\alpha$:
+After resampling and reoptimizing with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\alpha$:
 
 \begin{equation}
   \mathcal{G}_k = \left\{ \vec{E}_i \in \vec{E} \:\| \cos^{-1}\left( \frac{\hat{E}_i \cdot \hat{E}_k}{\|\vec{E}_i \| \| \vec{E}_k \|}\right) < \alpha \right\}.
 \end{equation}
 
-Groups are merged by summing all group members, yielding a single EGI vector $\vec{E}_m$ without loss of total area or closure. 
+In practice, the choice of $\alpha$ is dependent on the user's tolerance for discretization, as merging will approximate smooth geometry by discrete faces with normal vectors offset by $2\alpha$. Groups are merged by summing all group members, yielding a single EGI vector $\vec{E}_m$ without loss of closure. 
 
 \begin{equation} \label{eq:fixing_egi}
   \vec{E}_m = \sum_{\vec{E} \in \mathcal{G}_k}{\vec{E}}
 \end{equation}
-
-In practice, the choice of $\alpha$ is dependent on the user's tolerance for discretization, as merging will approximate smooth geometry by discrete faces with normal vectors offset by $2\alpha$.
 
 Merging the resampled EGI using Figure \ref{resampled_ico_ns} with $\alpha = \frac{\pi}{10}$ produces a final sparse EGI fit for object reconstruction, shown in Figure \ref{ico_merged_egi}. 
 
@@ -118,35 +127,37 @@ Merging the resampled EGI using Figure \ref{resampled_ico_ns} with $\alpha = \fr
   \label{ico_merged_egi}
 \end{figure}
 
+TODO: remake with true EGI on the right
+
 \subsection{Geometry Recovery from the EGI}
 
-At this stage, the resampled and merged EGI represents a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq. \ref{egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
+At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq. \ref{egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
 
 \begin{equation} \label{egi_validation}
   \vec{E}_{\textrm{closed}} = \vec{E}_{\textrm{open}} - \sum_{i=1}^m a_i \hat{n}_i .
 \end{equation}
 
-This step is not a novel contribution. Fan used a more complex optimization problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is inproved with a simpler analytical correction. In practice, this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
+The concept of a closure step is not a novel contribution. Fan's method solved an problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is inproved with a simpler analytical correction. In practice, this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
 
-The unique convex object encoded by each closed EGI is reconstructed by solving for the polytope's set of vertices $\mathcal{V}$ and faces $\mathcal{F}$ encoding the adjacency relations between vertices. This is accomplished following the procedure introduced by Little in \cite{little1983} through the dual transformation. The dual set $\mathcal{D}$ are vertices in $(A, B, C) \in \mathbb{R}^3$ that satisfy the following plane condition for a point $(x, y, z)$ on each facet of the object:
+The unique convex object encoded by each closed EGI is reconstructed by solving for the polytope's set of vertices $\mathcal{V}$ and faces $\mathcal{F}$ encoding the adjacency relations between vertices. This is accomplished following the procedure introduced by Little through the dual transformation \cite{little1983}. The dual set $\mathcal{D}$ are vertices in $(A, B, C) \in \mathbb{R}^3$ that satisfy the following plane condition for a point $(x, y, z)$ on each face of the object:
 
 \begin{equation} \label{dual_abc_form}
   Ax + By + Cz + 1 = 0
 \end{equation}
 
-If $(x, y, z)$ are chosen to be the closest points in the object's planes to the origin, the dual set $\mathcal{D}$ can be expressed in terms of the EGI and a support vector $\vec{h} \in \mathbb{R}^{\|F\| \times 1}$. The support vector is the perpendicular distance of each facet defining the object to the origin.
+If $(x, y, z)$ are chosen to be the closest points in the object's planes to the origin, the dual set $\mathcal{D}$ can be expressed in terms of the EGI and a support vector $\vec{h} \in \mathbb{R}^{\|F\| \times 1}$, as expressed in Eq \ref{eq:dual_egi_form}. The support vector is the perpendicular distance of each face defining the object to the origin.
 
-\begin{equation} \label{dual_egi_form}
+\begin{equation} \label{eq:dual_egi_form}
   \mathcal{D} = \frac{\vec{E}}{ \| \vec{E} \| \vec{h}}
 \end{equation}
 
-The object's vertices $\vec{v}_{ref}$ are found by computing the convex hull of dual set vertices. Triplet of vertices on the resulting faces are used to find a single real vertex by intersecting the three planes defining the dual set vertices.
+The object's vertices $\vec{v}_{ref}$ are found by solving a linear system of equations for each face on the convex hull of dual set vertices. Triplets of vertices on the resulting faces are used to find a single real vertex by intersecting the three planes defining the dual set vertices.
 
 \begin{equation}
   \begin{bmatrix}
     v_{ref,x} \\
-    v_{ref,Y} \\
-    v_{ref,Z} \\
+    v_{ref,y} \\
+    v_{ref,z} \\
   \end{bmatrix} = \begin{bmatrix}
     v_{i,x} & v_{j,x} & v_{k,x} \\
     v_{i,y} & v_{j,y} & v_{k,y} \\
@@ -156,7 +167,7 @@ The object's vertices $\vec{v}_{ref}$ are found by computing the convex hull of 
   \end{bmatrix}
 \end{equation}
 
-Convex face adjacency information is found by triangulating the convex hull of all reference vertices. The accuracy of the recovered geometry is entirely dependent on the correctness support vector $\vec{h}$ used to produce the dual set. Finding the true support vector is the challenge of the final optimization in convex shape inversion.
+Convex face adjacency information is found by triangulating the convex hull of all reference vertices. The accuracy of the recovered geometry is entirely dependent on the correctness of the support vector $\vec{h}$ used to produce the dual set. Finding the true support vector is the challenge of the final optimization in convex shape inversion.
 
 \subsection{Support Vector Optimization}
 
@@ -174,7 +185,7 @@ TODO: description of the optimization
 
 Many human-made space objects are, as highlighted in Figure \ref{hst_bennu_shadows}, highly non-convex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{little_problem} cannot recover non-convex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
 
-We can retain information about large, unilateral object concavities during  EGI estimation in Eq. \ref{area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Eq. \ref{eq:fixing_egi} is still employed.
+We can retain information about large, unilateral object concavities during  EGI estimation in Eq. \ref{eq:area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Eq. \ref{eq:fixing_egi} is still employed.
 
 The mean axis of prominent concave features is determined by measuring the divergence of the optimized EGI from a closed object with the magnitude of the closure error $\vec{e}_{EGI}$.
 
@@ -205,7 +216,7 @@ Subdividing the initial convex object guess is essential for retaining object de
 
 \subsubsection{Vertex Classification and Displacement}
 
-When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2$ to the error vector must be updated. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Eq. \ref{area_opt_convex} and EGI correction step Eq. \ref{egi_validation}. Selecting the angle deflect $\pi/2$ updates all faces above the horizon from the EGI error vector. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces.
+When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2$ to the error vector must be updated. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Eq. \ref{eq:area_opt_convex} and EGI correction step Eq. \ref{egi_validation}. Selecting the angle deflect $\pi/2$ updates all faces above the horizon from the EGI error vector. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces.
 
 Vertices on free faces are further classified as being \textit{root-adjacent} or \textit{free}. Root-adjacent vertices are part of at least one root face, whereas free vertices belong to only free faces. Classifying vertices in this way results in a border of root-adjacent vertices around the interior free vertices, visualized in Figure \ref{fig:root_and_free}.
 
