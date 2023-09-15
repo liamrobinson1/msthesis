@@ -3,15 +3,21 @@
 
 \chapter{Photometry}
 
-\section{Unresolved Imaging}
+\section{Astronomical Spectra}
 
-TODO: add SNR reduction on CCD image, discuss what it means to be unresolved
+Four of the quantities needed for the background model vary with wavelength. These are the atmospheric
+transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
 
-\subsection{The Light Curve}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_astro_spectra_001_2_00x.png}
+  \caption{Astronomical Spectra from \cite{krag2003}}
+  \label{fig:spectra}
+\end{figure}
 
-A light curve is a time series of unresolved optical brightness measurements. Once an object is far
-enough away from the observer to become unresolved, all geometric data is lost and the only
-information that remains in the individual measurements is the total brightness. 
+In practice, the quantum efficiency curve varies by sensor and the thermal conditions of the
+observation. The curve adopted in this work is that used by Krag; modern sensors will often
+perform better.
 
 \section{Brightness Units}
 
@@ -24,10 +30,10 @@ surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]
 \: [m]$ area would experience $10 \: [W]$ of incident power. The Sun's irradiance at a distance of $1$ AU is known as the solar constant and is approximately $1361 \: \left[ \frac{W}{m^2} \right]$. 
 
 Visual magnitude ---  also known as apparent or relative magnitude --- is a reverse logarithmic scale
-that originates in astronomy. Stellar sources span many orders of magnitude of brightness, making a
+that originates in astronomy \cite{frueh2019notes}. Stellar sources span many orders of magnitude of brightness, making a
 logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
 expresses brightness at the observer's location; absolute magnitude is a different quantity that
-normalizes brightness from a distance of $10$ parsecs. Apparent magnitude $m$
+normalizes brightness from a distance of $10$ parsecs \cite{frueh2019notes}. Apparent magnitude $m$
 is computed from irradiance via Eq \ref{eq:irradiance_to_mag}.
 
 \begin{equation} \label{eq:irradiance_to_mag}
@@ -98,10 +104,10 @@ convert square degrees to square arcseconds, and transform the result back into 
 
 \subsection{Candela} \label{sec:candela}
 
-Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \ref{eq:cd_to_w_per_sr}.
+Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via Eq \ref{eq:cd_to_w_per_sr} \cite{nist_units}
 
 \begin{equation} \label{eq:cd_to_w_per_sr}
-  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}
+  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
 \end{equation}
 
 The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al. is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
@@ -127,7 +133,7 @@ pixel obtained is directly proportional (via the CCD's gain) to the number of
 photons incident on that pixel during the integration time. Higher order effects in the silicon of
 the CCD makes this description incomplete, but for non-resolved imaging applications
 concerned about, effects smaller than the sensor readout noise and dark current can be safely neglected
-\cite{frueh2019notes}. Irradiance can be converted back and forth to ADU via the conversion factor $SINT$
+\cite{frueh2019notes}. Irradiance can be converted to ADU via the conversion factor $SINT$
 in Eq \ref{eq:sint} \cite{krag2003}.
 
 \begin{equation} \label{eq:sint}
@@ -155,22 +161,6 @@ For completeness, irradiance can be recovered from a signal in ADU and the integ
 \begin{equation} \label{eq:count_to_irrad}
   I = \frac{S}{\textrm{SINT} \cdot \Delta t}
 \end{equation}
-
-\section{Astronomical Spectra}
-
-Four of the quantities needed for the background model vary with wavelength. These are the atmospheric
-transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.  
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_astro_spectra_001_2_00x.png}
-  \caption{Astronomical Spectra}
-  \label{fig:spectra}
-\end{figure}
-
-In practice, the quantum efficiency curve varies by sensor and the thermal conditions of the
-observation. The curve adopted in this work is that used by Krag; modern sensors will often
-perform better.
 
 \section{Telescope Filter Passbands}
 

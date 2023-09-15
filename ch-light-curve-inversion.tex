@@ -2,7 +2,7 @@
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 \chapter{Light Curve Shape Inversion}
 
-\section{Direct Inversion}
+\section{Direct Convex Shape Inversion}
 
 Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to fit an EGI to the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}.
 
@@ -235,7 +235,7 @@ Given the estimated internal angle $\psi_{est}$ and the error vector $\hat{e}_{E
 
 where $p_i$ is the distance from each $i$th free vertex to the nearest root-adjacent vertex.
 
-\section{Non-Convex Object Reconstruction Results}
+\section{Object Reconstruction Results}
 
 Displacing free vertices in the EGI error vector direction by $d_i$ yields accurate concavities for objects whose concave boundaries lie in a plane. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:non_convex_recon_of_non_convex} using the same attitude profiles and as in Figure \ref{convex_grid}. 
 
@@ -258,3 +258,7 @@ This vertex displacement scheme will negligibly impact the convex guess if the t
 \end{figure}
 
 Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility of vertex displacement with truly convex objects. All objects are reconstructed faithfully in both their convex and non-convex inversions, with the same caveats noted in the discussion following Figure \ref{convex_grid}. Some truly sharp edges are rounded during mesh subdivision as seen in the gem or rectangular prism. That said, others like the cylinder become more accurate as subdivision reintroduces continuity lost to discretization in EGI merging.
+
+\section{Shape Inversion With Noisy Measurements}
+
+TODO: write

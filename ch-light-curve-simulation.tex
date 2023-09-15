@@ -3,6 +3,14 @@
 
 \chapter{Light Curve Simulation}
 
+\section{Dynamics}
+
+\subsection{Orbital Dynamics}
+
+\subsubsection{SGP4}
+
+TODO
+
 \section{Implicit and Explicit Shape Representations}
 
 A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 

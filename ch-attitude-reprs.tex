@@ -4,11 +4,11 @@
 
 \section{Attitude Representations}
 
-When discussing about the orientation of a rigid body in three dimensions, otherwise known as its attitude, that orientation is implicitly understood to be relative to some other reference frame. The orientation of a book might be expressed using a frame fixed in the table it sits on. If the same book was floating in an empty void with no points of reference, there would be no reference to orient it relative to. Orientation itself is a three-dimensional quantity. Consider two reference frames: one fixed in a rigid object and a second external frame. The frame fixed in the object is known as the body frame, the second frame is known as the world frame. Any effective attitude representation must let express the directions of all three body axes in terms of the world frame basis vectors to fully define relative orientation. This raises an important question: how many numbers are needed to express an object's attitude? The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
+When discussing about the orientation of a rigid body in three dimensions, otherwise known as its attitude, that orientation is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
 
 \subsection{The Direction Cosine Matrix}
 
-The most obvious parameterization for attitude is the direction cosine matrix (DCM), a $3\times3$ symmetric matrix with determinant 1. The DCM is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes vectors in the $\rf{n}$ frame to the $\rf{b}$ frame:
+The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes vectors in the $\rf{n}$ frame to the $\rf{b}$ frame:
 
 \begin{equation}
     \vrf{b}{r} = \dcm{bn} \vrf{n}{r}
@@ -18,7 +18,7 @@ The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such tha
 
 \subsection{Principal Rotation Parameters}
 
-Another core attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation via \ref{eq:dcm_to_prp} \cite{shuster1993}.
+Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation via \ref{eq:dcm_to_prp} \cite{shuster1993}.
 
 \begin{align*} \numberthis \labelAndRemember{eq:dcm_to_prp}
     {
@@ -48,7 +48,7 @@ This operator is useful as it rephrases the cross product as matrix multiplicati
 
 \subsection{Quaternions}
 
-The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by Eq \ref{eq:prp2quat}.
+The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by Eq \ref{eq:prp2quat} \cite{crassidis1ed}.
 
 \begin{equation} \labelAndRemember{eq:prp2quat}
     {
@@ -56,20 +56,20 @@ The quaternion represents attitude with a point on the surface of the hyperspher
     }
 \end{equation}
 
-The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaterion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP via Eqs \ref{eq:quat2prp_theta}.
+The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaterion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via
 
 \begin{align*} \numberthis \labelAndRemember{eq:quat2prp_theta} 
     {
     \theta &= \cos^{-1}\left(q_4 \right) \\
-    \lambda &= \frac{\vctr{q}_{1:3}}{\sin{\theta}}
+    \lambda &= \frac{\vctr{q}_{1:3}}{\sin{\theta}}.
     }
 \end{align*}
 
-The quaternion maps to the DCM via Eq \ref{eq:quat2dcm}
+The quaternion maps to the DCM \cite{crassidis1ed} via 
 
 \begin{equation} \labelAndRemember{eq:quat2dcm}
     {
-        C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]=\Xi\left(q\right)^T\Psi\left(q\right)
+        C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]=\Xi\left(q\right)^T\Psi\left(q\right).
     }
 \end{equation}
 
@@ -78,16 +78,6 @@ In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
 \begin{equation} \label{eq:quat_psi}
     \Psi = \left[\begin{matrix}q_4&q_3&-q_2\\{-q}_3&q_4&q_1\\q_2&-q_1&q_4\\-q_1&-q_2&-q_3\\\end{matrix}\right].
 \end{equation}
-
-\subsection{The Rotation Vector}
-
-Multiplying the Euler angle by the axis yields an attitude representation similar to the PRP known as the rotation vector (RV), generally denoted $\vctr{p}$. 
-
-\begin{equation} \labelAndRemember{eq:prp2rv}
-    {\vctr{p} = \theta\hat{\lambda}}
-\end{equation}
-
-The RV is the first truly three dimensional representation presented so far. This is advantageous for visualizing sets of orientations, but there are multiple notable issues with any three dimensional embedding of $SO(3)$. Any representation embedded in \rthree loses some of the spherical qualities of \sthree, leading to singularities ---  regions where attitudes are not uniquely defined or are impossible to compute in the first place.
 
 \section{Quaternion Attitude Kinematics}
 

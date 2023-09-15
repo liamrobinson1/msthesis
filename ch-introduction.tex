@@ -1,8 +1,11 @@
 \ProvidesFile{ch-introduction.tex}[Introduction]
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+
 \chapter{Introduction}
 
-Humanity has been creating space debris since the dawn of the space age. Early missions like Vanguard 1 helped set a precedent by leaving both the satellite and the launch vehicle upper stage in orbit, of which are still in orbit in 2023 \cite{vanguard1}. Half a century of increasingly frequent launches has created a space environment cluttered with thousands of debris objects, requiring active satellites in low Earth orbit (LEO) to perform regular avoidance maneuvers. This uncontrolled proliferation of human-made space debris puts space operations at risk. High-profile satellite collisions like Iridium-Cosmos in 2009 have added fuel to the fire, producing shells of debris that further pollute LEO \cite{vallado4ed}. Anti-satellite (ASAT) tests carried out by the USA, Russia, China, and India since the 1960s see nations destroying their own satellites, projecting military strength at the cost of creating more debris \cite{vallado4ed}.
+\section{Problem Statement}
+
+Humanity has been creating space debris since the dawn of the space age. Early missions like Vanguard 1 set a precedent by leaving both the satellite and the launch vehicle upper stage in orbit, of which are still in orbit in 2023 \cite{vanguard1}. Half a century of increasingly frequent launches has created a space environment cluttered with thousands of debris objects, requiring active satellites in low Earth orbit (LEO) to perform regular avoidance maneuvers. This uncontrolled proliferation of human-made space debris puts space operations at risk. High-profile satellite collisions like Iridium-Cosmos in 2009 have added fuel to the fire, producing shells of debris that further pollute LEO \cite{vallado4ed}. Anti-satellite (ASAT) tests carried out by the USA, Russia, China, and India since the 1960s see nations destroying their own satellites, projecting military strength at the cost of creating more debris \cite{vallado4ed}.
 
 \begin{figure}[ht]
     \centering
@@ -11,9 +14,13 @@ Humanity has been creating space debris since the dawn of the space age. Early m
     \label{fig:catalog_comparison}
 \end{figure}
 
-Determining the current state and predicting the future dynamics of space objects is critical for many fields within Space Domain Awareness (SDA) \cite{frueh2019notes}. Estimating the shape of an object helps analysts characterize it, but doing so is difficult as distance and atmospheric turbulence prevents direct imaging \cite{fan2020thesis}. As a result, passive techniques for object characterization often rely on light curves --— optical brightness measurements collected over time. Light curves are particularly efficient for the task as they are inexpensive to collect and contain information about the shape, orientation, and material properties of the object that produced them \cite{fan2020thesis, burton2021mapping}. Solving light curve inversion in a general case would enable robust active debris removal, anomaly detection, and collision avoidance, all of which rely on accurate shape information.
+Determining the current state and predicting the future dynamics of space objects is critical for many fields within Space Domain Awareness (SDA) \cite{frueh2019notes}. High-fidelity orbital propagation, collision avoidance, and fragmentation analysis all rely to accurate object characterization. Characterizing an object refers to estimating one or multiple unknown relevant properties. Estimating the shape of an object helps analysts characterize it, but doing so is difficult as distance and atmospheric turbulence prevents direct imaging \cite{fan2020thesis}. As a result, passive techniques for object characterization often rely on light curves --— optical brightness measurements collected over time. Light curves are particularly efficient for the task as they are inexpensive to collect and contain information about the shape, orientation, and material properties of the object that produced them \cite{fan2020thesis, burton2021mapping}. Solving light curve inversion in a general case would enable robust active debris removal, anomaly detection, and collision avoidance, all of which rely on accurate shape information.
 
-\section{Literature}
+\section{State of the Art}
+
+Light curve shape inversion was first investigated by Russell in 1906, who proposed a spherical harmonic shape representation that could be fit to an asteroid shape \cite{russell1906}. Russell was generally skeptical of the applicability of the method, hypothesizing that there would be ambiguity in the convex shape such that many solutions would fit the data equally well. After nearly a century of relative inactivity in the field, Kaasalainen and Torppa began successfully reconstructing the shapes of asteriods by directly optimizing the directions and areas of candidate faces to produce a convex shape that produces a similar light curve \cite{kaasalainen2000, kaasalainen2001}. Kaasalainen and Torppa also addressed non-convex shape inversion, developing an optimization procedure which performed well at reconstructed the largest nonconvex features \cite{kaasalainen2000}. The authors noted that this method was highly computationally demanding. The work of Kaasalainen and Torppa was extended by Durech and Kaasalainen in 2003, who investigated the observability of nonconvex features in asteroid light curves \cite{durech2003}. The authors noted that many nonconvex features are only observable at high phase angles, where self-shadowing effects become pronounced in the light curve. They further note that uncertainty in the surface optical properties generally means that small local features cannot be recovered through light curve inversion \cite{durech2003}. Using the methods originally proposed by Kaasalainen and Torppa, a collaborative effort between observatories lead to the publication of Database of Asteroid Models from Inversion Techniques (DAMIT), a publicly-available repository of convex asteroid models \cite{damit2014}. In 2022, Chng et al.~ investigated the 
+
+Papers in the literature usually propose methods for both light curve simulation and shape inversion. Often, the simulation method
 
 Light curve simulation methods differ between approaches and the object class under study. Kaasalainen and Torppa employ a Lambertian model for convex objects with a facetwise ray tracing scheme for non-convex objects \cite{kaasalainen2001}. Fan, Friedman, Kobayashi, and Frueh use a nearly identical scheme for human-made objects \cite{fan2016, fan2020thesis,friedman2020,kobayashi2020,frueh2014}. Allworth et al. developed a ray traced simulator for light curves in Blender, accounting for photorealistic shadowing and motion blur \cite{allworth2020, allworth2021}. Many deep learning approaches including Furfaro et al. \cite{furfaro2019} and Cabrera and Bradley \cite{cabrera2021,bradley2014} use a simple Lambertian model with no self-shadowing. Linares and Crassidis apply a more specialized approach with a non-Lambertian Bidirectional Reflectance Distribution Function (BRDF) for lighting \cite{linares2018space}. McNally et al. use a Phong BRDF without shadowing shadowing, citing computational intensity \cite{mcnally2021}. Blacketer implemented a Cook-Torrance BRDF for lighting with a plane stacking method for self-shadowing \cite{blacketer2022}.
 
@@ -31,15 +38,15 @@ Shape inversion for non-convex objects --- mainly applied to asteroids --- has b
 
 TODO: complete this lit review, add new papers
 
-\subsection{Contributions}
+\section{Contributions}
 
 The framework detailed in this work contributes to the light curve simulation and shape inversion literature in a few notable areas. 
 
-\subsubsection{Simulation Advances}
+\subsection{Simulation Advances}
 
 A high-fidelity light curve simulator called LightCurveEngine was developed to support inversion algorithm development. Depending on the target shape, the simulator is one to four orders of magnitude faster than ray tracing-based renderers commonly used in literature \cite{fan2019, allworth2020}. It supports self-shadowing, variable material properties, a variety of reflection functions, and dynamic solar panel rotation. In concert with a constrained observer model and orbit propabation, the engine generates realistic light curves for inactive debris, highly non-convex objects, and actively-controlled satellites. 
 
-\subsubsection{Advances in Convex Shape Inversion}
+\subsection{Advances in Convex Shape Inversion}
 
 This work presents a suite of changes that build on the classical shape inversion algorithm for convex shapes \cite{robinson2022}. New resampling and merging steps in the Extended Gaussian Image optimization stage yield more accurate shapes that are easier to reconstruct. An alternative optimization method for the shape support vector decreases convergence time for highly symmetric objects where the classical optimization algorithm fails.
 
@@ -47,6 +54,6 @@ The approach presented in this work solves the shape inversion problem beginning
 
 This convex shape inversion method has a number of general advantages. It does not require any \textit{a priori} information about the truth geometry. Thus, unlike MMAE methods \cite{linares2014space}, The presented algorithm does not require a bank of reference models to recover shape information. Unlike deep learning methods, the presented method does not rely on the diversity of a training set to achieve realistic results \cite{furfaro2019,kerr2021}.
 
-\subsubsection{Advances in Non-Convex Shape Inversion}
+\subsection{Advances in Non-Convex Shape Inversion}
 
 While natural space objects like asteroids are largely convex, nearly all human-made space objects are highly non-convex, highlighting the need for a robust inversion scheme for both convex and non-convex space objects.

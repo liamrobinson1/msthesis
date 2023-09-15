@@ -36,7 +36,7 @@ of the observation projected onto the inertial $x-y$ plane, measured countercloc
 $\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
 Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x, y, z \right]^T$ in
-inertial space, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec}.
+inertial space, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec} \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:eci_to_ra_dec}
   \begin{bmatrix}
@@ -53,12 +53,12 @@ TODO: add visual for the Az/El like Frueh notes fig 4.13
 
 \subsection{Azimuth and Elevation}
 
-Azimuth and elevation, often shortened to Az/El, are similar angular quantities to right ascension and declination. Instead of being based on
+Azimuth and elevation, often shortened to Az/El, are similar angular quantities to right ascension and declination \cite{frueh2019notes}. Instead of being based on
 the inertial sphere, they are referenced to an arbitrary reference frame. For a telescope making
 observations of an object, the local East-North-Up (ENU) frame may be used. For a satellite star
 tracker, star azimuth and elevation might be reported in the satellite body frame. In either case,
 Eq \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\hat{v} = \left[ x, y, z
-\right]^T$ is expressed in the frame of interest.
+\right]^T$ is expressed in the frame of interest \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:enu_to_az_el}
   \begin{bmatrix}
@@ -84,16 +84,15 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
 \subsection{Time Scales}
 
-There are many slightly different scales for measuring time. What follows is a minimal treatment of each. For a more comprehensive overview, see Section 3.5 of \cite{vallado4ed}. International Atomic Time (TAI) is based on measurements from atomic clocks and is independent of astronomical effects or observations. By definition, TAI proceeds at the rate of $1$ SI second per second. Universal Time (UT0) is derived directly from observations of the apparent position of the stars. UT1 is derived from UT0 by adjusting for polar motion. UT1 is offset from TAI by $\Delta UT1$, which is a dynamic quantity that must be continually observed. Universal Coordinated Time (UTC) is a truncation of UT1 that uses an integer number of leap seconds $\Delta AT$ to stay within $0.9$ seconds of TAI. Terrestrial Time (TT) is defined by a constant offset of $TT - TAI = 32.184$ seconds from TAI and preceeding at the same rate as TAI. Global Positioning System (GPS) time is defined by a different constant offset of $GPS - TAI = -19.0$ seconds from TAI and preceeds at the same rate as TAI. These time scale relations are summarized in Eq \ref{eq:time_scale_conversions}.
+There are a variety of scales used to measure time. What follows is a minimal treatment of each. For a more comprehensive overview, see Section 3.5 of \cite{vallado4ed}. International Atomic Time (TAI) is based on measurements from atomic clocks and is independent of astronomical effects or observations. By definition, TAI proceeds at the rate of $1$ SI second per second. Universal Time (UT0) is derived directly from observations of the apparent position of the stars. UT1 is derived from UT0 by adjusting for polar motion. UT1 is offset from TAI by $\Delta UT1$, which is a dynamic quantity that must be continually observed. Universal Coordinated Time (UTC) is a truncation of UT1 that uses an integer number of leap seconds $\Delta AT$ to stay within $0.9$ seconds of TAI. Terrestrial Time (TT) is defined by a constant offset of $TT - TAI = 32.184$ seconds from TAI and preceeding at the same rate as TAI. These time scale relations are summarized in Eq \ref{eq:time_scale_conversions}.
 
 \begin{align*}  \label{eq:time_scale_conversions} \numberthis
   UTC &= UT1 - \Delta UT1 \\
   TAI &= UTC + \Delta AT \\
   TT &= TAI + 32.184^s \\
-  TAI &= GPS + 19.0^s
 \end{align*}
 
-Figure \ref{fig:time_scales} shows the evolution of UTC, UT1, and TT with respect to TAI. Notice that $\Delta UT1$ continually changes while $\Delta AT$ is always truncated to a nearby integer.
+These time scales are relevant for this research as the precise coordinate frame transformation from ITRF to the J2000.0 realization of ICRF relies on quanities expressed in UT1. Date timestamps are usually standardized to UTC, requiring the transformations in Eq \ref{eq:time_scale_conversions} for full accuracy. Figure \ref{fig:time_scales} shows the evolution of UTC, UT1, and TT with respect to TAI. Notice that $\Delta UT1$ continually changes while $\Delta AT$ is always truncated to a nearby integer.
 
 \begin{figure}[ht]
   \centering
@@ -124,11 +123,11 @@ Often, more specificity is needed with respect to the time scale used in Eq \ref
 
 \subsection{Solar and Sidereal Time}
 
-A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. Due to the Earth's orbit around the Sun, the sidereal day is about 4 minutes shorter than the solar day \cite{vallado4ed}. The sidereal time is computed in seconds via Eq \ref{eq:date_to_sidereal}.
+A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. Due to the Earth's orbit around the Sun, the sidereal day is about 4 minutes shorter than the solar day \cite{vallado4ed}. The sidereal time is computed in seconds via
 
 \begin{equation} \label{eq:date_to_sidereal}
   \theta_{GMST} = 67310.54841
         + (3.15576e+09 + 8640184.812866) T_{UT1}
         + 0.093104 T_{UT1}^2
-        - 6.2 \cdot 10^{-6} T_{UT1}^3
+        - 6.2 \cdot 10^{-6} T_{UT1}^3.
 \end{equation}
