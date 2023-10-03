@@ -3,10 +3,70 @@
 
 \chapter{Photometry}
 
+\section{Diffraction}
+
+\subsection{Rayleigh Criterion}
+
+Many objects of interest are far past low-Earth orbit, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion. The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that:
+
+\begin{equation} \label{eq:rayleigh_criterion}
+  \sin\theta_R = 1.22 \frac{\lambda}{d}.
+\end{equation}
+
+For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO -- giving an angular radius of $\approx 10^{-7}$ radians -- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
+
+\subsection{The Airy Disk}
+
+The far-field diffraction pattern produced by a point source is known as an Airy pattern \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
+
+\begin{equation} \label{eq:airy_disk}
+  C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
+\end{equation}
+
+In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
+
+\begin{equation} \label{eq:airy_center}
+  C_0 = \frac{\bar{C}_{all}^2 D^2}{2 f^4}.
+\end{equation}
+
+In Eq \ref{eq:airy_center}, $\bar{C}_{all}$ is the total mean signal incident on the CCD due to the source, $D$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_airy_disk_diffraction_001_2_00x.png}
+  \caption{Airy disk diffraction pattern}
+  \label{fig:airy_disk_magnitude}
+\end{figure}
+
+The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. We can fit this Gaussian with a single parameter -- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed:
+
+\begin{equation} \label{eq:fwhm_airy}
+  FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
+\end{equation}
+
+The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect -- known as the \textit{seeing} -- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
+
+\begin{equation} \label{eq:airy_variance}
+  \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
+\end{equation}
+
+The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
+
+\begin{equation} \label{eq:airy_gaussian}
+  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta}{2 \sigma^2} \right)
+\end{equation}
+
+In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
+
+\begin{equation}
+  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta)} \: dy \: dy.
+\end{equation}
+
+
+
 \section{Astronomical Spectra}
 
-Four of the quantities needed for the background model vary with wavelength. These are the atmospheric
-transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
+Four of the quantities needed for the background model vary with wavelength. These are the atmospheric transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
 
 \begin{figure}[ht]
   \centering
@@ -161,7 +221,3 @@ For completeness, irradiance can be recovered from a signal in ADU and the integ
 \begin{equation} \label{eq:count_to_irrad}
   I = \frac{S}{\textrm{SINT} \cdot \Delta t}
 \end{equation}
-
-\section{Telescope Filter Passbands}
-
-TODO: add curves for JC UBVRI and discuss
