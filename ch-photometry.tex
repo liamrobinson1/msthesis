@@ -26,10 +26,10 @@ The far-field diffraction pattern produced by a point source is known as an Airy
 In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
 
 \begin{equation} \label{eq:airy_center}
-  C_0 = \frac{\bar{C}_{all}^2 D^2}{2 f^4}.
+  C_0 = \frac{\bar{C}_{all}^2 A_{aperture}^2}{2 f^4}.
 \end{equation}
 
-In Eq \ref{eq:airy_center}, $\bar{C}_{all}$ is the total mean signal incident on the CCD due to the source, $D$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
+In Eq \ref{eq:airy_center}, $\bar{C}_{all}$ is the total mean signal incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
 
 \begin{figure}[ht]
   \centering
@@ -197,7 +197,7 @@ concerned about, effects smaller than the sensor readout noise and dark current 
 in Eq \ref{eq:sint} \cite{krag2003}.
 
 \begin{equation} \label{eq:sint}
- \textrm{SINT} = \frac{\pi D^2}{4}
+ \textrm{SINT} = A_{aperture}
 	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
 \end{equation}
@@ -209,10 +209,10 @@ units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Wa
 radiation and second of integration time. The aperture diameter factor outside the imtegral accounts
 for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
 \right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
-in seconds will yield the count of photoelectrons $S$ in ADU as shown in Eq \ref{eq:irrad_to_count}.
+in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU as shown in Eq \ref{eq:irrad_to_count}.
 
 \begin{equation} \label{eq:irrad_to_count}
-  S = \textrm{SINT} \cdot I \cdot \Delta t
+  \bar{C}_{all} = \textrm{SINT} \cdot I \cdot \Delta t
 \end{equation}
 
 For completeness, irradiance can be recovered from a signal in ADU and the integration time via Eq

@@ -35,7 +35,7 @@ similar fashion to integrated starlight. Given the airglow spectra $\textrm{GLIN
 \left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the airglow signal is computed via Eq \ref{eq:aint} \cite{krag2003}.
 
 \begin{equation} \label{eq:aint}
- \textrm{AINT} = \frac{\pi D^2}{4}
+ \textrm{AINT} = A_{aperture}
   \int_{10^{-8}}^{10^{-6}}{ \textrm{GLINT}(\lambda) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
 \end{equation}
@@ -148,8 +148,8 @@ Guide Star catalog, which contains 15 million stars down to apparent magnitude 1
 was used to predict star counts in each bin for higher magnitudes \cite{krag2003}. Twenty years later, larger star catalogs exist that are nearly complete to much higher apparent magnitudes. The integrated
 starlight catalog used in this work was built from the GAIA catalog with approximately 1.5 billion
 stars down to magnitude 21-22 \cite{gaia_dr3}. The same $1^\circ \times 1^\circ$ grid was computed
-using the \texttt{astroquery.gaia} Python package \cite{astroquery_gaia}. Figure
-\ref{fig:gaiapatched} shows the computed brightness map, in units of $S_{10}$. 
+using GAIA \cite{astroquery_gaia}, resulting in Figure
+\ref{fig:gaiapatched} which shows the computed brightness map in units of $S_{10}$. 
 
 \begin{figure}[ht]
   \centering
@@ -162,7 +162,7 @@ With this map of exoatmospheric mean brightness of the night sky due to integrat
 starlight, the corresponding signal mean in the telescope CCD is computed, adopting Krag's formulation \cite{krag2003}.
 
 \begin{equation} \label{eq:bint}
- \textrm{BINT} = \frac{\pi D^2}{4}
+ \textrm{BINT} = A_{aperture}
   \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
 \end{equation}

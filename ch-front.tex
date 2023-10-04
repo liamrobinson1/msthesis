@@ -97,6 +97,61 @@
 \begin{symbols}
   $I$& irradiance in $\left[ \frac{W}{m^2} \right]$\cr
   $\hat{I}$& normalized irradiance in $\left[ W \right]$\cr
+  $I_0$ & Irradiance of Vega $\left[ \frac{W}{m^2} \right]$ \cr
+  $m$ & Apparent magnitude $[nondim]$ \cr
+  $JD$ & Julian date \cr
+  $T$ & Julian centuries \cr
+  $\theta_{GMST}$ & Greenwich mean sidereal time \cr
+  $\theta_{r}$ & Angular offset of the first zero of the Airy disk diffraction pattern \cr
+  $C_{Airy}(\theta)$ & CCD signal amplitude due to an Airy disk diffraction pattern $[ADU]$\cr
+  $k$ & Wavenumber \cr
+  $r_d$ & Telescope aperture radius $[m]$ \cr
+  $d$ & Telescope aperture diameter $[m]$ \cr
+  $A_{aperture}$ & Telescope aperture area $[m^2]$ \cr
+  $f$ & Telescope focal length $[m]$ \cr
+  $\lambda$ & Wavelength $[m]$ \cr
+  $FWHM$ & Full width at half maximum \cr
+  $C_{Gauss}(\theta)$ & CCD signal amplitude due to a Gaussian approximation of the Airy disk $[ADU]$ \cr
+  $\textrm{STRINT}(\lambda)$ & Representative zero apparent magnitude star irradiance spectrum $\left[ \frac{W}{m^2 \cdot m} \right]$ \cr
+  $\textrm{QE}(\lambda)$ & Quantum efficiency spectrum $\left[ \frac{ADU}{m} \right]$ \cr
+  $\textrm{ATM}(\lambda)$ & Atmospheric transmission spectrum $\left[ \frac{1}{m} \right]$ \cr
+  $K_{cd}(\lambda)$ & Luminous efficacy spectrum $\left[ \frac{lm}{W} \right]$ \cr
+  $\textrm{SINT}$ & CCD ADU conversion factor $\left[ \frac{ADU}{W \cdot m^{-2} \cdot s} \right]$ \cr
+  $\textrm{SUN}(\lambda)$ & Solar irradiance spectrum $\left[ \frac{W}{m^2 \cdot m} \right]$ \cr
+  $\textrm{GLINT}(\lambda)$ & Airglow radiance spectrum $\left[ \frac{W}{m^2 \cdot m \cdot sr} \right]$ \cr
+  $\textrm{AINT}$ & Intermediate airglow signal $\left[ \frac{1}{s \cdot sr} \right]$ \cr
+  $\theta_z$ & Zenith angle $[rad]$ \cr
+  $\textrm{AM}(\theta_z)$ & Relative airmass function $[nondim]$ \cr
+  $s_{pix}$ & Telescope pixel scale $\left[ \frac{arcsec}{pix} \right]$ \cr
+  $\Delta t$ & CCD integration time $[s]$ \cr
+  $B_{poll,z}$ & Zenith light pollution brightness in magnitudes per square arcsecond \cr
+  $\bar{S}_{airglow}$ & Mean airglow signal $[ADU]$ \cr
+  $\gamma$ & Solar zenith angle $[deg]$ \cr
+  $B_{twi,z}$ & Zenith twilight brightness in magnitudes per square arcsecond \cr
+  $\bar{S}_{twilight}$ & Mean twilight signal $[ADU]$ \cr
+  $\textrm{BINT}$ & Zero magnitude starlight signal $[\frac{ADU}{s}]$ \cr
+  $\bar{S}_{star}$ & Mean integrated starlight signal $[ADU]$ \cr
+  $F_{rs}$ & Moonlight Rayleigh scattering radiance spectrum $\left[ \frac{W}{m^2 \cdot m \cdot sr} \right]$ \cr
+  $F_{ms}$ & Moonlight Mie scattering radiance spectrum $\left[ \frac{W}{m^2 \cdot m \cdot sr} \right]$ \cr
+  $F_{mt}$ & Total scattered moonlight radiance spectrum $\left[ \frac{W}{m^2 \cdot m \cdot sr} \right]$ \cr
+  $f(\theta)$ & Lunar brightness phase function $[nondim]$ \cr
+  $\bar{S}_{moon}$ & Mean scattered moonlight signal $[ADU]$ \cr
+  $\bar{S}_{zod}$ & Mean zodiacal light signal $[ADU]$ \cr
+  $\lambda_{background}$ & Mean of background signal Poisson distribution $[ADU]$ \cr
+  $\hat{n}$ & Face outward pointing unit normal vector \cr
+  $\left( v_1, v_2, v_3 \right)$ & First, second, and third vertices $v_i \in \mathbb{R}^3$ on a given triangular face \cr
+  $h_i$ & Support of the $i$th face \cr
+  $\vec{E}$ & Extended Gaussian Image \cr
+  $f_r$ & Bidirectional Reflectance Distribution Function \cr
+  $L$ & Illumination direction unit vector \cr
+  $O$ & Observation direction unit vector \cr
+  $H$ & Halfway unit vector \cr
+  $C_d$ & Coefficient of diffuse reflection \cr
+  $C_s$ & Coefficient of specular reflection \cr
+  $C_a$ & Coeffieicnt of absorption \cr
+  $n$ & Specular exponent \cr
+
+
 \end{symbols}
 
 % Abstract is required.
@@ -106,5 +161,7 @@
 % and \majorprof.
 % Reference: PU 17.
 \begin{abstract}%
-  Characterizing unknown space objects is an important component of robust space situational awareness. Estimating the shape of an object allows analysts to perform more accurate orbit propagation, probability of collision, and inference analysis about the object's origin. Because most resident space objects of interest are unresolved when observed from the ground, state of the art techniques for object characterization often rely on the light curve -- the time history of the object's observed brightness. This problem is ill-posed without further assumptions; modern direct shape inversion methods require that the attitude profile of the object is known, or at least can be hypothesized. This work describes improvements to light curve simulation and direct shape inversion for non-convex and actively-controlled objects. In particular, this work finds that the proposed non-convex shape inversion method is effective at resolving large concave features, while a parametric approach is effective at fitting the geometry of controlled box wing satellites.
+  Characterizing unknown space objects is an important component of robust space situational awareness. Estimating the shape of an object allows analysts to perform more accurate orbit propagation, probability of collision, and inference analysis about the object's origin. Because most resident space objects of interest are unresolved when observed from the ground, state of the art techniques for object characterization often rely on the light curve -- the time history of the object's observed brightness. This problem is ill-posed without further assumptions; modern direct shape inversion methods require that the attitude profile of the object is known, or at least can be hypothesized. This work describes improvements to light curve simulation and new methods for direct shape inversion for non-convex and actively-controlled objects. In particular, this work finds that the proposed non-convex shape inversion method is effective at resolving large concave features, while a parametric approach is effective at fitting the geometry of controlled box wing satellites.
+
+  \textit{NOTE: Let's discuss this whole parametric model for box wings thing in our meeting. In short, I don't think I have time to develop a new noisy inversion method to present here. I can certainly show how the standard convex method degrades with noisier observation conditions, but I can't juggle both CCD calibration and noisy inversion in the four weeks left to get a full rough draft together. I think the best path will be to go forward with the CCD calibration, followed by background calibration, followed by showing how the convex inversion performs under accurate noise with a short method description for fitting a simple parametric model to active box-wing light curves.}
 \end{abstract}
