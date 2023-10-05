@@ -101,9 +101,7 @@ Rigid body dynamics can be easily expressed in the body principal axes with an a
         \left(M_1+I_2\omega_2\omega_3-I_3\omega_2\omega_3\right) / I_1 \\
         \left(M_2-I_1\omega_1\omega_3+I_3\omega_1\omega_3\right) / I_2 \\
         \left(M_3+I_1\omega_1\omega_2-I_2\omega_1\omega_2\right) / I_3 \\
-    \end{matrix}\right]
+    \end{matrix}\right].
 \end{equation}
 
-\subsection{Analytic Attitude Propagation}
-
-TODO: single axis solution, axisymmetric solution
+Equations \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} are numerically integrated to yield the orientation time history which is necessary for later light curve simulations.

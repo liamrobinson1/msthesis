@@ -13,7 +13,7 @@ Many objects of interest are far past low-Earth orbit, making optical observatio
   \sin\theta_R = 1.22 \frac{\lambda}{d}.
 \end{equation}
 
-For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO -- giving an angular radius of $\approx 10^{-7}$ radians -- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
+For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO --- giving an angular radius of $\approx 10^{-7}$ radians --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
 
 \subsection{The Airy Disk}
 
@@ -38,13 +38,13 @@ In Eq \ref{eq:airy_center}, $\bar{C}_{all}$ is the total mean signal incident on
   \label{fig:airy_disk_magnitude}
 \end{figure}
 
-The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. We can fit this Gaussian with a single parameter -- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed:
+The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. We can fit this Gaussian with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed:
 
 \begin{equation} \label{eq:fwhm_airy}
   FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
 \end{equation}
 
-The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect -- known as the \textit{seeing} -- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
+The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
 
 \begin{equation} \label{eq:airy_variance}
   \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
