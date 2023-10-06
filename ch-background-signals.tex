@@ -1,12 +1,14 @@
 \ProvidesFile{ch-background-signals.tex}[Background Model]
-\chapter{Background Model}
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+
+\chapter{Method}
+\section{Background Model}
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much further than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
-\section{Background Signal Sources}
+\subsection{Background Signal Sources}
 
-\subsection{Background Source Importance}
+\subsubsection{Background Source Importance}
 
 Some background signals are more impactful than others. Table \ref{tb:signal_importance} details the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
 
@@ -26,7 +28,7 @@ Some background signals are more impactful than others. Table \ref{tb:signal_imp
   \label{tb:signal_importance}
 \end{table}
 
-\subsection{Airglow}
+\subsubsection{Airglow}
 
 Certain chemical reactions from 80-110 km altitude in the upper atmosphere release visible light
 \cite{krag2003}. This effect is known as
@@ -71,7 +73,7 @@ Using Eq \ref{eq:pickering_airmass} instead of the Van-Rhijn factor is important
   \label{fig:airglowhemi}
 \end{figure}
 
-\subsection{Light Pollution}
+\subsubsection{Light Pollution}
 
 Another source of background noise light pollution. On a cloudless night with low levels of atmospheric aerosols, 
 the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2}
@@ -101,7 +103,7 @@ The mean light pollution CCD signal in ADU per pixel is formulated similarly to 
   \label{fig:pollution_hemi}
 \end{figure}
 
-\subsection{Twilight}
+\subsubsection{Twilight}
 
 Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on our CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. Patat et al.'s model fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
 
@@ -132,7 +134,7 @@ Computing the mean CCD signal in ADU per pixel due to the twilight brightness pr
   \label{fig:pollution_hemi}
 \end{figure}
 
-\subsection{Integrated Starlight}
+\subsubsection{Integrated Starlight}
 
 Stars are almost always present in optical images of space objects. The brightest stars streaking across the field of view in Figure \ref{fig:pogs_observation_example} have high SNRs and stand out clearly against the dark background. This raises a question: if the telescope observes a full $1^\circ \times 1^\circ$ area of the sky, where are the rest of the stars? The Milky Way alone contains approximately $1\cdot10^{11}$ stars. The answer is clear: many more stars are present in the image, most of them falling into the background. This residual faint starlight is called "integrated" starlight. 
 
@@ -190,7 +192,7 @@ In Eq \ref{eq:starlightmean}, $b_{is}$ is the integrated starlight brightness in
   \label{fig:starlight_hemi}
 \end{figure}
 
-\subsection{Scattered Moonlight}
+\subsubsection{Scattered Moonlight}
 
 Moonlight scattering through the atmosphere significant increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_{obs}$, the angle from the Moon to zenith $z_{moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated with Eq \ref{eq:mie_scattering_moon}.
 
@@ -224,7 +226,7 @@ With all these pieces, the mean scattered moonlight signal in ADU per pixel is c
   \label{fig:moonlight_hemi}
 \end{figure}
 
-\subsection{Zodiacal Light}
+\subsubsection{Zodiacal Light}
 
 Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via Eq \ref{eq:zodiacal_adu}.
 
@@ -242,7 +244,7 @@ As in the integrated starlight signal, the $10^{-4}$ factor reconciles the $S_{1
   \label{fig:zod_hemi}
 \end{figure}
 
-\subsection{Background Sampling}
+\subsubsection{Background Sampling}
 
 The background signals are only defined in terms of their means, as each signal models the expected amount of radiation without accounting for the quantized nature of light \cite{krag2003}. Since light is transmitted in individual photons, their incidence on a given pixel will follow a statistical distribution. Assuming that each photon does not interact with others, the incidence of a photon on a pixel is well-modeled as a Poisson process for each background term \cite{frueh2019notes}. This distribution models the number of independent and identically distributed events that occur during a time period. For CCD astronomy, this translates to the event of a photon hitting the sensor. A Poisson distribution is defined on the positive integers by a single parameter $\lambda$ which is both the mean and variance of the distribution. The probability density function (PDF) for the Poisson distribution takes the form of Eq \ref{eq:poisson_pdf} \cite{frueh2019notes}.
 
@@ -258,20 +260,30 @@ This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P
 
 Drawing samples from the Poisson distribution defined by $\lambda_{background}$ computes the background of the CCD image. 
 
-\section{Sensor Effects}
+\subsection{Sensor Effects}
 
-\subsection{Dark Noise}
+\subsubsection{Dark Noise}
 
-TODO
+The dark noise, also called the dark current or dark count, captures the temperature-dependent accumulation of electrons in the CCD pixel wells \cite{krag2003}. This noise source is modeled as a Poisson process with parameter $\lambda_{dark}$ \cite{frueh2019notes} and is assumed to be independent from the other sensor effects. This source accumulates with the integration time, giving it units of counts per second \cite{krag2003}.
 
-\subsection{Readout Noise}
+\subsubsection{Readout Noise}
 
-TODO
+When the CCD is read out, the charge contained in each pixel well must be digitized. This process introduces noise in the final signal due to electronic effects within the CCD circuitry and its surrounding environment \cite{krag2003}. The readout noise is modeled as a zero-mean Gaussian distribution with variance $\sigma_{read}^2$ and is also assumed to be independent from other sensor effects \cite{frueh2019notes}.
 
-\section{Signal to Noise Ratio (SNR)}
+\subsubsection{Truncation Noise}
 
-TODO
+Truncation noise in a CCD stems from the fact that the charge in each pixel is digitized into an integer factor of the gain \cite{frueh2019notes}. This is modeled using a uniform distribution on $\left[ -g/2, g/2 \right]$, yielding a variance $N^2_{trunc} = \frac{g^2}{24}$ \cite{frueh2019notes}.
 
-\section{Sampling Noisy Light Curves}
+\subsection{Signal-to-Noise Ratio (SNR)}
 
-TODO
+Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
+\end{equation}
+
+Explicitly, the SNR can be expanded in terms of the signal means and variances \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr_expanded}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
+\end{equation}

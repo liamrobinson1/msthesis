@@ -1,11 +1,11 @@
 \ProvidesFile{ch-photometry.tex}[Photometry]
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
-\chapter{Photometry}
+\section{Photometry}
 
-\section{Diffraction}
+\subsection{Diffraction}
 
-\subsection{Rayleigh Criterion}
+\subsubsection{Rayleigh Criterion}
 
 Many objects of interest are far past low-Earth orbit, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion. The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that:
 
@@ -15,7 +15,7 @@ Many objects of interest are far past low-Earth orbit, making optical observatio
 
 For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO --- giving an angular radius of $\approx 10^{-7}$ radians --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
 
-\subsection{The Airy Disk}
+\subsubsection{The Airy Disk}
 
 The far-field diffraction pattern produced by a point source is known as an Airy pattern \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
 
@@ -26,10 +26,10 @@ The far-field diffraction pattern produced by a point source is known as an Airy
 In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
 
 \begin{equation} \label{eq:airy_center}
-  C_0 = \frac{\bar{C}_{all}^2 A_{aperture}^2}{2 f^4}.
+  C_0 = \frac{S_{obj}^2 A_{aperture}^2}{2 f^4}.
 \end{equation}
 
-In Eq \ref{eq:airy_center}, $\bar{C}_{all}$ is the total mean signal incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
+In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
 
 \begin{figure}[ht]
   \centering
@@ -53,7 +53,7 @@ The diffraction pattern is not the only effect that spreads the unresolved signa
 The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
 
 \begin{equation} \label{eq:airy_gaussian}
-  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta}{2 \sigma^2} \right)
+  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
 \end{equation}
 
 In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
@@ -64,7 +64,7 @@ In pratice, computing the Airy disk or its Gaussian approximation on rectangular
 
 
 
-\section{Astronomical Spectra}
+\subsection{Astronomical Spectra}
 
 Four of the quantities needed for the background model vary with wavelength. These are the atmospheric transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
 
@@ -79,11 +79,11 @@ In practice, the quantum efficiency curve varies by sensor and the thermal condi
 observation. The curve adopted in this work is that used by Krag; modern sensors will often
 perform better.
 
-\section{Brightness Units}
+\subsection{Brightness Units}
 
 In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear.
 
-\subsection{Irradiance}
+\subsubsection{Irradiance}
 
 Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
 surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
@@ -112,7 +112,7 @@ yielding Eq \ref{eq:mag_to_irradiance}.
   I = I_0 \cdot 10^{-\frac{m}{2.5}}
 \end{equation}
 
-\subsection{Normalized Irradiance}
+\subsubsection{Normalized Irradiance}
 
 The light curve simulation methods presented in this work heavily use normalized irradiance, 
 the irradiance of a source observed from a distance of $1$ meter. This is a non-standard quantity in the literature, but proves useful for the same reasons
@@ -126,7 +126,7 @@ at a distance $r$ in meters from an object is converted to normalized irradiance
   \hat{I} = r^2 I
 \end{equation}
 
-\subsection{$S_{10}$}
+\subsubsection{$S_{10}$}
 
 While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
 to describe diffuse or extended sources where brightness is spread over an
@@ -144,7 +144,7 @@ spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric tra
 \frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
 speed of light in vacuum. Quantum efficiency has units of photoelectrons which conveys the fraction of incident photons which are (proportionally) converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm} and \ref{data:qe}.
 
-\subsection{Magnitude per Square Arcsecond}
+\subsubsection{Magnitude per Square Arcsecond}
 
 A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond). This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
 magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
@@ -162,7 +162,7 @@ convert square degrees to square arcseconds, and transform the result back into 
   I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}
 \end{equation}
 
-\subsection{Candela} \label{sec:candela}
+\subsubsection{Candela} \label{sec:candela}
 
 Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via Eq \ref{eq:cd_to_w_per_sr} \cite{nist_units}
 
@@ -185,7 +185,7 @@ Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_
   MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_0} \right)
 \end{equation}
 
-\subsection{Photoelectron Counts}
+\subsubsection{Photoelectron Counts}
 
 Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron
 counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single

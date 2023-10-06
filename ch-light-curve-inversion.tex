@@ -1,12 +1,12 @@
 \ProvidesFile{ch-light-curve-inversion.tex}[Light Curve Shape Inversion]
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
-\chapter{Light Curve Shape Inversion}
+\section{Light Curve Shape Inversion}
 
-\section{Direct Convex Shape Inversion}
+\subsection{Direct Convex Shape Inversion}
 
 Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to fit an EGI to the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}.
 
-\subsection{The Extended Gaussian Image} \label{sec:egi_definition}
+\subsubsection{The Extended Gaussian Image} \label{sec:egi_definition}
 
 The discrete EGI $\vec{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\hat{n}$ each scaled a nonnegative scalar $a \in \mathbb{R}, \: a_i \geq 0$ \cite{little1983}.
 
@@ -31,19 +31,17 @@ While a given EGI uniquely represents a polytope, that same EGI could also be in
   \label{fig:egi_family}
 \end{figure}
 
-\subsection{EGI Optimization}
+\subsubsection{EGI Optimization}
 
 The EGI fulfills two important criteria for the shape inversion problem: it can be estimated directly from the light curve, attitude profile, and material properties, and uniquely represents a convex object \cite{kaasalainen2001}. Further, the EGI can be transformed into a unique convex object and vice versa through the dual transform and Minkowski problem \cite{little1985, minkowski1909}. 
 
-Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\hat{n}$ on the unit sphere to fit an EGI to the observed light curve $\vec{L}_\textrm{ref} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vec{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares problem and can be solved efficiently for large numbers of normal vectors and light curve data points:
-
-TODO: add description of NNLS and FNNLS
+Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\hat{n}$ on the unit sphere to fit an EGI to the observed light curve $\vec{L}_\textrm{ref} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vec{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares (NNLS) problem and can be solved efficiently for large numbers of normal vectors and light curve data points:
 
 \begin{equation} \label{eq:area_opt_convex}
   \min_{a}{\|\vec{L}_{\textrm{ref}} - G \vec{a}\|_2} \:\:\: \textrm{ subject to } \vec{a}_i \geq 0.
 \end{equation}
 
-It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is necessarily \textit{albedo-area} due to the diffuse reflectivity coefficient $C_d$ in Eq. \ref{lc_func_diffuse}. If the value of $C_d$ is uniform but unknown, the recovered geometry will incorrectly scaled without impacting the face adjacency or relative feature sizes.
+NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is necessarily \textit{albedo-area} due to the diffuse reflectivity coefficient $C_d$ in Eq. \ref{lc_func_diffuse}. If the value of $C_d$ is uniform but unknown, the recovered geometry will incorrectly scaled without impacting the face adjacency or relative feature sizes.
 
 The convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined as the normalized received facet irradiance per unit facet area:
 
@@ -68,7 +66,7 @@ The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation
 
 TODO: re-do this figure with 2-sphere in python \ref{eq:initial_ico_resampling}
 
-\subsection{EGI Resampling}
+\subsubsection{EGI Resampling}
 
 We propose a normal vector resampling step to promote a more accurate and sparse EGI. The normal vectors used in Eq. \ref{eq:initial_ico_resampling} are generally correct, with each group clustering around a normal vector of the truth geometry. This clustering behavior occurs when none of the candidate normal vectors are sufficiently close to the truth. Resampling in a cone centered on each initial EGI normal vector provides more accurate candidates for EGI estimation. This process mimics a single optimization step with a much larger $m$, where the coarse EGI is used to exclude areas on the sphere with little or no normal area.
 
@@ -104,7 +102,7 @@ This process is shown in Figure \ref{fig:resampled_ico_ns} for the same icosahed
 
 TODO: remake this figure with 2-sphere
 
-\subsection{EGI Merging}
+\subsubsection{EGI Merging}
 
 After resampling and reoptimizing with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\alpha$:
 
@@ -129,7 +127,7 @@ Merging the resampled EGI using Figure \ref{resampled_ico_ns} with $\alpha = \fr
 
 TODO: remake with true EGI on the right
 
-\subsection{Geometry Recovery from the EGI}
+\subsubsection{Geometry Recovery from the EGI}
 
 At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq. \ref{egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
 
@@ -169,7 +167,7 @@ The object's vertices $\vec{v}_{ref}$ are found by solving a linear system of eq
 
 Convex face adjacency information is found by triangulating the convex hull of all reference vertices. The accuracy of the recovered geometry is entirely dependent on the correctness of the support vector $\vec{h}$ used to produce the dual set. Finding the true support vector is the challenge of the final optimization in convex shape inversion.
 
-\subsection{Support Vector Optimization}
+\subsubsection{Support Vector Optimization}
 
 Prior work by Fan used Little's objective function for support vector optimization \cite{fan2020thesis,little1983}.
 
@@ -179,9 +177,9 @@ Prior work by Fan used Little's objective function for support vector optimizati
 
 TODO: description of the optimization
 
-\section{Non-Convex Feature Inversion}
+\subsection{Direct Non-Convex Shape Inversion}
 
-\subsection{Non-Convex Feature Detection and Location}
+\subsubsection{Non-Convex Feature Detection and Location}
 
 Many human-made space objects are, as highlighted in Figure \ref{hst_bennu_shadows}, highly non-convex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{little_problem} cannot recover non-convex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
 
@@ -199,11 +197,9 @@ Under the strong assumption that the concavities present are major and unilatera
 
 TODO: replace this analytic relationship (which is bad and wrong) with an iteration to minimize LC error
 
-\subsection{Concavity Creation}
+\subsubsection{Concavity Creation}
 
 Our process for creating an accurate concavity in the reconstructed convex guess proceeds in four major steps. The model is first subdivided to add more faces and vertices. Subdivided vertices are then classified by their proximity to the EGI error vector, indicating whether their positions should be updated. Boundary vertices are identified, and vertex positions are updated based on the estimated internal angle computed via Eq. \ref{eq:internal_angle_eq}.
-
-\subsubsection{Model Subdivision}
 
 Subdividing the initial convex object guess is essential for retaining object detail during concavity creation. A combination of linear subdivision, Loop subdivision, and remeshing algorithms are used to accomplish this. Linear subdivision is advantageous when object faces are equally sized and boundary edges must be maintained. Loop subdivision is preferable when there are numerous vertices so that subdivisions do not drastically diverge from the initial boundary surface. Loop subdivision softens sharp edges as it relies on B-splines to interpolate new vertex positions \cite{loop1987}. The specific type and resolution of subdivision used depends on the level of detail the user needs to maintain in the introduced concavity, although linear subdivision followed by Loop subdivision is a useful baseline. Varying combinations of subdivision are shown in Figure \ref{fig:subd_grid} to illustrate the available configurations.
 
@@ -213,8 +209,6 @@ Subdividing the initial convex object guess is essential for retaining object de
   \caption{Subdivided object (black) with reference (red) with various levels of subdivision}
   \label{fig:subd_grid}
 \end{figure}
-
-\subsubsection{Vertex Classification and Displacement}
 
 When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2$ to the error vector must be updated. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Eq. \ref{eq:area_opt_convex} and EGI correction step Eq. \ref{egi_validation}. Selecting the angle deflect $\pi/2$ updates all faces above the horizon from the EGI error vector. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces.
 
@@ -235,7 +229,17 @@ Given the estimated internal angle $\psi_{est}$ and the error vector $\hat{e}_{E
 
 where $p_i$ is the distance from each $i$th free vertex to the nearest root-adjacent vertex.
 
-\section{Object Reconstruction Results}
+\subsection{Shape Inversion With Noisy Measurements}
+
+TODO: write
+
+\chapter{Results}
+
+\section{Convex Shape Inversion Without Noise}
+
+TODO: this
+
+\section{Non-Convex Shape Inversion Without Noise}
 
 Displacing free vertices in the EGI error vector direction by $d_i$ yields accurate concavities for objects whose concave boundaries lie in a plane. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:non_convex_recon_of_non_convex} using the same attitude profiles and as in Figure \ref{convex_grid}. 
 
@@ -259,6 +263,11 @@ This vertex displacement scheme will negligibly impact the convex guess if the t
 
 Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility of vertex displacement with truly convex objects. All objects are reconstructed faithfully in both their convex and non-convex inversions, with the same caveats noted in the discussion following Figure \ref{convex_grid}. Some truly sharp edges are rounded during mesh subdivision as seen in the gem or rectangular prism. That said, others like the cylinder become more accurate as subdivision reintroduces continuity lost to discretization in EGI merging.
 
-\section{Shape Inversion With Noisy Measurements}
+\section{Convex Shape Inversion With Noise}
 
-TODO: write
+TODO: this
+
+\section{Non-Convex Shape Inversion With Noise}
+
+TODO: this
+

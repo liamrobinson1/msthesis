@@ -1,23 +1,19 @@
 \ProvidesFile{ch-light-curve-simulation.tex}[Light Curve Simulation]
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
-\chapter{Light Curve Simulation}
-
-\section{Dynamics}
+\section{Light Curve Simulation}
 
 \subsection{Orbital Dynamics}
 
-\subsubsection{SGP4}
-
 TODO
 
-\section{Implicit and Explicit Shape Representations}
+\subsection{Discrete Shape Representations}
 
 A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 
 
 By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the most common case, object faces are defined by triangles. This means that at the scale of the individual faces, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for our application. Human-made space objects like most satellites are composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
 
-\section{The Wavefront OBJ File Format}
+\subsubsection{The Object File Format}
 
 One common text file format for 3D model files is \texttt{.obj}, developed by Wavefront Technologies in the early 1990s \cite{obj_format}. Each OBJ file consists of a list of vertex positions and face definitions, with optional vertex normals and tangents. An \texttt{.obj} listing for a cube is included for reference in Appendix \ref{sec:obj_listing}. Given the vertex positions and adjacency information stored in the model file, useful properties of the object can be computed for use later in both light curve simulation and shape inversion. For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with
 
@@ -49,7 +45,7 @@ In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining 
     \vec{E}_i = \vec{a}_i \vec{n}_i.
 \end{equation}
 
-\section{Selected Satellite Models}
+\subsection{Selected Satellite Models}
 
 Most of the analysis in this work used one of the 3D model files shown in Figure \ref{fig:satellite_lineup}. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
 
@@ -61,7 +57,7 @@ Most of the analysis in this work used one of the 3D model files shown in Figure
     \label{fig:satellite_lineup}
 \end{figure}
 
-\section{The Bidirectional Reflectance Distribution Function}
+\subsection{The Bidirectional Reflectance Distribution Function}
 
 Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, all relevant optical interactions must be modeled. In broad terms, this boils down to determining how the object is illuminated, how it casts shadows on itself, and how it is observed. 
 
@@ -134,7 +130,7 @@ TODO
 
 TODO
 
-\subsubsection{Summary}
+\subsection{BRDF Summary}
 
 \begin{figure}[ht]
   \includegraphics[width=\figmed]{sphx_glr_brdf_renders_002_2_00x.png}
@@ -143,7 +139,7 @@ TODO
   \label{fig:brdf_renders}
 \end{figure}
 
-\section{Simulating Convex Objects}
+\subsection{Simulating Light Curves for Convex Objects}
 
 Light curve simulation for convex geometry can be solved semi-analytically as each face's contribution 
 to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
@@ -173,7 +169,7 @@ the object to yield the noiseless received irradiance.
 
 TODO: add L = Ga stuff
 
-\section{Simulating Non-Convex Objects}
+\subsection{Simulating Light Curves for Non-Convex Objects}
 
 Many existing light curve simulation methods for non-convex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
 
@@ -212,3 +208,19 @@ In the LightCurveEngine, shadow mapping is used for faster and more accurate sel
 Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_diffuse} TODO: this equation is broken. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL using raylib \cite{raylib}.
 
 TODO: add algorithm pseudocode for lighting shader
+
+\subsection{Sampling Noisy Light Curves}
+
+Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian}:
+
+\begin{equation} \label{eq:obj_signal_grid}
+  C_{obj}(x, y) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_{pix}^2} \right).
+\end{equation}
+
+In Eq \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Eq \ref{eq:airy_variance} in arcseconds, and $s_{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions:
+
+\begin{equation} \label{eq:noise_signal_grid}
+  C_{noise}(x, y) = N_{background} + N_{dark} + N_{trunc} + N_{read}.
+\end{equation}
+
+In Eq \ref{eq:noise_signal_grid}, $N_{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \lambda_{dark})$, $N_{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_{read}$ is drawn from $\mathrm{Normal}(0, \sigma_{read}^2)$. 
