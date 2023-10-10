@@ -15,7 +15,11 @@ By contrast, an explicit shape representation creates complex 3D geometry from s
 
 \subsubsection{The Object File Format}
 
-One common text file format for 3D model files is \texttt{.obj}, developed by Wavefront Technologies in the early 1990s \cite{obj_format}. Each OBJ file consists of a list of vertex positions and face definitions, with optional vertex normals and tangents. An \texttt{.obj} listing for a cube is included for reference in Appendix \ref{sec:obj_listing}. Given the vertex positions and adjacency information stored in the model file, useful properties of the object can be computed for use later in both light curve simulation and shape inversion. For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with
+One common text file format for 3D model files is \texttt{.obj}, developed by Wavefront Technologies in the early 1990s \cite{obj_format}. Each OBJ file consists of a list of vertex positions and face definitions, with optional vertex normals and tangents. An \texttt{.obj} listing for a cube is included for reference in Appendix \ref{sec:obj_listing}. Given the vertex positions and adjacency information stored in the model file, useful properties of the object can be computed for use later in both light curve simulation and shape inversion. 
+
+\subsubsection{Properties of Triangulated Meshes}
+
+For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with
 
 \begin{equation} \label{eq:face_normal}
     \hat{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
@@ -27,16 +31,16 @@ The face area is computed with
     a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
 \end{equation}
 
-The support of each face --- the perpendicular distance from the origin to the plane defining the face --- is computed with
+The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.e., the first vertex $v_{i,1}$, and the face normal vector $\hat{n}_i$
 
 \begin{equation} \label{eq:face_support}
-    h = v_1 \cdot \hat{n}.
+    h_i = v_{i,1} \cdot \hat{n}_i.
 \end{equation}
 
-The volume of the entire object is compute with
+The volume of the object is computed with
 
 \begin{equation} \label{eq:object_volume}
-    \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vec{h}_i \cdot \vec{a}_i.
+    V = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vec{h}_i \cdot \vec{a}_i.
 \end{equation}
 
 In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vec{h}$ and $\vec{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with
@@ -84,7 +88,7 @@ Eq \ref{eq:brdf_energy_cons} states that for all possible illumination direction
 
 \subsection{BRDF Formulations}
 
-Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. \textit{Caveat emptor}: this does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
+Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. This does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
 
 \subsubsection{Lambertian}
 
@@ -116,26 +120,76 @@ The Blinn-Phong BRDF is similar to to the Phong BRDF, but parameterizes the spec
 
 \subsubsection{Glossy}
 
-TODO
+The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}. In Eq \ref{ref:eq_brdf_glossy}, the parameter $\sigma$ controls the width of the specular Gaussian.
+
+\begin{equation} \label{eq:brdf_glossy}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(N \cdot L\right)}  e^{\frac{-\left( R \cdot O \right)^2}{2\sigma^2}}
+\end{equation}
 
 \subsubsection{Cook-Torrance}
 
-TODO
+The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D$, a Fresnel term $F$, and a geometric attenuation factor $G$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $H$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
+
+\begin{equation} \label{eq:d_beckmann}
+  D = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
+\end{equation}
+
+In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but is often approximated as \cite{cook1982}:
+
+\begin{equation} \label{eq:fresnel_approx}
+  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( H \cdot L \right) \right) ^ 5.
+\end{equation}
+
+The geometric attenuation term expresses how microfacets shadow eachother, and can be approximated with \cite{cook1982}:
+
+\begin{equation} \label{eq:cook_torrance_g}
+  G = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
+\end{equation}
+
+The overall reflectance for the Cook-Torrance BRDF is given by:
+
+\begin{equation} \label{eq:brdf_cook_torrance}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{D \cdot G \cdot F}{4 \left(N \cdot L\right) \left( N \cdot O \right)}
+\end{equation}
 
 \subsubsection{Oren-Nayar}
 
-TODO
+The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-world materials like ceramics and the surface of the Moon. These materials diverge from the Lambertian model near the horizon, reflecting much more light than would be predicted by simple cosine loss \cite{oren1994}. This BRDF relies on the surface roughness $\alpha$ to compute a set of constants \cite{oren1994}:
+
+\begin{align*} \numberthis
+  A &= 1 - 0.5 * \frac{\alpha^2}{\alpha^2 + 0.33} \\
+  B &= 0.45 * \frac{\alpha^2}{\alpha^2 + 0.09} \\
+  C &= \frac{\mathrm{proj}_{N}\left(L\right)}{\|\mathrm{proj}_{N}\left(L\right)\|} \cdot  \frac{\mathrm{proj}_{N}\left(O\right)}{\|\mathrm{proj}_{N}\left(O\right)\|}. \\
+  \beta &= \max \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
+  \gamma &= \min \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
+\end{align*}
+
+With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
+
+\begin{equation}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right)
+\end{equation}
 
 \subsubsection{Ashikhmin-Shirley}
 
-TODO
+The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
+
+\begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
+  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{N \cdot L}{2}\right)^5\right) \left(1 - \left(1 - \frac{N \cdot O}{2}\right)^5\right) \\
+  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( N \cdot H \right)
+  ^\frac{n_u \left(H \cdot U \right)^2 + n_v \left( H \cdot V \right)^2}{1 - \left(H \cdot N\right)^2}}
+  {\left(H \cdot L\right) \max\left\{ N \cdot O, N \cdot L \right\}} F \\
+  f_r(L \rightarrow O) &= \rho_d + \rho_s. \\
+\end{align*}
+
+In Eq \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Eq \ref{eq:fresnel_approx} while $U$ and $V$ are predefined surface basis vectors perpendicular to the surface normal.
 
 \subsection{BRDF Summary}
 
 \begin{figure}[ht]
-  \includegraphics[width=\figmed]{sphx_glr_brdf_renders_002_2_00x.png}
-  \caption
-  {Implemented BRDFs rendered with arbitrary parameters, demonstrating the qualitative differences between lighting models}
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_brdf_renders_002_2_00x.png}
+  \caption{Implemented BRDFs rendered with arbitrary parameters, demonstrating the qualitative differences between lighting models}
   \label{fig:brdf_renders}
 \end{figure}
 
@@ -158,7 +212,7 @@ expressed by the shadowing condition $\mu_{ij}$.
 The unit vectors $O$ and $L$ point from the center of mass of the object to the observer and Sun, respectively. 
 We choose the outward-pointing face normal unit vector $\hat{n}$ by convention for all mesh operations. 
 The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, 
-are always zero for convex polyhedra but are crucial for accurately simulating non-convex geometry. 
+are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. 
 For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing 
 refers to otherwise visible faces blocked by other portions of the geometry.
 
@@ -169,9 +223,9 @@ the object to yield the noiseless received irradiance.
 
 TODO: add L = Ga stuff
 
-\subsection{Simulating Light Curves for Non-Convex Objects}
+\subsection{Simulating Light Curves for nonconvex Objects}
 
-Many existing light curve simulation methods for non-convex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
+Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
 
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 \begin{figure}[!htb]

@@ -2,31 +2,46 @@
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
 \chapter{Method}
-\section{Background Model}
+\section{CCD Performance Model}
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much further than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
-\subsection{Background Signal Sources}
-
 \subsubsection{Background Source Importance}
 
-Some background signals are more impactful than others. Table \ref{tb:signal_importance} details the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
+Some background signals are more impactful than others. For simulating realistic light curves, it is important to only model those background sources that have the possibility of being at or above the order of magnitude of the object signal, thereby seriously degrading the signal to noise ratio. As a baseline, the background terms modeled by Krag for the PROOF CCD performance model were implemented, namely scattered moonlight, airglow, zodiacal light, and itegrated starlight \cite{krag2003}. In addition, twilight and light pollution models were implemented to increase the time and station location flexibility of the simulation. Each background term is modeled at medium fidelity --- often using tabulated measurements or set of exponential distributions to govern the scattering physics. As a result, this background performance model does not capture local weather conditions or precisely simulate the scattering of each photon through the atmosphere, but still strives to faithfully models the physics of each background signal process. Table \ref{tb:signal_importance} ranks the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
 
 \begin{table}[]
   \centering
   \begin{tabular}{|l|l|}
   \hline
   \textbf{Source} & \textbf{Magnitude} $\mathbf{\left[ e^- / \textbf{pix}\right]}$ \\ \hline
-  Airglow                & $10^3 - 10^4$                              \\ \hline
-  Scattered moonlight    & $0 - 10^5$                                 \\ \hline
-  Integrated starlight   & $10^1 - 10^2$                              \\ \hline
-  Light pollution        & $10^2 - 10^3$                              \\ \hline
-  Zodiacal light         & $10^2 - 10^4$                              \\ \hline
   Twilight               & $10^1 - 10^7$                              \\ \hline
+  Scattered moonlight    & $0 - 10^5$                                 \\ \hline
+  Airglow                & $10^3 - 10^4$                              \\ \hline
+  Zodiacal light         & $10^2 - 10^4$                              \\ \hline
+  Light pollution        & $10^2 - 10^3$                              \\ \hline
+  Integrated starlight   & $10^1 - 10^2$                              \\ \hline
   \end{tabular}
   \caption{Background signal importance}
   \label{tb:signal_importance}
 \end{table}
+
+\subsection{Astronomical Spectra}
+
+Four of the quantities needed for the background model vary with wavelength. These are the atmospheric transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_astro_spectra_001_2_00x.png}
+  \caption{Astronomical Spectra from \cite{krag2003}}
+  \label{fig:spectra}
+\end{figure}
+
+In practice, the quantum efficiency curve varies by sensor and the thermal conditions of the
+observation. The curve adopted in this work is that used by Krag; modern sensors will often
+perform better.
+
+\subsection{Background Signal Sources}
 
 \subsubsection{Airglow}
 
@@ -182,7 +197,7 @@ through the telescope aperture due to integrated starlight.
 \end{equation}
 
 In Eq \ref{eq:starlightmean}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
-\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaia_patched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$, and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
+\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$, and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
 
 \begin{figure}[ht]
   \centering

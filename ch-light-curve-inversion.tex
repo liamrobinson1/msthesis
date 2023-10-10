@@ -22,12 +22,12 @@ The solution to the Minkowski problem proves the existence and uniqueness of a c
   \sum_{i=1}^m a_i \hat{n}_i = [0, 0, 0]
 \end{equation}
 
-While a given EGI uniquely represents a polytope, that same EGI could also be interpreted to be an infinite number of non-convex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family}.
+While a given EGI uniquely represents a polytope, that same EGI could also be interpreted to be an infinite number of nonconvex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family}.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{convex_non_open_egis.png}
-  \caption{Simplified convex, non-convex, and open EGI nonuniqueness. Larger circles indicate greater relative areas assigned to a given normal vector.}
+  \caption{Simplified convex, nonconvex, and open EGI nonuniqueness. Larger circles indicate greater relative areas assigned to a given normal vector.}
   \label{fig:egi_family}
 \end{figure}
 
@@ -177,11 +177,11 @@ Prior work by Fan used Little's objective function for support vector optimizati
 
 TODO: description of the optimization
 
-\subsection{Direct Non-Convex Shape Inversion}
+\subsection{Direct nonconvex Shape Inversion}
 
-\subsubsection{Non-Convex Feature Detection and Location}
+\subsubsection{nonconvex Feature Detection and Location}
 
-Many human-made space objects are, as highlighted in Figure \ref{hst_bennu_shadows}, highly non-convex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{little_problem} cannot recover non-convex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
+Many human-made space objects are, as highlighted in Figure \ref{hst_bennu_shadows}, highly nonconvex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{little_problem} cannot recover nonconvex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
 
 We can retain information about large, unilateral object concavities during  EGI estimation in Eq. \ref{eq:area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Eq. \ref{eq:fixing_egi} is still employed.
 
@@ -231,15 +231,55 @@ where $p_i$ is the distance from each $i$th free vertex to the nearest root-adja
 
 \subsection{Shape Inversion With Noisy Measurements}
 
+\subsubsection{Shape Interpolation With Signed Distance Functions}
+
+The signed distance field (SDF) implicitly represents a shape by associating each point in $\mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. For a given SDF $f(x, y, z)$, the surface of the object is given by:
+
+\begin{equation} \label{eq:sdf_zero_level_set}
+  \begin{bmatrix} x \\ y \\ z \end{bmatrix} : \: \: f(x, y, z) = 0.
+\end{equation}
+
+Computing the SDF of a triangulated mesh breaks down into computing distances from the points, line segments, and planes making up the mesh to the queried point \cite{baerentzen2002}. A slice of the SDF of a test model is displayed in Figure \ref{fig:sdf_slice}.
+
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_sfds_001_2_00x.png}
+  \caption{SDF slice of the Stanford bunny model}
+  \label{fig:sdf_slice}
+\end{figure}
+
+Interpolating between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_shape_interpolation_001.png}
+  \caption{SDF interpolation between a torus and an icosahedron}
+  \label{fig:interpolating_torus_ico}
+\end{figure}
+
+\begin{algorithmic}
+\State $i \gets 10$
+\If{$i\geq 5$} 
+    \State $i \gets i-1$
+\Else
+    \If{$i\leq 3$}
+        \State $i \gets i+2$
+    \EndIf
+\EndIf 
+\end{algorithmic}
+  
+
 TODO: write
 
+\graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 \chapter{Results}
 
 \section{Convex Shape Inversion Without Noise}
 
 TODO: this
 
-\section{Non-Convex Shape Inversion Without Noise}
+\section{nonconvex Shape Inversion Without Noise}
 
 Displacing free vertices in the EGI error vector direction by $d_i$ yields accurate concavities for objects whose concave boundaries lie in a plane. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:non_convex_recon_of_non_convex} using the same attitude profiles and as in Figure \ref{convex_grid}. 
 
@@ -261,13 +301,13 @@ This vertex displacement scheme will negligibly impact the convex guess if the t
   \label{fig:non_convex_recon_of_convex}
 \end{figure}
 
-Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility of vertex displacement with truly convex objects. All objects are reconstructed faithfully in both their convex and non-convex inversions, with the same caveats noted in the discussion following Figure \ref{convex_grid}. Some truly sharp edges are rounded during mesh subdivision as seen in the gem or rectangular prism. That said, others like the cylinder become more accurate as subdivision reintroduces continuity lost to discretization in EGI merging.
+Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility of vertex displacement with truly convex objects. All objects are reconstructed faithfully in both their convex and nonconvex inversions, with the same caveats noted in the discussion following Figure \ref{convex_grid}. Some truly sharp edges are rounded during mesh subdivision as seen in the gem or rectangular prism. That said, others like the cylinder become more accurate as subdivision reintroduces continuity lost to discretization in EGI merging.
 
 \section{Convex Shape Inversion With Noise}
 
 TODO: this
 
-\section{Non-Convex Shape Inversion With Noise}
+\section{nonconvex Shape Inversion With Noise}
 
 TODO: this
 

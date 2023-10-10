@@ -3,6 +3,10 @@
 
 \section{Photometry}
 
+\subsection{The Charge Coupled Device (CCD)}
+
+Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
+
 \subsection{Diffraction}
 
 \subsubsection{Rayleigh Criterion}
@@ -59,25 +63,8 @@ The full Gaussian approximation at an angular distance $\theta$ from the source 
 In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
 
 \begin{equation}
-  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta)} \: dy \: dy.
+  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
 \end{equation}
-
-
-
-\subsection{Astronomical Spectra}
-
-Four of the quantities needed for the background model vary with wavelength. These are the atmospheric transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_astro_spectra_001_2_00x.png}
-  \caption{Astronomical Spectra from \cite{krag2003}}
-  \label{fig:spectra}
-\end{figure}
-
-In practice, the quantum efficiency curve varies by sensor and the thermal conditions of the
-observation. The curve adopted in this work is that used by Krag; modern sensors will often
-perform better.
 
 \subsection{Brightness Units}
 
@@ -87,9 +74,24 @@ In the context of photometry, "brightness" is a catch-all term for a variety of 
 
 Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
 surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
-\: [m]$ area would experience $10 \: [W]$ of incident power. The Sun's irradiance at a distance of $1$ AU is known as the solar constant and is approximately $1361 \: \left[ \frac{W}{m^2} \right]$. 
+\: [m^2]$ area would experience $10 \: [W]$ of incident power. The mean irradiance of the Sun --- termed the solar constant --- is derived from the mean luminosity of the Sun $L_s = 3.828\cdot10^{26} \: [W]$ and a distance of $1$ Astronomical Unit $1 \: [AU] = 149597870.7 \: [km]$ \cite{frueh2019notes}. The mean solar constant is then computed via
 
-Visual magnitude ---  also known as apparent or relative magnitude --- is a reverse logarithmic scale
+\begin{equation} \label{eq:solar_constant_mean}
+  I_0 = \frac{L_s}{4\pi \left(AU\right)^2} \approx 1361.0 \: \left[ \frac{W}{m^2} \right].
+\end{equation}
+
+In reality, the exoatmospheric irradiance at Earth varies \cite{frueh2019notes}. Figure \ref{fig:tsi} displays the small variations in the solar irradiance due to the solar cycle and the much larger variations due to Earth's eccentric orbit.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_total_solar_irradiance_003_2_00x.png}
+  \caption{Total solar irradiance variations}
+  \label{fig:tsi}
+\end{figure}
+
+\subsubsection{Apparent Magnitude}
+
+Apparent magnitude ---  also known as visual or relative magnitude --- is a reverse logarithmic scale
 that originates in astronomy \cite{frueh2019notes}. Stellar sources span many orders of magnitude of brightness, making a
 logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
 expresses brightness at the observer's location; absolute magnitude is a different quantity that
@@ -126,7 +128,7 @@ at a distance $r$ in meters from an object is converted to normalized irradiance
   \hat{I} = r^2 I
 \end{equation}
 
-\subsubsection{$S_{10}$}
+\subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
 
 While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
 to describe diffuse or extended sources where brightness is spread over an
@@ -187,8 +189,7 @@ Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_
 
 \subsubsection{Photoelectron Counts}
 
-Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron
-counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single
+Accurately simulating measured light curves requires an accurate simulation of the CCD camera taking the image. The first step towards that is understanding how irradiance at the telescope aperture is converted into pixel values in the final image. Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single
 pixel obtained is directly proportional (via the CCD's gain) to the number of
 photons incident on that pixel during the integration time. Higher order effects in the silicon of
 the CCD makes this description incomplete, but for non-resolved imaging applications
@@ -221,3 +222,7 @@ For completeness, irradiance can be recovered from a signal in ADU and the integ
 \begin{equation} \label{eq:count_to_irrad}
   I = \frac{S}{\textrm{SINT} \cdot \Delta t}
 \end{equation}
+
+\subsection{The Light Curve}
+
+TODO: this

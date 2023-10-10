@@ -71,21 +71,21 @@ Both the inclination of the ecliptic and the difference in the equinox are compu
 
 Due to Earth's equatorial bulge, it is common to model the rough shape of the Earth as an ellipsoid. In particular, the 1984 World Geodetic Survey (WGS-84) model is used throughout this work to define the shape of the Earth ellipsoid, with parameters listed in Table \ref{tb:wgs84}.
 
-\begin{table}[]
+\begin{table}[ht]
   \centering
   \begin{tabular}{|l|l|}
   \hline
-  \textbf{Parameter} & Value              \\ \hline
+  \textbf{Parameter} & \textbf{Value}              \\ \hline
   Equatorial radius $R_E$             & $6378.137 \: [km]$ \\ \hline
   Flattening ratio $f$                & $1 / 298.257$      \\ \hline
   \end{tabular}
-  \label{tb:wgs84}
   \caption{WGS-84 ellipsoid model of the Earth \cite{vallado4ed}}
+  \label{tb:wgs84}
 \end{table}
 
 \subsubsection{Geoid}
 
-The geoid accounts for the gravitational potential differences across the Earth's surface. It is a surface of equal gravitational potential; the surface the ocean relaxes to without the influence of the wind and tides \cite{vallado4ed}. For this reason, the geoid is alternatively known as the mean sea level (MSL). The ellipsoid is a good approximation of the geoid, which deviates from the ellipsoid by less than $\approx 100$ meters at all latitudes and longitudes. The height of the geoid above the ellipsoid can be computed from a high-fidelity gravity model, but it is often more convenient to interpolate a pre-computed grid of geoid heights. Figure \ref{fig:geoid_shape} displays global geoid heights derived from the 1996 Earth Gravitational Model (EGM-96) relative to the ellipsoid.
+The geoid accounts for the gravitational potential differences across the Earth's surface \cite{vallado4ed}. It is a surface of equal gravitational potential; the surface the ocean relaxes to without the influence of the wind and tides \cite{vallado4ed}. For this reason, the geoid is alternatively known as the mean sea level (MSL). The ellipsoid is a good approximation of the geoid, which deviates from the ellipsoid by less than $\approx 100$ meters at all latitudes and longitudes. The height of the geoid above the ellipsoid can be computed from a high-fidelity gravity model, but it is often more convenient to interpolate a pre-computed grid of geoid heights. Figure \ref{fig:geoid_shape} displays global geoid heights derived from the 1996 Earth Gravitational Model (EGM-96) relative to the ellipsoid.
 
 \begin{figure}[ht]
   \centering
@@ -138,7 +138,7 @@ reference frame that remains fixed, neglecting effects like continental drift. T
 
 In Eq \ref{eq:lla_to_itrf}, $e^2$ is the squared eccentricity of the ellipsoid, $N$ is the radius of curvature in the meridian, and $\rho$ is the $x-y$ plane magnitude of the station's position \cite{vallado4ed}.
 
-Many later transformations require the body axis rotation matrices $R_1$, $R_2$, and $R_3$ which are expressed in Eq \ref{eq:body_rotms}
+Many later transformations require the body axis rotation matrices $R_1$, $R_2$, and $R_3$ which are expressed in Eq \ref{eq:body_rotms}.
 
 \begin{align*} \numberthis \label{eq:body_rotms}
   R_1(\theta) &= \begin{bmatrix}  1 & 0 & 0 \\ 0 & \cos\theta & \sin\theta \\ 0 & -\sin\theta & \cos\theta \end{bmatrix} \\
@@ -191,9 +191,9 @@ Accounting for the nutation of Earth's pole transforms from TOD to the Mean of D
   \vec{r}_{mod} = R_1(-\bar{\epsilon}) R_3(\Delta\Psi) R_1(\bar{\epsilon} + \Delta\epsilon) \vec{r}_{tod}
 \end{equation}
 
-Accounting for the secular precession of Earth's pole transforms from MOD to ICRF via Eq \ref{mod_to_icrf} through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$, which are each a function of the date of the transformation \cite{frueh2019notes}.
+Accounting for the secular precession of Earth's pole transforms from MOD to ICRF via Eq \ref{eq:mod_to_icrf} through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$, which are each a function of the date of the transformation \cite{frueh2019notes}.
 
-\begin{equation} \label{eq:tod_to_mod}
+\begin{equation} \label{eq:mod_to_icrf}
   \vec{r}_{mod} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{tod}
 \end{equation}
 
