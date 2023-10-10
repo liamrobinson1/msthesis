@@ -249,7 +249,7 @@ Computing the SDF of a triangulated mesh breaks down into computing distances fr
   \label{fig:sdf_slice}
 \end{figure}
 
-Interpolating between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
+Interpolating three-dimensional meshes using signed distance fields is not a novel concept of this work. Cohen-Or et al. used distance fields with anchor points to find warping functions between two geometries \cite{cohen_or1998}. A simpler, less robust interpolation strategy between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
 
 \begin{figure}[!htb]
   \centering
@@ -258,17 +258,18 @@ Interpolating between two shapes can be accomplished through a weighted average 
   \label{fig:interpolating_torus_ico}
 \end{figure}
 
-\begin{algorithmic}
-\State $i \gets 10$
-\If{$i\geq 5$} 
-    \State $i \gets i-1$
-\Else
-    \If{$i\leq 3$}
-        \State $i \gets i+2$
-    \EndIf
-\EndIf 
-\end{algorithmic}
-  
+The proposed algorithm for shape interpolation for SDF interpolation of two shapes $M_1, M_2$ with convex weights $w_1, w_2$ is:
+
+\begin{algorithm}
+  \caption{SDF interpolation}\label{alg:sdf_interp}
+  \begin{algorithmic}
+  \Require $w_1 + w_2 = 1$
+  \State $\mathrm{SDF}_{\textrm{interp}} \gets w_1 \cdot \mathrm{SDF}(M_1) + w_2 \cdot \mathrm{SDF}(M_2)$
+  \State $M_{\textrm{interp}} = \mathrm{Isocontour}(\mathrm{SDF}_{\textrm{interp}}, 0)$.
+  \end{algorithmic}
+\end{algorithm}
+
+Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or non-convex meshes, making it well-suited to interpolating between light curve inversion results.
 
 TODO: write
 

@@ -248,20 +248,61 @@ To motivate the need for accurate shadows when dealing with human-made space obj
 
 \subsection{Shadow Mapping}
 
+Shadow mapping is used in the simulations presented in this work for faster and more accurate self-shadowing. Shadow mapping is a well understood technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation \cite{kolivand2013}. Shadow mapping shades individual pixel fragments instead of entire faces, offering increasing shadow quality over facewise ray tracing as the number of mesh faces falls.
+
+Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_diffuse} TODO: this equation is broken. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL \cite{raylib}.
+
+In order to compute the final shaded and shadowed image, a depth map must be computed from the perspective of two orthographic cameras in the Sun and observer directions. These depth masks require a set of transformations from the model body frame to screen space. With this background laid out, the process for computing a perpendicular depth map $d(x,y)$ from the perspective of an arbitrary orthographic camera is detailed in Algorithm \ref{alg:depth_map}.
+
+\begin{algorithm}
+  \caption{Depth map for shadow mapping} \label{alg:depth_map}
+  \begin{algorithmic}
+    \State $(x, y) \in \mathbb{Z}$ \Comment{Pixel coordinates on the image plane}
+    \State $R_{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
+    \State $d(x, y) \gets \left( R_{cam} - R_{pix} \right) \cdot R_{cam}$ \Comment{Pixel depth in the camera view direction}
+  \end{algorithmic}
+\end{algorithm}
+
+The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading}.
+
+\begin{algorithm}
+  \caption{Pixel-wise shading algorithm with shadow mapping}\label{alg:pix_shading}
+  \begin{algorithmic}
+    \State $L \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards Sun}
+    \State $O \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards observer}
+    \State $N \in \mathbb{S}^2$ \Comment{Outward-pointing surface normal vector at pixel coordinates}
+    \State $(C_d, C_s, n) \in \mathbb{S}^2$ \Comment{Reflection coefficients and exponent for the BRDF}
+    \Require $C_d + C_s \leq 1$ \Comment{Enforce energy conservation}
+    \State $MVP_{Sun} \in \mathbb{R}^{4 \times 4}$ \Comment{MVP matrix for the Sun camera}
+    \State $(x, y) \in \mathbb{Z}^2$ \Comment{Integer pixel coordinates from the observer camera}
+    \State $R_{pix,obs} \in \mathbb{R}^3$ \Comment{World coordinates of the pixel; provided by OpenGL}
+    \State $\left[(x_{homo,Sun}, y_{homo,Sun}, ...\right] \gets MVP_{Sun} \left[ R_{pix,obs}, 1 \right]^T$
+    \State $x_{Sun} \gets \left(1 + p_{x, homo}\right) \frac{w_{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
+    \State $y_{Sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_{pix}}{2} $
+    \State $D_{Sun} \gets  d(x_{sun}, y_{sun})$ \Comment{Closest pixel depth to the Sun direction}
+    \State $D_{obs} \gets \left( L - O \right) \cdot L$ \Comment{Closest pixel depth in the Observer direction}
+    \If{$D_{obs} > D_{Sun}$}
+      \State $\delta_{ss} = 1$ \Comment{Pixel is self-shadowed}
+    \Else 
+      \State $\delta_{ss} = 0$ \Comment{Pixel may be illuminated}
+    \EndIf
+    \If{$\left(N \cdot L\right) > 0 \textrm{ and } \left(N \cdot O\right) > 0$}
+      \State $f_r(\vctr{x}, L \rightarrow O) = 0$ \Comment{Pixel cannot be both observed and illuminated}
+    \Else 
+      \State $f_r(\vctr{x}, L \rightarrow O) = \mathrm{Phong}(L, O, N, C_d, C_s, n)$ \Comment{The pixel is shaded with the BRDF}
+    \EndIf
+    \State $\mathrm{IM}(x, y) = f_r(\vctr{x}, L \rightarrow O)} \left(N \cdot L\right) $ \Comment{Image pixel value}
+  \end{algorithmic}
+\end{algorithm}
+
+This shading and shadow mapping procedure produced images like 
+
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=200px]{hst_shadow_mapping/hst_shadow_mapping.png}
+  \includegraphics[width=\figmed]{hst_shadow_mapping/hst_shadow_mapping.png}
   \caption{Hubble Space Telescope shadow mapping with self (red) and horizon (blue) shadows rendered. Models from \cite{nasa_models}}
   \label{fig:hst_shadows_map}
 \end{figure}
-
-TODO: remake \ref{fig:hst_shadows_map} with figure from Python.
-
-In the LightCurveEngine, shadow mapping is used for faster and more accurate self-shadowing. Shadow mapping is a well understood technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation \cite{kolivand2013}. Because shadow mapping shades individual pixel fragments instead of entire faces, it offers increasing shadow quality over facewise ray tracing as the number of mesh faces falls.
-
-Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_diffuse} TODO: this equation is broken. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL using raylib \cite{raylib}.
-
-TODO: add algorithm pseudocode for lighting shader
 
 \subsection{Sampling Noisy Light Curves}
 
