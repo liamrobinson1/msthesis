@@ -3,9 +3,11 @@
 
 \section{Light Curve Simulation}
 
-\subsection{Orbital Dynamics}
+\subsection{Orbit Propagation}
 
-TODO
+There are many environmental perturbations that effect the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. The Simplified General Perturbations 4 (SGP4) propagator fits these needs well. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. The propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. TLEs themselves are short, standardized collections of orbital elements and mission information, produced from recent observations of the object in question. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
+
+Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian Date is simply linearly interpolates between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
 
 \subsection{Discrete Shape Representations}
 
@@ -223,7 +225,7 @@ the object to yield the noiseless received irradiance.
 
 TODO: add L = Ga stuff
 
-\subsection{Simulating Light Curves for nonconvex Objects}
+\subsection{Simulating Light Curves for Nonconvex Objects}
 
 Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
 
@@ -246,7 +248,7 @@ To motivate the need for accurate shadows when dealing with human-made space obj
   \label{fig:hst_bennu_shadows}
 \end{figure}
 
-\subsection{Shadow Mapping}
+\subsection{Shadow Mapping} \label{sec:shadow_mapping}
 
 Shadow mapping is used in the simulations presented in this work for faster and more accurate self-shadowing. Shadow mapping is a well understood technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation \cite{kolivand2013}. Shadow mapping shades individual pixel fragments instead of entire faces, offering increasing shadow quality over facewise ray tracing as the number of mesh faces falls.
 
@@ -263,39 +265,7 @@ In order to compute the final shaded and shadowed image, a depth map must be com
   \end{algorithmic}
 \end{algorithm}
 
-The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading}.
-
-\begin{algorithm}
-  \caption{Pixel-wise shading algorithm with shadow mapping}\label{alg:pix_shading}
-  \begin{algorithmic}
-    \State $L \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards Sun}
-    \State $O \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards observer}
-    \State $N \in \mathbb{S}^2$ \Comment{Outward-pointing surface normal vector at pixel coordinates}
-    \State $(C_d, C_s, n) \in \mathbb{S}^2$ \Comment{Reflection coefficients and exponent for the BRDF}
-    \Require $C_d + C_s \leq 1$ \Comment{Enforce energy conservation}
-    \State $MVP_{Sun} \in \mathbb{R}^{4 \times 4}$ \Comment{MVP matrix for the Sun camera}
-    \State $(x, y) \in \mathbb{Z}^2$ \Comment{Integer pixel coordinates from the observer camera}
-    \State $R_{pix,obs} \in \mathbb{R}^3$ \Comment{World coordinates of the pixel; provided by OpenGL}
-    \State $\left[(x_{homo,Sun}, y_{homo,Sun}, ...\right] \gets MVP_{Sun} \left[ R_{pix,obs}, 1 \right]^T$
-    \State $x_{Sun} \gets \left(1 + p_{x, homo}\right) \frac{w_{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
-    \State $y_{Sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_{pix}}{2} $
-    \State $D_{Sun} \gets  d(x_{sun}, y_{sun})$ \Comment{Closest pixel depth to the Sun direction}
-    \State $D_{obs} \gets \left( L - O \right) \cdot L$ \Comment{Closest pixel depth in the Observer direction}
-    \If{$D_{obs} > D_{Sun}$}
-      \State $\delta_{ss} = 1$ \Comment{Pixel is self-shadowed}
-    \Else 
-      \State $\delta_{ss} = 0$ \Comment{Pixel may be illuminated}
-    \EndIf
-    \If{$\left(N \cdot L\right) > 0 \textrm{ and } \left(N \cdot O\right) > 0$}
-      \State $f_r(\vctr{x}, L \rightarrow O) = 0$ \Comment{Pixel cannot be both observed and illuminated}
-    \Else 
-      \State $f_r(\vctr{x}, L \rightarrow O) = \mathrm{Phong}(L, O, N, C_d, C_s, n)$ \Comment{The pixel is shaded with the BRDF}
-    \EndIf
-    \State $\mathrm{IM}(x, y) = f_r(\vctr{x}, L \rightarrow O)} \left(N \cdot L\right) $ \Comment{Image pixel value}
-  \end{algorithmic}
-\end{algorithm}
-
-This shading and shadow mapping procedure produced images like 
+The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading} in Appendix \ref{data:shading}. This shading and shadow mapping procedure is detailed graphically in Figure \ref{fig:hst_shadows_map}.
 
 \begin{figure}[!htb]
   \centering
@@ -304,7 +274,7 @@ This shading and shadow mapping procedure produced images like
   \label{fig:hst_shadows_map}
 \end{figure}
 
-\subsection{Sampling Noisy Light Curves}
+\subsection{Sampling Noisy Light Curves} \label{sec:sampling_lcs}
 
 Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian}:
 

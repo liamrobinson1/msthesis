@@ -2,13 +2,15 @@
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
 \chapter{Method}
-\section{CCD Performance Model}
+\section{CCD Performance Model} \label{sec:ccd_performance}
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much further than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
+\subsection{Background Signal Sources}
+
 \subsubsection{Background Source Importance}
 
-Some background signals are more impactful than others. For simulating realistic light curves, it is important to only model those background sources that have the possibility of being at or above the order of magnitude of the object signal, thereby seriously degrading the signal to noise ratio. As a baseline, the background terms modeled by Krag for the PROOF CCD performance model were implemented, namely scattered moonlight, airglow, zodiacal light, and itegrated starlight \cite{krag2003}. In addition, twilight and light pollution models were implemented to increase the time and station location flexibility of the simulation. Each background term is modeled at medium fidelity --- often using tabulated measurements or set of exponential distributions to govern the scattering physics. As a result, this background performance model does not capture local weather conditions or precisely simulate the scattering of each photon through the atmosphere, but still strives to faithfully models the physics of each background signal process. Table \ref{tb:signal_importance} ranks the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
+Some background signals are more impactful than others. For simulating realistic light curves, it is important to only model those background sources that have the possibility of being at or above the order of magnitude of the object signal, thereby seriously degrading the signal-to-noise ratio. As a baseline, the background terms modeled by Krag for the PROOF CCD performance model were implemented, namely scattered moonlight, airglow, zodiacal light, and itegrated starlight \cite{krag2003}. In addition, twilight and light pollution models were implemented to increase the time and station location flexibility of the simulation. Each background term is modeled at medium fidelity --- often using tabulated measurements or set of exponential distributions to govern the scattering physics. As a result, this background performance model does not capture local weather conditions or precisely simulate the scattering of each photon through the atmosphere, but still strives to faithfully models the physics of each background signal process. Table \ref{tb:signal_importance} ranks the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
 
 \begin{table}[]
   \centering
@@ -26,22 +28,20 @@ Some background signals are more impactful than others. For simulating realistic
   \label{tb:signal_importance}
 \end{table}
 
-\subsection{Astronomical Spectra}
+\subsubsection{Astronomical Spectra}
 
 Four of the quantities needed for the background model vary with wavelength. These are the atmospheric transmission, the sensor quantum efficiency, the irradiance of a 0th magnitude star, and the solar spectrum. Each spectrum is displayed in Figure \ref{fig:spectra}.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_astro_spectra_001_2_00x.png}
-  \caption{Astronomical Spectra from \cite{krag2003}}
+  \caption{Astronomical Spectra, atmospheric transmission and zero magnitude stellar spectrum from \cite{krag2003}}
   \label{fig:spectra}
 \end{figure}
 
 In practice, the quantum efficiency curve varies by sensor and the thermal conditions of the
 observation. The curve adopted in this work is that used by Krag; modern sensors will often
 perform better.
-
-\subsection{Background Signal Sources}
 
 \subsubsection{Airglow}
 
@@ -95,7 +95,7 @@ the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2
 \right]$ (MPSAS) \cite{krag2003}. As light pollution increases, this zenith brightness may dip down to
 $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith brightness values,
 we use the 2015 World Atlas of Sky Brightness dataset \cite{falchi2016_data}. The data is reported in $\left[
-	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring conversion to a more useful unit. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit Falchi et al.'s example conversions \cite{falchi2016}.  
+	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring conversion to a more useful unit. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit the conversions of Falchi et al. \cite{falchi2016}.  
 
 \begin{figure}[ht]
   \centering
@@ -120,7 +120,7 @@ The mean light pollution CCD signal in ADU per pixel is formulated similarly to 
 
 \subsubsection{Twilight}
 
-Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on our CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. Patat et al.'s model fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
+Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on our CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. The model of Patat et al. fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
 
 \begin{equation} \label{eq:b_zenith_twilight}
   B_{twi,z} = 11.84 + 1.518(\gamma - 95^\circ) - 0.057 (\gamma -  95^\circ)^2
@@ -288,17 +288,3 @@ When the CCD is read out, the charge contained in each pixel well must be digiti
 \subsubsection{Truncation Noise}
 
 Truncation noise in a CCD stems from the fact that the charge in each pixel is digitized into an integer factor of the gain \cite{frueh2019notes}. This is modeled using a uniform distribution on $\left[ -g/2, g/2 \right]$, yielding a variance $N^2_{trunc} = \frac{g^2}{24}$ \cite{frueh2019notes}.
-
-\subsection{Signal-to-Noise Ratio (SNR)}
-
-Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:ccd_snr}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
-\end{equation}
-
-Explicitly, the SNR can be expanded in terms of the signal means and variances \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:ccd_snr_expanded}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
-\end{equation}

@@ -1,9 +1,9 @@
 \ProvidesFile{ch-coordinate-systems.tex}[Coordinate Systems]
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
-\chapter{Background}
-
 \section{Time Systems}
+
+In order to accurately predict the position of a space object and an observer, it is necessary to understand how a given time translates to the orientation of the relevant reference frames. These calculations require conversions between various time scales, the Julian date, and sidereal time.
 
 \subsection{Time Scales}
 
@@ -19,7 +19,7 @@ These time scales are relevant for this research as the precise coordinate frame
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\figmed]{sphx_glr_time_systems_001.png}
+  \includegraphics[width=\figbig]{sphx_glr_time_systems_001.png}
   \caption{Time scales relative to TAI}
   \label{fig:time_scales}
 \end{figure}
@@ -65,11 +65,27 @@ Both the inclination of the ecliptic and the difference in the equinox are compu
 
 \section{Coordinate Systems}
 
-\subsection{Altitude References}
+A precise definition of coordinate systems is necessary for determining the position of the observer and the observed space object at a given time. The relevant conversions are summarized by a single question: how is a fixed position on the surface of the Earth transformed into a standardized inertial reference frame?
+
+\subsection{Latitude, Longitude and Altitude}
+
+Latitude, longitude, and altitude (LLA) are a spherical coordinates representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_{geod}$ is converted to geocentric $\phi_{geoc}$ latitude with Eq \ref{eq:geod_to_geoc} \cite{frueh2019notes}.
+
+\begin{equation} \label{eq:geod_to_geoc}
+  \phi_{geoc} = \tan^{-1} \left((1 - f)^2 \tan\phi_{geod} \right)
+\end{equation}
+
+Additionally, the radius of the ellipsoid $r_E$ at a given geocentric latitude is necessary for later conversion, expressed by Eq \ref{eq:rad_at_geoc} \cite{frueh2019notes}.
+
+\begin{equation} \label{eq:rad_at_geoc}
+  r_E = R_E - f \sin^2 \left( \phi_{geoc} \right)
+\end{equation}
+
+The altitude in an set of LLA coordinates needs a reference point. Different observers may be defined differently --- either relative to the approximate ellipsoidal shape of the Earth, the hypothetical mean sea level, or the surrounding terrain.
 
 \subsubsection{Ellipsoid}
 
-Due to Earth's equatorial bulge, it is common to model the rough shape of the Earth as an ellipsoid. In particular, the 1984 World Geodetic Survey (WGS-84) model is used throughout this work to define the shape of the Earth ellipsoid, with parameters listed in Table \ref{tb:wgs84}.
+Due to Earth's equatorial bulge, it is common to model the rough shape of the Earth as an ellipsoid. In particular, the 1984 World Geodetic Survey (WGS-84) model is used throughout this work to define the shape of the Earth ellipsoid, with parameters listed in Table \ref{tb:wgs84} for use in Eqs \ref{eq:geod_to_geoc} and \ref{eq:rad_at_geoc}.
 
 \begin{table}[ht]
   \centering
@@ -82,6 +98,8 @@ Due to Earth's equatorial bulge, it is common to model the rough shape of the Ea
   \caption{WGS-84 ellipsoid model of the Earth \cite{vallado4ed}}
   \label{tb:wgs84}
 \end{table}
+
+These parameters are needed for the conversion from LLA to the International Terrestrial Reference Frame.
 
 \subsubsection{Geoid}
 
@@ -105,18 +123,12 @@ Terrain elevation is usually the final component needed to fully define the alti
   \label{fig:pogs_terrain}
 \end{figure}
 
-\subsection{Latitude, Longitude and Altitude}
+\subsubsection{Altitude Conversions}
 
-Latitude, longitude, and altitude (LLA) are a spherical coordinates representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_{geod}$ is converted to geocentric $\phi_{geoc}$ latitude with Eq \ref{eq:geod_to_geoc} \cite{frueh2019notes}.
+Given an altitude relative to the terrain $a_{terrain}$, the elevation above the ellipsoid $a_{ellip}$ is given as a function of the terrain elevation above the geoid $h_{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_{terrain}(\lambda, \phi)$ by:
 
-\begin{equation} \label{eq:geod_to_geoc}
-  \phi_{geoc} = \tan^{-1} \left((1 - f)^2 \tan\phi_{geod} \right)
-\end{equation}
-
-Additionally, the radius of the ellipsoid $r_E$ at a given geocentric latitude is necessary for later conversion, expressed by Eq \ref{eq:rad_at_geoc} \cite{frueh2019notes}.
-
-\begin{equation} \label{eq:rad_at_geoc}
-  r_E = R_E - f \sin^2 \left( \phi_{geoc} \right)
+\begin{equation} \label{eq:altitude_above_ellipsoid}
+  a_{ellip} = a_{terrain} + h_{terrain}(\lambda, \phi_{geod}) + h_{geoid}(\lambda, \phi_{geod})
 \end{equation}
 
 \subsection{International Terrestrial Reference Frame (ITRF)}
@@ -125,15 +137,15 @@ The cartesian form of LLA is known as the Earth-centered Earth-fixed (ECEF) refe
 fundamental plane of the frame is defined to be the equator ---  orienting the $z$-axis through Earth's
 instantaneous spin axis, and the reference direction through the intersection of the prime meridian
 and the equator ---  defining the $x$-axis. Completing the right-handed system with $\hat{y} = \hat{z} \times \hat{x}$ yields a
-reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_{geod}, a \right)$ to ITRF is given by Eq \ref{eq:lla_to_itrf}.
+reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_{geod}, a_{ellip} \right)$ to ITRF is given by Eq \ref{eq:lla_to_itrf}.
 
 \begin{align*} \numberthis \label{eq:lla_to_itrf}
   e^2 &= 2f - f^2 \\
   N &= \frac{R_E}{\sqrt(1 - e^2 \sin(\phi_{geod})^2)} \\
-  \rho &= (N + a) \cos(\phi_{geod}) \\
+  \rho &= (N + a_{ellip}) \cos(\phi_{geod}) \\
   x_{itrf} &= \rho \cos(\lambda) \\
   y_{itrf} &= \rho \sin(\lambda) \\
-  z_{itrf} &= \left(N (1 - e^2) + a \right) \sin(\phi_{geod}) \\
+  z_{itrf} &= \left(N (1 - e^2) + a_{ellip} \right) \sin(\phi_{geod}) \\
 \end{align*}
 
 In Eq \ref{eq:lla_to_itrf}, $e^2$ is the squared eccentricity of the ellipsoid, $N$ is the radius of curvature in the meridian, and $\rho$ is the $x-y$ plane magnitude of the station's position \cite{vallado4ed}.
@@ -163,7 +175,7 @@ In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$
   \label{fig:pogs_enu}
 \end{figure}
 
-\subsection{International Celestial Reference Frame (ICRF)}
+\subsection{International Celestial Reference Frame (ICRF/J2000)}
 
 Transforming from ITRF to the a standardized intertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Vallado \cite{vallado4ed}. 
 
@@ -194,8 +206,10 @@ Accounting for the nutation of Earth's pole transforms from TOD to the Mean of D
 Accounting for the secular precession of Earth's pole transforms from MOD to ICRF via Eq \ref{eq:mod_to_icrf} through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$, which are each a function of the date of the transformation \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:mod_to_icrf}
-  \vec{r}_{mod} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{tod}
+  \vec{r}_{icrd} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{mod}
 \end{equation}
+
+The specific realization of ICRF used in this work is referenced to the position of the equator and equinox at the J2000.0 epoch (January 1, 2000 12:00:00.000 TT), leading to the common name for this reference frame, "J2000" \cite{vallado4ed}.
 
 \subsection{Right Ascension and Declination}
 
@@ -204,8 +218,8 @@ on the celestial sphere from the perspective of an observer. Right ascension is 
 of the observation projected onto the inertial $x-y$ plane, measured counterclockwise from inertial
 $\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
-Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x, y, z \right]^T$ in
-inertial space, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec} \cite{frueh2019notes}.
+Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x_{ITRF}, y_{ITRF}, z_{ITRF} \right]^T$ in
+J2000, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec} \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:eci_to_ra_dec}
   \begin{bmatrix}
@@ -213,8 +227,8 @@ inertial space, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec} \cite{frueh2019
 	\delta
   \end{bmatrix} = 
   \begin{bmatrix}
-	\atantwo(y, x) \\
-	\atantwo(z, \sqrt{x^2 + y^2})
+	\atantwo(y_{ITRF}, x_{ITRF}) \\
+	\atantwo(z_{ITRF}, \sqrt{x_{ITRF}^2 + y_{ITRF}^2})
   \end{bmatrix}
 \end{equation}
 
@@ -222,9 +236,9 @@ inertial space, RA/Dec is computed via Eq \ref{eq:eci_to_ra_dec} \cite{frueh2019
 
 Azimuth and elevation, often shortened to Az/El, are similar angular quantities to right ascension and declination \cite{frueh2019notes}. Instead of being based on
 the inertial sphere, they are referenced to an arbitrary reference frame. For a telescope making
-observations of an object, the local East-North-Up (ENU) frame may be used. For a satellite star
+observations of an object, the local topocentric ENU frame may be used. For a satellite star
 tracker, star azimuth and elevation might be reported in the satellite body frame. In either case,
-Eq \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\hat{v} = \left[ x, y, z
+Eq \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\hat{v} = \left[ x_{ENU}, y_{ENU}, z_{ENU}
 \right]^T$ is expressed in the frame of interest \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:enu_to_az_el}
@@ -233,8 +247,8 @@ Eq \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\hat{v} = 
 	El
   \end{bmatrix} = 
   \begin{bmatrix}
-	\atantwo(y, x) \\
-	\atantwo(z, \sqrt{x^2 + y^2})
+	\atantwo(y_{ENU}, x_{ENU}) \\
+	\atantwo(z_{ENU}, \sqrt{x_{ENU}^2 + y_{ENU}^2})
   \end{bmatrix}
 \end{equation}
 
@@ -246,3 +260,7 @@ substitution $Az' = \frac{\pi}{2} - Az$. Notice that this substitution leads to 
 outside the domain of $[0, 2\pi)$. This is not an issue for later coordinate transformations, but
 may be undesirable for plots. Wrapping the result back to the standard azimuth range via
 $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
+
+\subsection{Coordinate Transformations Summary}
+
+With these transformations, any topocentric observation directions in RA/Dec or Az/El can be converted into a Cartesian representation and transformed into J2000. Simultaneously, any propagated space object orbits can be transformed similarly from an arbitrary propagation frame such that all future computations requiring the observation geometry take place in the same reference frame. 

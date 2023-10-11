@@ -14,7 +14,7 @@ Many optical telescopes, including the Purdue Optical Ground Station, use a CCD 
 Many objects of interest are far past low-Earth orbit, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion. The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that:
 
 \begin{equation} \label{eq:rayleigh_criterion}
-  \sin\theta_R = 1.22 \frac{\lambda}{d}.
+  \sin\theta_R = \frac{1.22 \lambda}{d}.
 \end{equation}
 
 For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO --- giving an angular radius of $\approx 10^{-7}$ radians --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
@@ -66,9 +66,34 @@ In pratice, computing the Airy disk or its Gaussian approximation on rectangular
   C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
 \end{equation}
 
+\subsection{Signal-to-Noise Ratio (SNR)}
+
+Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
+\end{equation}
+
+Explicitly, the SNR can be expanded in terms of the signal means and variances \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr_expanded}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
+\end{equation}
+
+Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_snr_001_2_00x.png}
+  \caption{Signal-to-noise ratio reduction on a synthetic CCD pixel grid}
+  \label{fig:snr_grid}
+\end{figure}
+
+The SNR is an important constraint when determining whether an object signal is visible above the background. If the SNR is too low, it becomes difficult or impossible to notice and quantify the object signal. Simulations in this work are all performed with a reasonable SNR limit of $3$.
+
 \subsection{Brightness Units}
 
-In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear.
+In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
 
 \subsubsection{Irradiance}
 
@@ -85,7 +110,7 @@ In reality, the exoatmospheric irradiance at Earth varies \cite{frueh2019notes}.
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_total_solar_irradiance_003_2_00x.png}
-  \caption{Total solar irradiance variations}
+  \caption{Total solar irradiance variations at Earth and 1 AU. The solar cycle is apparent when distance is held constant at 1 AU, yielding small variations in the peak intensity at Earth.}
   \label{fig:tsi}
 \end{figure}
 
@@ -99,19 +124,19 @@ normalizes brightness from a distance of $10$ parsecs \cite{frueh2019notes}. App
 is computed from irradiance via Eq \ref{eq:irradiance_to_mag}.
 
 \begin{equation} \label{eq:irradiance_to_mag}
-  m = -2.5 \log_{10}\left( \frac{I}{I_0} \right)
+  m = -2.5 \log_{10}\left( \frac{I}{I_z} \right)
 \end{equation}
 
-In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_0$ is
-irradiance of the zero-point source. This makes sense; substituting $I = I_0$ returns
-$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_0 = 2.518021002\cdot
+In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_z$ is
+irradiance of the zero-point source. This makes sense; substituting $I = I_z$ returns
+$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_z = 2.518021002\cdot
 10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
 
 We can rearrange Eq \ref{eq:irradiance_to_mag} to compute irradiance from a given apparent magnitude,
 yielding Eq \ref{eq:mag_to_irradiance}.
 
 \begin{equation} \label{eq:mag_to_irradiance}
-  I = I_0 \cdot 10^{-\frac{m}{2.5}}
+  I = I_z \cdot 10^{-\frac{m}{2.5}}
 \end{equation}
 
 \subsubsection{Normalized Irradiance}
@@ -225,63 +250,14 @@ For completeness, irradiance can be recovered from a signal in ADU and the integ
 
 \subsection{The Light Curve}
 
-TODO: this
+The light curve expresses the observed brightness of an object over time. In literature, that brightness is commonly expressed in terms of irradiance, apparent magnitude, or photoelectron counts. This work also considers the normalized irradiance for some simulation and inversion tasks. Converting between these representations is accomplished with Eqs \ref{eq:count_to_irrad} and \ref{eq:irradiance_to_mag}.
 
-\subsection{Computer Graphics}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_light_curve_units_001_2_00x.png}
+  \caption{Synthetic light curves in counts, irradiance, normalized irradiance, and apparent magnitude}
+  \label{fig:light_curve_units}
+\end{figure}
 
-\subsubsection{Reference Frames}
-
-TODO: this
-
-\subsubsection{Transformations}
-
-There are a few fundamental matrices used in computer graphics that are necessary for later hardware-accelerated light curve simulation algorithms. The first is the model matrix $M \in \mathbb{R}^{4 \times 4}$ which transforms from the world frame to the model frame given the origin of the model body frame $R_{m} \in \mathbb{R}^{3 \times 3}$ and the orientation of the model $\mathbf{q}_m \in \mathbb{R}^4$ as a quaternion:
-
-\begin{equation} \label{eq:model_matrix}
-  M = \begin{bmatrix}
-    -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4 & R_{m,x}\\
-    \ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3 & R_{m,y}\\
-    \ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2 & R_{m,z} \\
-    0 & 0 & 0 & 1
-  \end{bmatrix}.
-\end{equation}
-
-Eq \ref{eq:model_matrix} uses Eq \ref{eq:quat2dcm} to transform the quaternion into a DCM. Given the location of the camera origin $R_{cam} \in \mathbb{R}^3$, its target position $T_{cam} \in \mathbb{R}^3$, and the camera up direction $U_{cam} \in \mathbb{R}^3$, the view matrix $V \in \mathbb{R}^{4 \times 4}$ that transforms from the world frame to the camera frame is given by:
-
-\begin{align*} \numberthis \label{eq:view_matrix}
-  v_3 &= \frac{R_{cam} - T_{cam}}{\| R_{cam} - T_{cam} \|} \\
-  v_1 &= \frac{U_{cam} \times v_z}{\| U_{cam} \times v_3 \|} \\
-  v_2 &= v_1 \times v_3 \\
-  V &= \begin{bmatrix}
-    v_{1,x} & v_{1,y} & v_{1,z} & -v_1 \cdot R_{cam} \\
-    v_{2,x} & v_{2,y} & v_{2,z} & -v_2 \cdot R_{cam} \\
-    v_{3,x} & v_{3,y} & v_{3,z} & -v_3 \cdot R_{cam} \\
-    0 & 0 & 0 & 1
-  \end{bmatrix}.
-\end{align*}
-
-Given the field of view of the camera $FOV$ in radians, the distance from the camera origin to the near $n$ and far $f$ clipping planes, and the camera aspect ratio $a$, the orthographic projection matrix $P \in \mathbb{R}^{4 \times 4}$ that transforms from the camera frame to the image plane is given by:
-
-\begin{align*} \numberthis \label{eq:projection_matrix}
-  t &= n \cdot \tan\left(\frac{FOV}{2}\right) \\
-  r &= t \cdot a \\
-  P &= \begin{bmatrix}
-    \frac{2n}{2r} & 0 & 0 & 0 \\
-    0 & \frac{2n}{2t} & 0 & 0 \\
-    0 & 0 & - \frac{f+n}{f-n} & \frac{2fn}{f-n} \\
-    0 & 0 & -1 & 0 \\
-  \end{bmatrix}
-\end{align*}
-
-Together, these matrices form the so-called Model-View-Projection matrix which transforms directly from coordinates in the object body frame $r_{obj}$ to the image plane:
-
-\begin{equation} \label{eq:mvp}
-  \begin{bmatrix} p_{x, homo} \\ p_{y, homo} \\ p_{z, homo} \\ p_{w, homo} \end{bmatrix} = M V P \begin{bmatrix} r_{obj,x} \\ r_{obj,y} \\ r_{obj,z} \\ 1 \end{bmatrix}.
-\end{equation}
-
-In Eq \ref{eq:mvp}, $p_{x, homo}$ and $p_{y, homo}$ are homogeneous coordinates in the image plane, running from $[-1, -1]$ at the top left corner of the image to $[1, 1]$ at the bottom right. Given the width of the image in $w_{pix}$ pixels, the image coordinates $\left(x,y\right)$ of $r_{obj}$ in pixels are:
-
-\begin{equation} \label{eq:homo_to_pix}
-  \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} \left(1 + p_{x, homo}\right) \frac{w_{pix}}{2} \\ \left(1 + p_{y, homo}\right) \frac{a \cdot w_{pix}}{2} \end{bmatrix}.
-\end{equation}
+Figure \ref{fig:light_curve_units} details this equivalence with the same light curve expressed in these four unit systems. This figure also displays an important characteristic of real measured light curves: they are always contaminated with noise. As a result, the "true mean" signal in Figure \ref{fig:light_curve_units} cannot be obtained through the raw measurements, and is merely computed here as a stepping stone to the measured digital signal in the CCD. The sources of this noise are described in detail in Section \ref{sec:ccd_performance}.
 
