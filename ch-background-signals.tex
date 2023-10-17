@@ -94,7 +94,7 @@ Another source of background noise light pollution. On a cloudless night with lo
 the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2}
 \right]$ (MPSAS) \cite{krag2003}. As light pollution increases, this zenith brightness may dip down to
 $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith brightness values,
-we use the 2015 World Atlas of Sky Brightness dataset \cite{falchi2016_data}. The data is reported in $\left[
+ the 2015 World Atlas of Sky Brightness dataset is used \cite{falchi2016_data}. The data is reported in $\left[
 	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring conversion to a more useful unit. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit the conversions of Falchi et al. \cite{falchi2016}.  
 
 \begin{figure}[ht]
@@ -120,7 +120,7 @@ The mean light pollution CCD signal in ADU per pixel is formulated similarly to 
 
 \subsubsection{Twilight}
 
-Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on our CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. The model of Patat et al. fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
+Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on the CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. The model of Patat et al. fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \ref{eq:b_zenith_twilight} \cite{patat2006}.
 
 \begin{equation} \label{eq:b_zenith_twilight}
   B_{twi,z} = 11.84 + 1.518(\gamma - 95^\circ) - 0.057 (\gamma -  95^\circ)^2
@@ -267,7 +267,7 @@ The background signals are only defined in terms of their means, as each signal 
   P_\lambda(x=k) = \frac{\lambda^k e^{-\lambda}}{k!}
 \end{equation}
 
-This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. Our background sources are reasonably assumed to be independent as they each originate from distinct physical processes.
+This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. The background sources modeled in this work are reasonably assumed to be independent as they each originate from distinct physical processes.
 
 \begin{equation} \label{eq:background_poisson}
   \lambda_{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_{moon} + \bar{S}_{zod}

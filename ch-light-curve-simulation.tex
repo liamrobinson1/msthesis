@@ -13,7 +13,7 @@ Orbital propagation for the simulations performed in this work was done using SG
 
 A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 
 
-By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the most common case, object faces are defined by triangles. This means that at the scale of the individual faces, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for our application. Human-made space objects like most satellites are composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
+By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the most common case, object faces are defined by triangles. This means that at the scale of the individual faces, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for light curve shape inversion. Human-made space objects like most satellites are composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
 
 \subsubsection{The Object File Format}
 
@@ -193,9 +193,27 @@ In Eq \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Eq \ref
   \includegraphics[width=\figbig]{sphx_glr_brdf_renders_002_2_00x.png}
   \caption{Implemented BRDFs rendered with arbitrary parameters, demonstrating the qualitative differences between lighting models}
   \label{fig:brdf_renders}
-\end{figure}
+\end{figure} 
 
-\subsection{Simulating Light Curves for Convex Objects}
+\subsection{Real Material Properties}
+
+Producing accurate light curves requires accurate optical properties for the simulated materials. Matusik et al. compiled measured bidirectional reflectance data from over 100 real materials including various metals and paints that might be found on human-made space objects \cite{matusik2003}. Optimally, such a dataset would be used to model the structure, solar panels, and antenna surfaces of the simulated objects. However, it is far more computationally efficient to fit one of the presented three parameter BRDFs to observed data. The Phong model parameters used for simulations in this work are listed in Table \ref{tb:real_matprops}.
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{|l|l|l|l|}
+  \hline
+  \textbf{Material} & $C_d$ & $C_s$ & $n$ \\ \hline
+  Solar panel (Phong) \cite{fankhauser2023}              & $0.15$ & $0.25$ & $0.26$  \\ \hline
+  Bus structure (Phong) \cite{fankhauser2023}               & $0.34$ & $0.40$ & $8.9$  \\ \hline
+  Multilayer insulation (MLI) (Phong) & $0.1$ & $0.9$ & $20$ \\ \hline
+  White paint (Phong) & $0.9$ & $0.1$ & $1$ \\ \hline
+  \end{tabular}
+  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated. Significant variance may exist depending on surface finishes.}
+  \label{tb:real_matprops}
+\end{table}
+
+\subsection{Simulating Normalized Light Curves of Convex Objects}
 
 Light curve simulation for convex geometry can be solved semi-analytically as each face's contribution 
 to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
@@ -211,21 +229,30 @@ expressed by the shadowing condition $\mu_{ij}$.
   \end{cases}
 \end{equation}
 
-The unit vectors $O$ and $L$ point from the center of mass of the object to the observer and Sun, respectively. 
-We choose the outward-pointing face normal unit vector $\hat{n}$ by convention for all mesh operations. 
+The unit vectors $O$ and $L$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\hat{n}$ is chosen by convention for all mesh operations. 
 The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, 
 are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. 
 For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing 
 refers to otherwise visible faces blocked by other portions of the geometry.
 
-The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, 
-composed of specular and diffuse contributions. Each contribution is expressed as the product of the
+The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
 normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
-the object to yield the noiseless received irradiance.
+the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$:
 
-TODO: add L = Ga stuff
+\begin{equation} \label{eq:lc_func_normalized}
+  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} \mu_{Earth,j} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
+\end{equation}
 
-\subsection{Simulating Light Curves for Nonconvex Objects}
+In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face and $f_{Sun}$ is the solar irradiance fraction. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
+
+\begin{equation} \label{eq:lc_func_norm_to_irrad}
+  I_{j} = \frac{I_0 \hat{I}_j}{r_j^2}.
+\end{equation}
+
+Note that using $r_j = \| \vctr{r}_{obj} - \vctr{r}_{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
+
+
+\subsection{Simulating Normalized Light Curves of Nonconvex Objects}
 
 Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
 
@@ -237,22 +264,22 @@ Many existing light curve simulation methods for nonconvex objects rely on ray t
   \label{hst_shadows_ray}
 \end{figure}
 
-\subsection{The Importance of Self-Shadowing}
+\subsubsection{The Importance of Self-Shadowing}
 
 To motivate the need for accurate shadows when dealing with human-made space objects, consider the error introduced by neglecting shadows for different types of space objects. Kaasalainen and Torppa's work on asteroids reasonably assumed that shadowing was a negligible contribution to the measured light curve. Human-made objects do not afford the same luxury. Figure \ref{fig:hst_bennu_shadows} displays light curves for the asteroid Bennu and the Hubble Space Telescope with and without accurate shadows under a single-axis spin profile with inertially fixed Sun and observer vectors. Without accurate shadowing, the light curve's intensity and its time derivative can be significantly error-prone.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=350px]{convex_vs_nconv_lcs.png}
-  \caption{Brightness errors introduced by neglecting shadows for Bennu and HST. Models from \cite{nasa_models}}
+  \caption{Normalized irradiance errors introduced by neglecting shadows for Bennu and HST. Models from \cite{nasa_models}}
   \label{fig:hst_bennu_shadows}
 \end{figure}
 
-\subsection{Shadow Mapping} \label{sec:shadow_mapping}
+\subsubsection{Shadow Mapping} \label{sec:shadow_mapping}
 
 Shadow mapping is used in the simulations presented in this work for faster and more accurate self-shadowing. Shadow mapping is a well understood technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation \cite{kolivand2013}. Shadow mapping shades individual pixel fragments instead of entire faces, offering increasing shadow quality over facewise ray tracing as the number of mesh faces falls.
 
-Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_diffuse} TODO: this equation is broken. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL \cite{raylib}.
+Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_normalized}. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL \cite{raylib}.
 
 In order to compute the final shaded and shadowed image, a depth map must be computed from the perspective of two orthographic cameras in the Sun and observer directions. These depth masks require a set of transformations from the model body frame to screen space. With this background laid out, the process for computing a perpendicular depth map $d(x,y)$ from the perspective of an arbitrary orthographic camera is detailed in Algorithm \ref{alg:depth_map}.
 
@@ -274,18 +301,161 @@ The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading} 
   \label{fig:hst_shadows_map}
 \end{figure}
 
+An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a normalized irradiance value by computing the area of the square orthographic field of view given the image pixel count $n_{pix}$:
+
+\begin{equation} \label{eq:ortho_area}
+  A_{image} = 2 n_{pix} \left(FOV \right)^2.
+\end{equation}
+
+This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_{pix}$ pixels and dimensionalizing by the area of the image plane:
+
+\begin{equation} \label{eq:lc_normalized_engine}
+  \hat{I}_j = \frac{A_{image}}{n_{pix}} \sum_{i=1}^{n_{pix}}{\frac{v_{i}}{255}}
+\end{equation}
+
+\subsection{Observer Constraints}
+
+Accurately simulating light curves requires realistic constraints on the observing station. For an optical ground station, basic operational constraints include local eclipse, target SNR, Moon exclusion angle, and minimum elevation constraints. This section develops these constraints.
+
+\subsubsection{Earth Penumbra}
+
+The Earth casts a conical shadow into space. Outside this shadow, the fraction of recieved solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ and object in J2000, the local irradiance fraction a function of the angles \cite{krag2003}:
+
+\begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
+  \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_{obj} \\
+  \epsilon_s &= \sin^{-1}\left( \frac{R_{Sun}}{\| \vctr{r}_{obj2Sun} \|} \right) \\
+  \epsilon_e &= \sin^{-1}\left( \frac{R_{Earth}(\phi_{obj})}{\| \vctr{r}_{obj} \|} \right) \\
+  \epsilon &= \cos^{-1} \left( -\hat{r}_{obj2Sun} \cdot \hat{r}_{obj} \right) \\
+  \epsilon_1 &= \frac{\epsilon^2 - \epsilon_e^2 + \epsilon_s^2}{2 \epsilon} \\
+  \epsilon_2 &= \frac{\epsilon^2 + \epsilon_e^2 - \epsilon_s^2}{2 \epsilon}. \\
+\end{align*}
+
+\graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images}}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{angle_defs_krag_520.png}
+  \caption{Angle and area definitions for penumbra shadowing, Figure 5.20 in \cite{krag2003}}
+  \label{fig:penumbra_angles}
+\end{figure}
+\graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
+
+In Eq \ref{eq:irradiance_fraction_angles}, $\epsilon_s$ is the half-angle of the Sun disk at the object, $\epsilon_e$ is the half-angle of the Earth disk from the object as a function of the geodetic latitude of the object $\phi_{obj}$. Additionally, $\epsilon$ is the angle between the center of the Earth and Sun from the perspective of the object, with $\epsilon_1$ and $\epsilon_2$ being the angles from the center of the Sun and Earth disks to the center of their overlap, if it exists \cite{krag2003}. These angles are defined in Figure \ref{fig:penumbra_angles}. Given these angles, the illumination fraction $f_{Sun}$ is computed:
+
+\begin{equation} \label{eq:irradiance_fraction}
+  f_{Sun} = \begin{cases}
+    1 & \epsilon \geq (\epsilon_s + \epsilon_e) \\ 
+    0 & \epsilon \leq (\epsilon_e - \epsilon_s) \\ 
+    \frac{a_1 - a_2}{\pi \epsilon_s^2} & \mathrm{else}
+  \end{cases}.
+\end{equation}
+
+In Eq \ref{eq:irradiance_fraction}, the solid angles $a_1$ and $a_2$ are defined in Figure \ref{fig:penumbra_angles} and are computed via:
+
+\begin{align*} \numberthis \label{eq:penumbra_areas}
+  a_1 &= \pi \epsilon_s^2 - \epsilon_s^2 \cos^{-1} \left(\frac{\epsilon_1}{\epsilon_s}\right)
+    + \epsilon_1 \sqrt{\epsilon_s^2 - \epsilon_1^2} \\
+  a_2 &= \epsilon_e^2 \cos^{-1}\left(\frac{\epsilon_2}{\epsilon_e} \right) - \epsilon_2 \sqrt{\epsilon_e^2 - \epsilon_2^2} \\
+\end{align*}
+
+Computing Eq \ref{eq:irradiance_fraction} for a dense grid of points in the J2000 reference frame reveals the geometry of the penumbra and umbra in Figure \ref{fig:penumbra}, illustrating that the penumbra expands into the umbra as the observer recedes from the Earth. 
+
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_penumbra_plane_001.png}
+  \caption{Shadow fraction in J2000, effect exaggerated by scaling the Sun radius by a factor $10$}
+  \label{fig:penumbra}
+\end{figure}
+\graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
+
+\subsubsection{SNR}
+
+As the signal-to-noise ratio of an object signal on the CCD pixel grid degrades, it becomes more difficult to determine whether an object is present at all. Given a minimum limiting SNR $\mathrm{SNR}_{min}$ this constraint takes the form:
+
+\begin{equation} \label{eq:moon_exclusion}
+  \nu_{\mathrm{SNR}} = \begin{cases}
+    1 & \mathrm{SNR} > \mathrm{SNR}_{min}\\
+    0 & \mathrm{else}
+  \end{cases}.
+\end{equation}
+
+In Eq \ref{eq:moon_exclusion}, $\nu_{\mathrm{SNR}} = 1$ implies that the observation is valid, with $\nu_{\mathrm{SNR}} = 0$ implying that the object signal cannot be discerned from the image background.
+
+\subsubsection{Moon Exclusion Angle}
+
+Focusing the irradiance of the Moon onto the sensor grid will seriously damage the CCD. For the Purdue Optical Ground Station, straylight from the Moon begins leaking into the optics around $30^\circ$ from the center of the Moon disk. This observation constraint is imposed for an arbitrary exclusion angle $\theta_{Moon,ex}$ via:
+
+\begin{equation} \label{eq:moon_exclusion}
+  \nu_{Moon} = \begin{cases}
+    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_{Moon} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)}{\| \vctr{r}_{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obj} - \vctr{r}_{obs} \|} \right) > \theta_{Moon,ex}\\
+    0 & \mathrm{else}
+  \end{cases}.
+\end{equation}
+
+In Eq \ref{eq:moon_exclusion}, $\nu_{Moon} = 1$ implies that the observation is valid, with $\nu_{Moon} = 0$ implying that the observation is too close to the Moon.
+
+\subsubsection{Minimum Elevation}
+
+Due to the local topology at the observer location, an operator may assign a minimum angle from the horizon $\theta_{elev,min}$ for observations. Approximating the station inertial position $\vctr{r}_{obs}$ as being aligned with zenith, this yields the condition:
+
+
+\begin{equation} \label{eq:elevation_exclusion}
+  \nu_{elevation} = \begin{cases}
+    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obs} \right)}{\| \vctr{r}_{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obs} \|} \right) > \theta_{Moon,ex}\\
+    0 & \mathrm{else}
+  \end{cases}.
+\end{equation}
+
+In Eq \ref{eq:moon_exclusion}, $\nu_{elevation} = 1$ implies that the observation is valid, with $\nu_{elevation} = 0$ implying that the observation is too close to the horizon.
+
+\subsection{Mean Irradiance at The Observer}
+
+Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for convex objects or Eq \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the recieved mean irradiance at the telescope aperture is given by:
+
+\begin{equation} \label{eq:mean_irrad_at_aperture}
+  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_0 f_{Sun} \hat{I}}{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2}.
+\end{equation}
+
+In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:sint}, yielding $\bar{C}_{all}$.
+
 \subsection{Sampling Noisy Light Curves} \label{sec:sampling_lcs}
 
 Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian}:
 
 \begin{equation} \label{eq:obj_signal_grid}
-  C_{obj}(x, y) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_{pix}^2} \right).
+  \bar{C}_{obj}(x, y) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_{pix}^2} \right).
 \end{equation}
 
 In Eq \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Eq \ref{eq:airy_variance} in arcseconds, and $s_{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions:
 
 \begin{equation} \label{eq:noise_signal_grid}
-  C_{noise}(x, y) = N_{background} + N_{dark} + N_{trunc} + N_{read}.
+  C_{noise} = N_{background} + N_{dark} + N_{trunc} + N_{read}.
 \end{equation}
 
-In Eq \ref{eq:noise_signal_grid}, $N_{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \lambda_{dark})$, $N_{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_{read}$ is drawn from $\mathrm{Normal}(0, \sigma_{read}^2)$. 
+In Eq \ref{eq:noise_signal_grid}, $N_{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_{dark})$, $N_{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_{read}$ is drawn from $\mathrm{Normal}(0, \sigma_{read}^2)$. 
+
+Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_{obj}, y_{obj}\}$ is given by:
+
+\begin{align*} \numberthis \label{eq:noisy_counts}
+  C_{noise,all} &= \sum_{i=1}^{A_{airy}}{C_{noise,i}} \\
+  C_{obj,all} &= \sum_{x \in x_{obj}, \: y \in x_{obj}}{\bar{C}_{obj}(x, y)} \\
+  C_{obj,meas} &= C_{noise,all} - A_{airy} \left( \Delta t \cdot \lambda_{dark} + \lambda_{background} \right) 
+\end{align*}
+
+In Eq \ref{eq:noisy_counts}, $A_{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Eq \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Eq \ref{eq:count_to_irrad}:
+
+\begin{equation}
+  I_{obj,meas} = \frac{C_{obj,meas}}{\mathrm{SINT} \cdot \Delta t}
+\end{equation}
+
+or to apparent magnitude via Eq \ref{eq:mag_to_irradiance}:
+
+\begin{equation}
+  m_{obj,meas} = -2.5 \log_{10}\left( \frac{I_{obj,meas}}{I_z} \right)
+\end{equation}
+
+or normalized irradiance via Eq \ref{eq:irradiance_to_norm_irradiance}:
+
+\begin{equation}
+  \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_0} I_{obj,meas}.
+\end{equation}

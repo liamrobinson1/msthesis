@@ -42,7 +42,7 @@ In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on t
   \label{fig:airy_disk_magnitude}
 \end{figure}
 
-The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. We can fit this Gaussian with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed:
+The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed:
 
 \begin{equation} \label{eq:fwhm_airy}
   FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
@@ -64,6 +64,12 @@ In pratice, computing the Airy disk or its Gaussian approximation on rectangular
 
 \begin{equation}
   C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
+\end{equation}
+
+The area within the first maximum of the Airy disk is given by:
+
+\begin{equation} \label{eq:airy_area}
+  A_{airy} = \pi \left(\frac{648000 / \pi}{s_{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
 \end{equation}
 
 \subsection{Signal-to-Noise Ratio (SNR)}
@@ -132,7 +138,7 @@ irradiance of the zero-point source. This makes sense; substituting $I = I_z$ re
 $m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_z = 2.518021002\cdot
 10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
 
-We can rearrange Eq \ref{eq:irradiance_to_mag} to compute irradiance from a given apparent magnitude,
+Eq \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude,
 yielding Eq \ref{eq:mag_to_irradiance}.
 
 \begin{equation} \label{eq:mag_to_irradiance}
@@ -141,16 +147,11 @@ yielding Eq \ref{eq:mag_to_irradiance}.
 
 \subsubsection{Normalized Irradiance}
 
-The light curve simulation methods presented in this work heavily use normalized irradiance, 
-the irradiance of a source observed from a distance of $1$ meter. This is a non-standard quantity in the literature, but proves useful for the same reasons
-absolute magnitude is used by astronomers. Adjusting sources to be at a standard distance allows us
-to simulate and invert light curves in a non-dimensionalized space. This simplifies simulation and
-makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed
-at a distance $r$ in meters from an object is converted to normalized irradiance $\hat{I}$ in watts via Eq
-\ref{eq:irradiance_to_norm_irradiance}.
+The light curve simulation methods presented in this work use normalized irradiance, 
+the reflected irradiance of a object received at a distance of $1$ meter illuminated by a distant source with an irradiance of $1$ $\left[ W/m^2 \right]$ at the object. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting sources to be at a standard distance enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via Eq \ref{eq:irradiance_to_norm_irradiance}.
 
 \begin{equation} \label{eq:irradiance_to_norm_irradiance}
-  \hat{I} = r^2 I
+  \hat{I} = \frac{r^2}{I_0} I
 \end{equation}
 
 \subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
