@@ -4,6 +4,479 @@
 
 Light curve simulation and inversion requires background knowledge in attitude kinematics, time and coordinate systems, computer graphics, and photometry.
 
+\section{Photometry}
+
+\subsection{The Charge Coupled Device (CCD)}
+
+Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
+
+\subsection{Diffraction}
+
+\subsubsection{Rayleigh Criterion}
+
+Many objects of interest are far past low-Earth orbit, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion. The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that:
+
+\begin{equation} \label{eq:rayleigh_criterion}
+  \sin\theta_R = \frac{1.22 \lambda}{d}.
+\end{equation}
+
+For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO --- giving an angular radius of $\approx 10^{-7}$ radians --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
+
+\subsubsection{The Airy Disk}
+
+The far-field diffraction pattern produced by a point source is known as an Airy pattern \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
+
+\begin{equation} \label{eq:airy_disk}
+  C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
+\end{equation}
+
+In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
+
+\begin{equation} \label{eq:airy_center}
+  C_0 = \frac{S_{obj}^2 A_{aperture}^2}{2 f^4}.
+\end{equation}
+
+In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_airy_disk_diffraction_001_2_00x.png}
+  \caption{Airy disk diffraction pattern}
+  \label{fig:airy_disk_magnitude}
+\end{figure}
+
+The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:fwhm_airy}
+  FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
+\end{equation}
+
+The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
+
+\begin{equation} \label{eq:airy_variance}
+  \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
+\end{equation}
+
+The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
+
+\begin{equation} \label{eq:airy_gaussian}
+  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
+\end{equation}
+
+In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
+
+\begin{equation}
+  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
+\end{equation}
+
+The area within the first maximum of the Airy disk is given by:
+
+\begin{equation} \label{eq:airy_area}
+  A_{airy} = \pi \left(\frac{648000 / \pi}{s_{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
+\end{equation}
+
+\subsection{Signal-to-Noise Ratio (SNR)}
+
+Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
+\end{equation}
+
+Explicitly, the SNR can be expanded in terms of the signal means and variances \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr_expanded}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
+\end{equation}
+
+Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_snr_001_2_00x.png}
+  \caption{Signal-to-noise ratio reduction on a synthetic CCD pixel grid}
+  \label{fig:snr_grid}
+\end{figure}
+
+The SNR is an important constraint when determining whether an object signal is visible above the background. If the SNR is too low, it becomes difficult or impossible to notice and quantify the object signal. Simulations in this work are all performed with a reasonable SNR limit of $3$.
+
+\subsection{Brightness Units}
+
+In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
+
+\subsubsection{Irradiance}
+
+Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
+surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
+\: [m^2]$ area would experience $10 \: [W]$ of incident power. The mean irradiance of the Sun --- termed the solar constant --- is derived from the mean luminosity of the Sun $L_s = 3.828\cdot10^{26} \: [W]$ and a distance of $1$ Astronomical Unit $1 \: [AU] = 149597870.7 \: [km]$ \cite{frueh2019notes}. The mean solar constant is then computed via
+
+\begin{equation} \label{eq:solar_constant_mean}
+  I_0 = \frac{L_s}{4\pi \left(AU\right)^2} \approx 1361.0 \: \left[ \frac{W}{m^2} \right].
+\end{equation}
+
+In reality, the exoatmospheric irradiance at Earth varies \cite{frueh2019notes}. Figure \ref{fig:tsi} displays the small variations in the solar irradiance due to the solar cycle and the much larger variations due to Earth's eccentric orbit.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_total_solar_irradiance_003_2_00x.png}
+  \caption{Total solar irradiance variations at Earth and 1 AU. The solar cycle is apparent when distance is held constant at 1 AU, yielding small variations in the peak intensity at Earth.}
+  \label{fig:tsi}
+\end{figure}
+
+\subsubsection{Apparent Magnitude}
+
+Apparent magnitude ---  also known as visual or relative magnitude --- is a reverse logarithmic scale
+that originates in astronomy \cite{frueh2019notes}. Stellar sources span many orders of magnitude of brightness, making a
+logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
+expresses brightness at the observer's location; absolute magnitude is a different quantity that
+normalizes brightness from a distance of $10$ parsecs \cite{frueh2019notes}. Apparent magnitude $m$
+is computed from irradiance via:
+
+\begin{equation} \label{eq:irradiance_to_mag}
+  m = -2.5 \log_{10}\left( \frac{I}{I_z} \right).
+\end{equation}
+
+In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_z$ is
+irradiance of the zero-point source. This makes sense; substituting $I = I_z$ returns
+$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_z = 2.518021002\cdot
+10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
+
+Eq \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude,
+yielding:
+
+\begin{equation} \label{eq:mag_to_irradiance}
+  I = I_z \cdot 10^{-\frac{m}{2.5}}.
+\end{equation}
+
+\subsubsection{Normalized Irradiance}
+
+The light curve simulation methods presented in this work use normalized irradiance, 
+the reflected irradiance of a object received at a distance of $1$ meter illuminated by a distant source with an irradiance of $1$ $\left[ W/m^2 \right]$ at the object. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting sources to be at a standard distance enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
+
+\begin{equation} \label{eq:irradiance_to_norm_irradiance}
+  \hat{I} = \frac{r^2}{I_0} I.
+\end{equation}
+
+\subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
+
+While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
+to describe diffuse or extended sources where brightness is spread over an
+area. $S_{10}$ is a unit of surface brightness representing the number of 10th magnitude stars per square degree that would produce the same flux as a given diffuse source.
+Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ sr \right]$ can be converted to total irradiance $I \: \left[ \frac{W}{m^2} \right]$ via:
+
+\begin{equation} \label{eq:s10toirrad}
+ \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
+  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
+\end{equation}
+
+In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
+representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
+spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
+\frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
+speed of light in vacuum. Quantum efficiency has units of photoelectrons which conveys the fraction of incident photons which are (proportionally) converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm} and \ref{data:qe}.
+
+\subsubsection{Magnitude per Square Arcsecond}
+
+A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond). This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
+magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
+brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
+$\left[ \frac{mag}{arcsec^2} \right]$ via:
+
+\begin{equation} \label{s10_to_mag_per_a2}
+	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
+\end{equation}
+
+In Eq \ref{s10_to_mag_per_a2} $S_{10}$ is first converted to the total irradiance per square degree,
+convert square degrees to square arcseconds, and transform the result back into apparent magnitude. MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
+
+\begin{equation} \label{eq:mpsas_to_irrad_per_ster}
+  I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}.
+\end{equation}
+
+\subsubsection{Candela} \label{sec:candela}
+
+Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \cite{nist_units}:
+
+\begin{equation} \label{eq:cd_to_w_per_sr}
+  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
+\end{equation}
+
+The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al. is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_luminous_efficiency_001_2_00x.png}
+  \caption{Luminous effiency function from \cite{sharpe2005}}
+  \label{fig:luminous_efficiency}
+\end{figure}
+
+Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding a formulation which is still a function of the source's wavelength:
+
+\begin{equation} \label{eq:cd_per_m2_to_mpsas}
+  MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_0} \right).
+\end{equation}
+
+\subsubsection{Photoelectron Counts}
+
+Accurately simulating measured light curves requires an accurate simulation of the CCD camera taking the image. The first step towards that is understanding how irradiance at the telescope aperture is converted into pixel values in the final image. Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single
+pixel obtained is directly proportional (via the CCD's gain) to the number of
+photons incident on that pixel during the integration time. Higher order effects in the silicon of
+the CCD makes this description incomplete, but for non-resolved imaging applications
+concerned about, effects smaller than the sensor readout noise and dark current can be safely neglected
+\cite{frueh2019notes}. Irradiance can be converted to ADU via the conversion factor $SINT$
+through \cite{krag2003}:
+
+\begin{equation} \label{eq:sint}
+ \textrm{SINT} = A_{aperture}
+	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+  \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
+\end{equation}
+
+In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
+$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun (generally taken to be
+the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$. Read literally, the integral term as
+units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
+radiation and second of integration time. The aperture diameter factor outside the imtegral accounts
+for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
+\right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
+in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU via:
+
+\begin{equation} \label{eq:irrad_to_count}
+  \bar{C}_{all} = \textrm{SINT} \cdot I \cdot \Delta t.
+\end{equation}
+
+For completeness, irradiance can be recovered from a signal in ADU and the integration time:
+
+\begin{equation} \label{eq:count_to_irrad}
+  I = \frac{S}{\textrm{SINT} \cdot \Delta t}.
+\end{equation}
+
+\subsection{The Light Curve}
+
+The light curve expresses the observed brightness of an object over time. In literature, that brightness is commonly expressed in terms of irradiance, apparent magnitude, or photoelectron counts. This work also considers the normalized irradiance for some simulation and inversion tasks. Converting between these representations is accomplished with Eqs \ref{eq:count_to_irrad} and \ref{eq:irradiance_to_mag}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_light_curve_units_001_2_00x.png}
+  \caption{Synthetic light curves in counts, irradiance, normalized irradiance, and apparent magnitude}
+  \label{fig:light_curve_units}
+\end{figure}
+
+Figure \ref{fig:light_curve_units} details this equivalence with the same light curve expressed in these four unit systems. This figure also displays an important characteristic of real measured light curves: they are always contaminated with noise. As a result, the "true mean" signal in Figure \ref{fig:light_curve_units} cannot be obtained through the raw measurements, and is merely computed here as a stepping stone to the measured digital signal in the CCD. The sources of this noise are described in detail in Section \ref{sec:ccd_performance}.
+
+\section{Simulating The Object}
+
+\subsection{Orbit Propagation}
+
+There are many environmental perturbations that effect the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. The Simplified General Perturbations 4 (SGP4) propagator fits these needs well. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. The propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. TLEs themselves are short, standardized collections of orbital elements and mission information, produced from recent observations of the object in question. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
+
+Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian Date is simply linearly interpolates between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
+
+\subsection{Discrete Shape Representations}
+
+A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 
+
+By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the most common case, object faces are defined by triangles. This means that at the scale of the individual faces, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for light curve shape inversion. Human-made space objects like most satellites are composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
+
+\subsubsection{The Object File Format}
+
+One common text file format for 3D model files is \texttt{.obj}, developed by Wavefront Technologies in the early 1990s \cite{obj_format}. Each OBJ file consists of a list of vertex positions and face definitions, with optional vertex normals and tangents. An \texttt{.obj} listing for a cube is included for reference in Appendix \ref{sec:obj_listing}. Given the vertex positions and adjacency information stored in the model file, useful properties of the object can be computed for use later in both light curve simulation and shape inversion. 
+
+\subsubsection{Properties of Triangulated Meshes}
+
+For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with:
+
+\begin{equation} \label{eq:face_normal}
+    \hat{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
+\end{equation}
+
+The face area is computed with:
+
+\begin{equation} \label{eq:face_areas}
+    a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
+\end{equation}
+
+The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.e., the first vertex $v_{i,1}$, and the face normal vector $\hat{n}_i$:
+
+\begin{equation} \label{eq:face_support}
+    h_i = v_{i,1} \cdot \hat{n}_i.
+\end{equation}
+
+The volume of the object is computed:
+
+\begin{equation} \label{eq:object_volume}
+    V = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vec{h}_i \cdot \vec{a}_i.
+\end{equation}
+
+In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vec{h}$ and $\vec{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
+
+\begin{equation} \label{eq:egi_definition}
+    \vec{E}_i = \vec{a}_i \vec{n}_i.
+\end{equation}
+
+\subsection{Selected Satellite Models}
+
+Most of the analysis in this work used one of the 3D model files shown in Figure \ref{fig:satellite_lineup}. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\figbig]{sphx_glr_satellite_lineup_001.png}
+    \caption{Selected space objects with soccer field for size reference. In order, the objects are TESS, Starlink V1, TDRS, Landsat 8, Hispasat 30W-6, Saturn V SII, TELSTAR 19V, HYLAS 4, and simplified ASTRA.
+    }
+    \label{fig:satellite_lineup}
+\end{figure}
+
+\subsection{The Bidirectional Reflectance Distribution Function}
+
+Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, all relevant optical interactions must be modeled. In broad terms, this boils down to determining how the object is illuminated, how it casts shadows on itself, and how it is observed. 
+
+At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of these microfacets. If the facet normals are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the facets normals are at large angles to each other, the surface may appear dull as the direction of the outgoing light may be largely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface can also change the macroscopic properties of the material. 
+
+This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by \cite{duvenhage2013}:
+
+\begin{equation} \label{eq:brdf_def}
+    f_r(\vctr{x}, L \rightarrow O) = \frac{d\mathcal{R}\left(\vctr{x} \rightarrow O\right)}{d\mathcal{I}\left(L \rightarrow \vctr{x}\right)}.
+\end{equation}
+
+In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L \rightarrow O)$ and $f_r(L \rightarrow O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this should feel natural. Explicitly, energy conservation is expressed with \cite{montes2012}:
+
+\begin{equation} \label{eq:brdf_energy_cons}
+  \forall L \in \mathbb{S}^2 : \:\: \int_{O \in \mathbb{S}^2} f_r(L \rightarrow O) \: d\mathbb{S}^2 \leq 1.
+\end{equation}
+
+Eq \ref{eq:brdf_energy_cons} states that for all possible illumination directions $L$, integrating all possible outgoing observer directions $O$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
+
+\begin{equation} \label{eq:brdf_reciprocity}
+  \forall L, O \in \mathbb{S}^2 : \:\: f_r(L \rightarrow O) = f_r(O \rightarrow L).
+\end{equation}
+
+\subsection{BRDF Formulations}
+
+Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. This does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
+
+\subsubsection{Lambertian}
+
+The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
+
+\begin{equation} \label{eq:brdf_lambertian}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi}
+\end{equation}
+
+In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
+
+\subsubsection{Phong}
+
+While the diffuse BRDF reflects energy isotropically, many real-world reflections are highly biased. At the extreme end, a perfect mirror reflection is effectively a Dirac delta function in the reflected illumination direction. Many real-world materials are well-modeled as a linear combination of diffuse and specular effects. A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
+
+\begin{equation} \label{eq:brdf_phong}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
+\end{equation}
+
+In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfectly mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
+
+\subsubsection{Blinn-Phong}
+
+The Blinn-Phong BRDF is similar to to the Phong BRDF, but parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+
+\begin{equation} \label{eq:brdf_blinn_phong}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}
+\end{equation}
+
+\subsubsection{Glossy}
+
+The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}:
+
+\begin{equation} \label{eq:brdf_glossy}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(N \cdot L\right)}  e^{\frac{-\left( R \cdot O \right)^2}{2\sigma^2}},
+\end{equation}
+
+where the parameter $\sigma$ controls the width of the specular Gaussian.
+
+\subsubsection{Cook-Torrance}
+
+The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D$, a Fresnel term $F$, and a geometric attenuation factor $G$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $H$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
+
+\begin{equation} \label{eq:d_beckmann}
+  D = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
+\end{equation}
+
+In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but is often approximated as \cite{cook1982}:
+
+\begin{equation} \label{eq:fresnel_approx}
+  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( H \cdot L \right) \right) ^ 5.
+\end{equation}
+
+The geometric attenuation term expresses how microfacets shadow eachother, and can be approximated with \cite{cook1982}:
+
+\begin{equation} \label{eq:cook_torrance_g}
+  G = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
+\end{equation}
+
+The overall reflectance for the Cook-Torrance BRDF is given by:
+
+\begin{equation} \label{eq:brdf_cook_torrance}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{D \cdot G \cdot F}{4 \left(N \cdot L\right) \left( N \cdot O \right)}
+\end{equation}
+
+\subsubsection{Oren-Nayar}
+
+The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-world materials like ceramics and the surface of the Moon. These materials diverge from the Lambertian model near the horizon, reflecting much more light than would be predicted by simple cosine loss \cite{oren1994}. This BRDF relies on the surface roughness $\alpha$ to compute a set of constants \cite{oren1994}:
+
+\begin{align*} \numberthis
+  A &= 1 - 0.5 * \frac{\alpha^2}{\alpha^2 + 0.33} \\
+  B &= 0.45 * \frac{\alpha^2}{\alpha^2 + 0.09} \\
+  C &= \frac{\mathrm{proj}_{N}\left(L\right)}{\|\mathrm{proj}_{N}\left(L\right)\|} \cdot  \frac{\mathrm{proj}_{N}\left(O\right)}{\|\mathrm{proj}_{N}\left(O\right)\|}. \\
+  \beta &= \max \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
+  \gamma &= \min \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
+\end{align*}
+
+With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
+
+\begin{equation}
+  f_r(L \rightarrow O) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right)
+\end{equation}
+
+\subsubsection{Ashikhmin-Shirley}
+
+The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
+
+\begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
+  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{N \cdot L}{2}\right)^5\right) \left(1 - \left(1 - \frac{N \cdot O}{2}\right)^5\right) \\
+  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( N \cdot H \right)
+  ^\frac{n_u \left(H \cdot U \right)^2 + n_v \left( H \cdot V \right)^2}{1 - \left(H \cdot N\right)^2}}
+  {\left(H \cdot L\right) \max\left\{ N \cdot O, N \cdot L \right\}} F \\
+  f_r(L \rightarrow O) &= \rho_d + \rho_s. \\
+\end{align*}
+
+In Eq \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Eq \ref{eq:fresnel_approx} while $U$ and $V$ are predefined surface basis vectors perpendicular to the surface normal.
+
+\subsection{BRDF Summary}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_brdf_renders_002_2_00x.png}
+  \caption{Implemented BRDFs rendered with arbitrary parameters, demonstrating the qualitative differences between lighting models}
+  \label{fig:brdf_renders}
+\end{figure} 
+
+\subsection{Real Material Properties}
+
+Producing accurate light curves requires accurate optical properties for the simulated materials. Matusik et al. compiled measured bidirectional reflectance data from over 100 real materials including various metals and paints that might be found on human-made space objects \cite{matusik2003}. Optimally, such a dataset would be used to model the structure, solar panels, and antenna surfaces of the simulated objects. However, it is far more computationally efficient to fit one of the presented three parameter BRDFs to observed data. The Phong model parameters used for simulations in this work are listed in Table \ref{tb:real_matprops}.
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{|l|l|l|l|}
+  \hline
+  \textbf{Material} & $C_d$ & $C_s$ & $n$ \\ \hline
+  Solar panel (Phong) \cite{fankhauser2023}              & $0.15$ & $0.25$ & $0.26$  \\ \hline
+  Bus structure (Phong) \cite{fankhauser2023}               & $0.34$ & $0.40$ & $8.9$  \\ \hline
+  Multilayer insulation (MLI) (Phong) & $0.1$ & $0.9$ & $20$ \\ \hline
+  White paint (Phong) & $0.9$ & $0.1$ & $1$ \\ \hline
+  \end{tabular}
+  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated. Significant variance may exist depending on surface finishes.}
+  \label{tb:real_matprops}
+\end{table}
+
 \section{Attitude}
 
 In order to effectively compute reflections and shadows on the surfaces of space objects, that object must have an assigned orientation in inertial space. While defunct satellites and space debris are slowly spun up by the Yarkovsky-O'Keefe-Radzievskii-Paddack (YORP) effect, the short-term motion of non-operational space objects is well-approximated by torque-free motion \cite{benson2018cyclic}. Developing the kinematics of torque-free motion first requires an understanding of common kinematic representations of orientation.
@@ -112,13 +585,50 @@ Rigid body dynamics can be easily expressed in the body principal axes with an a
 
 Equations \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} are numerically integrated to yield the orientation time history which is necessary for later light curve simulations. Often, $\vctr{M} = \mathbf{0}$ is chosen to simulate the torque-free evolution of an initial orientation and spin state, neglecting small attitude perturbations over the simulation interval.
 
-\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+\subsection{Simulating Normalized Light Curves of Convex Objects}
 
-\section{Computer Graphics}
+Light curve simulation for convex geometry can be solved semi-analytically as each face's contribution 
+to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
+Determining whether a face is illuminated requires two horizon checks to determine visibility 
+from the Sun and to the observer. For a face $i$ at timestep $j$ these horizon checks are 
+expressed by the shadowing condition $\mu_{ij}$. 
+
+\begin{equation} \label{eq:cvx_shadow_cond}
+  \mu_{ij} = \begin{cases}
+    1 \text{ if } \left( O_j \cdot \hat{n}_i \right) > 0 \text{ and } \left( L_j \cdot \hat{n}_i \right) > 0 
+	  \text{ and } \delta_{ij,\text{ss}} = 0 \text{ and } \delta_{ij,\text{os}} = 0\\
+    0 \text{ otherwise } \\
+  \end{cases}
+\end{equation}
+
+The unit vectors $O$ and $L$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\hat{n}$ is chosen by convention for all mesh operations. 
+The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, 
+are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. 
+For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing 
+refers to otherwise visible faces blocked by other portions of the geometry.
+
+The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
+normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
+the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$:
+
+\begin{equation} \label{eq:lc_func_normalized}
+  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} \mu_{Earth,j} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
+\end{equation}
+
+In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face and $f_{Sun}$ is the solar irradiance fraction. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
+
+\begin{equation} \label{eq:lc_func_norm_to_irrad}
+  I_{j} = \frac{I_0 \hat{I}_j}{r_j^2}.
+\end{equation}
+
+Note that using $r_j = \| \vctr{r}_{obj} - \vctr{r}_{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
+
+
+\subsection{Simulating Normalized Light Curves of Nonconvex Objects}
 
 The light curve simulation framework developed in this work relies on a pixel-by-pixel image rendering on the GPU to compute the total reflected irradiance at each timestep of the simulation. As a result, a background in common computer graphics terminology and reference frames is necessary to understand the transformation from coordinates in the object body frame to a pixel in the final image.
 
-\subsubsection{Camera Projections and Terminology}
+\subsection{Camera Projections and Terminology}
 
 In computer graphics, a camera is defined by its position $R_{cam}$, target $T_{cam}$, reference up direction $U_{cam}$, and a field of view $FOV$. In order to render a 3D scene to a 2D image using this camera, a transformation is needed. An orthographic camera accomplishes this transformation by orthogonally projecting points onto a plane perpendicular to camera look direction $T_{cam} - R_{cam}$. The volume of space that falls into view of the camera is known as the frustum \cite{shirley2009}. An important consequence of orthogonal projection is that objects further away from the camera do not shrink in the image, which is sometimes advantageous. A perspective projection forms a more complex frustum that expands outwards from a near plane to a proportionally larger far plane. Because of the expansion of the frustum, geometry processed by the perspective transformation shrinks as it moves further from the near plane. Figure \ref{fig:ortho_perspective_cameras} displays the geometry of these camera frustums, with additional reference frames detailed in Section \ref{sec:graphics_trans}.
 
@@ -129,8 +639,7 @@ In computer graphics, a camera is defined by its position $R_{cam}$, target $T_{
   \label{fig:ortho_perspective_cameras}
 \end{figure}
 
-
-\subsubsection{Transformations} \label{sec:graphics_trans}
+\subsection{Transformations} \label{sec:graphics_trans}
 
 Transformations in computer graphics are often represented by $4 \times 4$ matrices. These matrices operate on so-called homogeneous coordinates, operating on vectors in $\mathbb{R}^4$ of the form $\left[ x, y, z, w \right]^T$ \cite{shirley2009}. The inclusion of the fourth component enables simultaneous rotation, translation, and scaling of the input points by the matrix, provided that the outputs are normalized to set $w = 1$ \cite{shirley2009}.
 
@@ -185,6 +694,68 @@ In Eq \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the i
 \end{equation}
 
 The transformation summarized in Eqs \ref{eq:mvp} and \ref{eq:homo_to_pix} are crucial in Section \ref{sec:shadow_mapping} for the shadow mapping algorithm used to compute pixel-wise self-shadowing effects.
+
+Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
+
+\graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=350px]{hst_shadow_mapping/composite_hst_raytraced.png}
+  \caption{Hubble Space Telescope ray traced shadow categorization and shading. Models from \cite{nasa_models}}
+  \label{hst_shadows_ray}
+\end{figure}
+
+\subsubsection{The Importance of Self-Shadowing}
+
+To motivate the need for accurate shadows when dealing with human-made space objects, consider the error introduced by neglecting shadows for different types of space objects. Kaasalainen and Torppa's work on asteroids reasonably assumed that shadowing was a negligible contribution to the measured light curve. Human-made objects do not afford the same luxury. Figure \ref{fig:hst_bennu_shadows} displays light curves for the asteroid Bennu and the Hubble Space Telescope with and without accurate shadows under a single-axis spin profile with inertially fixed Sun and observer vectors. Without accurate shadowing, the light curve's intensity and its time derivative can be significantly error-prone.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=350px]{convex_vs_nconv_lcs.png}
+  \caption{Normalized irradiance errors introduced by neglecting shadows for Bennu and HST. Models from \cite{nasa_models}}
+  \label{fig:hst_bennu_shadows}
+\end{figure}
+
+\subsubsection{Shadow Mapping} \label{sec:shadow_mapping}
+
+Shadow mapping is used in the simulations presented in this work for faster and more accurate self-shadowing. Shadow mapping is a well understood technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation \cite{kolivand2013}. Shadow mapping shades individual pixel fragments instead of entire faces, offering increasing shadow quality over facewise ray tracing as the number of mesh faces falls.
+
+Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_normalized}. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL \cite{raylib}.
+
+In order to compute the final shaded and shadowed image, a depth map must be computed from the perspective of two orthographic cameras in the Sun and observer directions. These depth masks require a set of transformations from the model body frame to screen space. With this background laid out, the process for computing a perpendicular depth map $d(x,y)$ from the perspective of an arbitrary orthographic camera is detailed in Algorithm \ref{alg:depth_map}.
+
+\begin{algorithm}
+  \caption{Depth map for shadow mapping} \label{alg:depth_map}
+  \begin{algorithmic}
+    \State $(x, y) \in \mathbb{Z}$ \Comment{Pixel coordinates on the image plane}
+    \State $R_{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
+    \State $d(x, y) \gets \left( R_{cam} - R_{pix} \right) \cdot R_{cam}$ \Comment{Pixel depth in the camera view direction}
+  \end{algorithmic}
+\end{algorithm}
+
+The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading} in Appendix \ref{data:shading}. This shading and shadow mapping procedure is detailed graphically in Figure \ref{fig:hst_shadows_map}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{hst_shadow_mapping/hst_shadow_mapping.png}
+  \caption{Hubble Space Telescope shadow mapping with self (red) and horizon (blue) shadows rendered. Models from \cite{nasa_models}}
+  \label{fig:hst_shadows_map}
+\end{figure}
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+
+An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a normalized irradiance value by computing the area of the square orthographic field of view given the image pixel count $n_{pix}$:
+
+\begin{equation} \label{eq:ortho_area}
+  A_{image} = 2 n_{pix} \left(FOV \right)^2.
+\end{equation}
+
+This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_{pix}$ pixels and dimensionalizing by the area of the image plane:
+
+\begin{equation} \label{eq:lc_normalized_engine}
+  \hat{I}_j = \frac{A_{image}}{n_{pix}} \sum_{i=1}^{n_{pix}}{\frac{v_{i}}{255}}
+\end{equation}
+
+\section{Simulating The Observer}
 
 \section{Time Systems}
 
@@ -450,269 +1021,6 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 \subsection{Coordinate Transformations Summary}
 
 With these transformations, any topocentric observation directions in RA/Dec or Az/El can be converted into a Cartesian representation and transformed into J2000. Simultaneously, any propagated space object orbits can be transformed similarly from an arbitrary propagation frame such that all future computations requiring the observation geometry take place in the same reference frame. 
-
-\ProvidesFile{ch-photometry.tex}[Photometry]
-\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
-
-\section{Photometry}
-
-\subsection{The Charge Coupled Device (CCD)}
-
-Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
-
-\subsection{Diffraction}
-
-\subsubsection{Rayleigh Criterion}
-
-Many objects of interest are far past low-Earth orbit, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion. The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that:
-
-\begin{equation} \label{eq:rayleigh_criterion}
-  \sin\theta_R = \frac{1.22 \lambda}{d}.
-\end{equation}
-
-For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO --- giving an angular radius of $\approx 10^{-7}$ radians --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
-
-\subsubsection{The Airy Disk}
-
-The far-field diffraction pattern produced by a point source is known as an Airy pattern \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
-
-\begin{equation} \label{eq:airy_disk}
-  C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
-\end{equation}
-
-In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
-
-\begin{equation} \label{eq:airy_center}
-  C_0 = \frac{S_{obj}^2 A_{aperture}^2}{2 f^4}.
-\end{equation}
-
-In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_airy_disk_diffraction_001_2_00x.png}
-  \caption{Airy disk diffraction pattern}
-  \label{fig:airy_disk_magnitude}
-\end{figure}
-
-The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:fwhm_airy}
-  FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
-\end{equation}
-
-The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
-
-\begin{equation} \label{eq:airy_variance}
-  \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
-\end{equation}
-
-The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
-
-\begin{equation} \label{eq:airy_gaussian}
-  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
-\end{equation}
-
-In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
-
-\begin{equation}
-  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
-\end{equation}
-
-The area within the first maximum of the Airy disk is given by:
-
-\begin{equation} \label{eq:airy_area}
-  A_{airy} = \pi \left(\frac{648000 / \pi}{s_{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
-\end{equation}
-
-\subsection{Signal-to-Noise Ratio (SNR)}
-
-Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:ccd_snr}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
-\end{equation}
-
-Explicitly, the SNR can be expanded in terms of the signal means and variances \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:ccd_snr_expanded}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
-\end{equation}
-
-Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_snr_001_2_00x.png}
-  \caption{Signal-to-noise ratio reduction on a synthetic CCD pixel grid}
-  \label{fig:snr_grid}
-\end{figure}
-
-The SNR is an important constraint when determining whether an object signal is visible above the background. If the SNR is too low, it becomes difficult or impossible to notice and quantify the object signal. Simulations in this work are all performed with a reasonable SNR limit of $3$.
-
-\subsection{Brightness Units}
-
-In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
-
-\subsubsection{Irradiance}
-
-Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
-surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
-\: [m^2]$ area would experience $10 \: [W]$ of incident power. The mean irradiance of the Sun --- termed the solar constant --- is derived from the mean luminosity of the Sun $L_s = 3.828\cdot10^{26} \: [W]$ and a distance of $1$ Astronomical Unit $1 \: [AU] = 149597870.7 \: [km]$ \cite{frueh2019notes}. The mean solar constant is then computed via
-
-\begin{equation} \label{eq:solar_constant_mean}
-  I_0 = \frac{L_s}{4\pi \left(AU\right)^2} \approx 1361.0 \: \left[ \frac{W}{m^2} \right].
-\end{equation}
-
-In reality, the exoatmospheric irradiance at Earth varies \cite{frueh2019notes}. Figure \ref{fig:tsi} displays the small variations in the solar irradiance due to the solar cycle and the much larger variations due to Earth's eccentric orbit.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_total_solar_irradiance_003_2_00x.png}
-  \caption{Total solar irradiance variations at Earth and 1 AU. The solar cycle is apparent when distance is held constant at 1 AU, yielding small variations in the peak intensity at Earth.}
-  \label{fig:tsi}
-\end{figure}
-
-\subsubsection{Apparent Magnitude}
-
-Apparent magnitude ---  also known as visual or relative magnitude --- is a reverse logarithmic scale
-that originates in astronomy \cite{frueh2019notes}. Stellar sources span many orders of magnitude of brightness, making a
-logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
-expresses brightness at the observer's location; absolute magnitude is a different quantity that
-normalizes brightness from a distance of $10$ parsecs \cite{frueh2019notes}. Apparent magnitude $m$
-is computed from irradiance via:
-
-\begin{equation} \label{eq:irradiance_to_mag}
-  m = -2.5 \log_{10}\left( \frac{I}{I_z} \right).
-\end{equation}
-
-In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_z$ is
-irradiance of the zero-point source. This makes sense; substituting $I = I_z$ returns
-$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_z = 2.518021002\cdot
-10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
-
-Eq \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude,
-yielding:
-
-\begin{equation} \label{eq:mag_to_irradiance}
-  I = I_z \cdot 10^{-\frac{m}{2.5}}.
-\end{equation}
-
-\subsubsection{Normalized Irradiance}
-
-The light curve simulation methods presented in this work use normalized irradiance, 
-the reflected irradiance of a object received at a distance of $1$ meter illuminated by a distant source with an irradiance of $1$ $\left[ W/m^2 \right]$ at the object. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting sources to be at a standard distance enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
-
-\begin{equation} \label{eq:irradiance_to_norm_irradiance}
-  \hat{I} = \frac{r^2}{I_0} I.
-\end{equation}
-
-\subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
-
-While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
-to describe diffuse or extended sources where brightness is spread over an
-area. $S_{10}$ is a unit of surface brightness representing the number of 10th magnitude stars per square degree that would produce the same flux as a given diffuse source.
-Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ sr \right]$ can be converted to total irradiance $I \: \left[ \frac{W}{m^2} \right]$ via:
-
-\begin{equation} \label{eq:s10toirrad}
- \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
-  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
-\end{equation}
-
-In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
-representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
-spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
-\frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
-speed of light in vacuum. Quantum efficiency has units of photoelectrons which conveys the fraction of incident photons which are (proportionally) converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm} and \ref{data:qe}.
-
-\subsubsection{Magnitude per Square Arcsecond}
-
-A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond). This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
-magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
-brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
-$\left[ \frac{mag}{arcsec^2} \right]$ via:
-
-\begin{equation} \label{s10_to_mag_per_a2}
-	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
-\end{equation}
-
-In Eq \ref{s10_to_mag_per_a2} $S_{10}$ is first converted to the total irradiance per square degree,
-convert square degrees to square arcseconds, and transform the result back into apparent magnitude. MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
-
-\begin{equation} \label{eq:mpsas_to_irrad_per_ster}
-  I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}.
-\end{equation}
-
-\subsubsection{Candela} \label{sec:candela}
-
-Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \cite{nist_units}:
-
-\begin{equation} \label{eq:cd_to_w_per_sr}
-  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
-\end{equation}
-
-The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al. is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_luminous_efficiency_001_2_00x.png}
-  \caption{Luminous effiency function from \cite{sharpe2005}}
-  \label{fig:luminous_efficiency}
-\end{figure}
-
-Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding a formulation which is still a function of the source's wavelength:
-
-\begin{equation} \label{eq:cd_per_m2_to_mpsas}
-  MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_0} \right).
-\end{equation}
-
-\subsubsection{Photoelectron Counts}
-
-Accurately simulating measured light curves requires an accurate simulation of the CCD camera taking the image. The first step towards that is understanding how irradiance at the telescope aperture is converted into pixel values in the final image. Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single
-pixel obtained is directly proportional (via the CCD's gain) to the number of
-photons incident on that pixel during the integration time. Higher order effects in the silicon of
-the CCD makes this description incomplete, but for non-resolved imaging applications
-concerned about, effects smaller than the sensor readout noise and dark current can be safely neglected
-\cite{frueh2019notes}. Irradiance can be converted to ADU via the conversion factor $SINT$
-through \cite{krag2003}:
-
-\begin{equation} \label{eq:sint}
- \textrm{SINT} = A_{aperture}
-	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
-  \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
-\end{equation}
-
-In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
-$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun (generally taken to be
-the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$. Read literally, the integral term as
-units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
-radiation and second of integration time. The aperture diameter factor outside the imtegral accounts
-for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
-\right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
-in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU via:
-
-\begin{equation} \label{eq:irrad_to_count}
-  \bar{C}_{all} = \textrm{SINT} \cdot I \cdot \Delta t.
-\end{equation}
-
-For completeness, irradiance can be recovered from a signal in ADU and the integration time:
-
-\begin{equation} \label{eq:count_to_irrad}
-  I = \frac{S}{\textrm{SINT} \cdot \Delta t}.
-\end{equation}
-
-\subsection{The Light Curve}
-
-The light curve expresses the observed brightness of an object over time. In literature, that brightness is commonly expressed in terms of irradiance, apparent magnitude, or photoelectron counts. This work also considers the normalized irradiance for some simulation and inversion tasks. Converting between these representations is accomplished with Eqs \ref{eq:count_to_irrad} and \ref{eq:irradiance_to_mag}.
-
-\begin{figure}[!htb]
-  \centering
-  \includegraphics[width=\figbig]{sphx_glr_light_curve_units_001_2_00x.png}
-  \caption{Synthetic light curves in counts, irradiance, normalized irradiance, and apparent magnitude}
-  \label{fig:light_curve_units}
-\end{figure}
-
-Figure \ref{fig:light_curve_units} details this equivalence with the same light curve expressed in these four unit systems. This figure also displays an important characteristic of real measured light curves: they are always contaminated with noise. As a result, the "true mean" signal in Figure \ref{fig:light_curve_units} cannot be obtained through the raw measurements, and is merely computed here as a stepping stone to the measured digital signal in the CCD. The sources of this noise are described in detail in Section \ref{sec:ccd_performance}.
 
 \section{CCD Performance Model} \label{sec:ccd_performance}
 
@@ -1005,318 +1313,6 @@ Truncation noise in a CCD stems from the fact that the charge in each pixel is d
 
 The particular noise variances for the Purdue Optical Ground Station are listed in \ref{tb:pogs_parameters}.
 
-\section{Light Curve Simulation}
-
-\subsection{Orbit Propagation}
-
-There are many environmental perturbations that effect the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. The Simplified General Perturbations 4 (SGP4) propagator fits these needs well. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. The propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. TLEs themselves are short, standardized collections of orbital elements and mission information, produced from recent observations of the object in question. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
-
-Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian Date is simply linearly interpolates between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
-
-\subsection{Discrete Shape Representations}
-
-A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 
-
-By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the most common case, object faces are defined by triangles. This means that at the scale of the individual faces, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for light curve shape inversion. Human-made space objects like most satellites are composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
-
-\subsubsection{The Object File Format}
-
-One common text file format for 3D model files is \texttt{.obj}, developed by Wavefront Technologies in the early 1990s \cite{obj_format}. Each OBJ file consists of a list of vertex positions and face definitions, with optional vertex normals and tangents. An \texttt{.obj} listing for a cube is included for reference in Appendix \ref{sec:obj_listing}. Given the vertex positions and adjacency information stored in the model file, useful properties of the object can be computed for use later in both light curve simulation and shape inversion. 
-
-\subsubsection{Properties of Triangulated Meshes}
-
-For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with:
-
-\begin{equation} \label{eq:face_normal}
-    \hat{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
-\end{equation}
-
-The face area is computed with:
-
-\begin{equation} \label{eq:face_areas}
-    a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
-\end{equation}
-
-The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.e., the first vertex $v_{i,1}$, and the face normal vector $\hat{n}_i$:
-
-\begin{equation} \label{eq:face_support}
-    h_i = v_{i,1} \cdot \hat{n}_i.
-\end{equation}
-
-The volume of the object is computed:
-
-\begin{equation} \label{eq:object_volume}
-    V = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vec{h}_i \cdot \vec{a}_i.
-\end{equation}
-
-In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vec{h}$ and $\vec{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
-
-\begin{equation} \label{eq:egi_definition}
-    \vec{E}_i = \vec{a}_i \vec{n}_i.
-\end{equation}
-
-\subsection{Selected Satellite Models}
-
-Most of the analysis in this work used one of the 3D model files shown in Figure \ref{fig:satellite_lineup}. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\figbig]{sphx_glr_satellite_lineup_001.png}
-    \caption{Selected space objects with soccer field for size reference. In order, the objects are TESS, Starlink V1, TDRS, Landsat 8, Hispasat 30W-6, Saturn V SII, TELSTAR 19V, HYLAS 4, and simplified ASTRA.
-    }
-    \label{fig:satellite_lineup}
-\end{figure}
-
-\subsection{The Bidirectional Reflectance Distribution Function}
-
-Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, all relevant optical interactions must be modeled. In broad terms, this boils down to determining how the object is illuminated, how it casts shadows on itself, and how it is observed. 
-
-At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of these microfacets. If the facet normals are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the facets normals are at large angles to each other, the surface may appear dull as the direction of the outgoing light may be largely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface can also change the macroscopic properties of the material. 
-
-This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by \cite{duvenhage2013}:
-
-\begin{equation} \label{eq:brdf_def}
-    f_r(\vctr{x}, L \rightarrow O) = \frac{d\mathcal{R}\left(\vctr{x} \rightarrow O\right)}{d\mathcal{I}\left(L \rightarrow \vctr{x}\right)}.
-\end{equation}
-
-In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L \rightarrow O)$ and $f_r(L \rightarrow O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this should feel natural. Explicitly, energy conservation is expressed with \cite{montes2012}:
-
-\begin{equation} \label{eq:brdf_energy_cons}
-  \forall L \in \mathbb{S}^2 : \:\: \int_{O \in \mathbb{S}^2} f_r(L \rightarrow O) \: d\mathbb{S}^2 \leq 1.
-\end{equation}
-
-Eq \ref{eq:brdf_energy_cons} states that for all possible illumination directions $L$, integrating all possible outgoing observer directions $O$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
-
-\begin{equation} \label{eq:brdf_reciprocity}
-  \forall L, O \in \mathbb{S}^2 : \:\: f_r(L \rightarrow O) = f_r(O \rightarrow L).
-\end{equation}
-
-\subsection{BRDF Formulations}
-
-Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. This does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
-
-\subsubsection{Lambertian}
-
-The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
-
-\begin{equation} \label{eq:brdf_lambertian}
-  f_r(L \rightarrow O) = \frac{C_d}{\pi}
-\end{equation}
-
-In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
-
-\subsubsection{Phong}
-
-While the diffuse BRDF reflects energy isotropically, many real-world reflections are highly biased. At the extreme end, a perfect mirror reflection is effectively a Dirac delta function in the reflected illumination direction. Many real-world materials are well-modeled as a linear combination of diffuse and specular effects. A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
-
-\begin{equation} \label{eq:brdf_phong}
-  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
-\end{equation}
-
-In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfectly mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
-
-\subsubsection{Blinn-Phong}
-
-The Blinn-Phong BRDF is similar to to the Phong BRDF, but parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
-
-\begin{equation} \label{eq:brdf_blinn_phong}
-  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}
-\end{equation}
-
-\subsubsection{Glossy}
-
-The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}:
-
-\begin{equation} \label{eq:brdf_glossy}
-  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(N \cdot L\right)}  e^{\frac{-\left( R \cdot O \right)^2}{2\sigma^2}},
-\end{equation}
-
-where the parameter $\sigma$ controls the width of the specular Gaussian.
-
-\subsubsection{Cook-Torrance}
-
-The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D$, a Fresnel term $F$, and a geometric attenuation factor $G$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $H$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
-
-\begin{equation} \label{eq:d_beckmann}
-  D = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
-\end{equation}
-
-In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but is often approximated as \cite{cook1982}:
-
-\begin{equation} \label{eq:fresnel_approx}
-  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( H \cdot L \right) \right) ^ 5.
-\end{equation}
-
-The geometric attenuation term expresses how microfacets shadow eachother, and can be approximated with \cite{cook1982}:
-
-\begin{equation} \label{eq:cook_torrance_g}
-  G = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
-\end{equation}
-
-The overall reflectance for the Cook-Torrance BRDF is given by:
-
-\begin{equation} \label{eq:brdf_cook_torrance}
-  f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{D \cdot G \cdot F}{4 \left(N \cdot L\right) \left( N \cdot O \right)}
-\end{equation}
-
-\subsubsection{Oren-Nayar}
-
-The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-world materials like ceramics and the surface of the Moon. These materials diverge from the Lambertian model near the horizon, reflecting much more light than would be predicted by simple cosine loss \cite{oren1994}. This BRDF relies on the surface roughness $\alpha$ to compute a set of constants \cite{oren1994}:
-
-\begin{align*} \numberthis
-  A &= 1 - 0.5 * \frac{\alpha^2}{\alpha^2 + 0.33} \\
-  B &= 0.45 * \frac{\alpha^2}{\alpha^2 + 0.09} \\
-  C &= \frac{\mathrm{proj}_{N}\left(L\right)}{\|\mathrm{proj}_{N}\left(L\right)\|} \cdot  \frac{\mathrm{proj}_{N}\left(O\right)}{\|\mathrm{proj}_{N}\left(O\right)\|}. \\
-  \beta &= \max \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
-  \gamma &= \min \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
-\end{align*}
-
-With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
-
-\begin{equation}
-  f_r(L \rightarrow O) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right)
-\end{equation}
-
-\subsubsection{Ashikhmin-Shirley}
-
-The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
-
-\begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
-  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{N \cdot L}{2}\right)^5\right) \left(1 - \left(1 - \frac{N \cdot O}{2}\right)^5\right) \\
-  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( N \cdot H \right)
-  ^\frac{n_u \left(H \cdot U \right)^2 + n_v \left( H \cdot V \right)^2}{1 - \left(H \cdot N\right)^2}}
-  {\left(H \cdot L\right) \max\left\{ N \cdot O, N \cdot L \right\}} F \\
-  f_r(L \rightarrow O) &= \rho_d + \rho_s. \\
-\end{align*}
-
-In Eq \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Eq \ref{eq:fresnel_approx} while $U$ and $V$ are predefined surface basis vectors perpendicular to the surface normal.
-
-\subsection{BRDF Summary}
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figbig]{sphx_glr_brdf_renders_002_2_00x.png}
-  \caption{Implemented BRDFs rendered with arbitrary parameters, demonstrating the qualitative differences between lighting models}
-  \label{fig:brdf_renders}
-\end{figure} 
-
-\subsection{Real Material Properties}
-
-Producing accurate light curves requires accurate optical properties for the simulated materials. Matusik et al. compiled measured bidirectional reflectance data from over 100 real materials including various metals and paints that might be found on human-made space objects \cite{matusik2003}. Optimally, such a dataset would be used to model the structure, solar panels, and antenna surfaces of the simulated objects. However, it is far more computationally efficient to fit one of the presented three parameter BRDFs to observed data. The Phong model parameters used for simulations in this work are listed in Table \ref{tb:real_matprops}.
-
-\begin{table}[]
-  \centering
-  \begin{tabular}{|l|l|l|l|}
-  \hline
-  \textbf{Material} & $C_d$ & $C_s$ & $n$ \\ \hline
-  Solar panel (Phong) \cite{fankhauser2023}              & $0.15$ & $0.25$ & $0.26$  \\ \hline
-  Bus structure (Phong) \cite{fankhauser2023}               & $0.34$ & $0.40$ & $8.9$  \\ \hline
-  Multilayer insulation (MLI) (Phong) & $0.1$ & $0.9$ & $20$ \\ \hline
-  White paint (Phong) & $0.9$ & $0.1$ & $1$ \\ \hline
-  \end{tabular}
-  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated. Significant variance may exist depending on surface finishes.}
-  \label{tb:real_matprops}
-\end{table}
-
-\subsection{Simulating Normalized Light Curves of Convex Objects}
-
-Light curve simulation for convex geometry can be solved semi-analytically as each face's contribution 
-to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
-Determining whether a face is illuminated requires two horizon checks to determine visibility 
-from the Sun and to the observer. For a face $i$ at timestep $j$ these horizon checks are 
-expressed by the shadowing condition $\mu_{ij}$. 
-
-\begin{equation} \label{eq:cvx_shadow_cond}
-  \mu_{ij} = \begin{cases}
-    1 \text{ if } \left( O_j \cdot \hat{n}_i \right) > 0 \text{ and } \left( L_j \cdot \hat{n}_i \right) > 0 
-	  \text{ and } \delta_{ij,\text{ss}} = 0 \text{ and } \delta_{ij,\text{os}} = 0\\
-    0 \text{ otherwise } \\
-  \end{cases}
-\end{equation}
-
-The unit vectors $O$ and $L$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\hat{n}$ is chosen by convention for all mesh operations. 
-The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, 
-are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. 
-For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing 
-refers to otherwise visible faces blocked by other portions of the geometry.
-
-The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
-normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
-the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$:
-
-\begin{equation} \label{eq:lc_func_normalized}
-  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} \mu_{Earth,j} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
-\end{equation}
-
-In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face and $f_{Sun}$ is the solar irradiance fraction. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
-
-\begin{equation} \label{eq:lc_func_norm_to_irrad}
-  I_{j} = \frac{I_0 \hat{I}_j}{r_j^2}.
-\end{equation}
-
-Note that using $r_j = \| \vctr{r}_{obj} - \vctr{r}_{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
-
-
-\subsection{Simulating Normalized Light Curves of Nonconvex Objects}
-
-Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
-
-\graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
-\begin{figure}[!htb]
-  \centering
-  \includegraphics[width=350px]{hst_shadow_mapping/composite_hst_raytraced.png}
-  \caption{Hubble Space Telescope ray traced shadow categorization and shading. Models from \cite{nasa_models}}
-  \label{hst_shadows_ray}
-\end{figure}
-
-\subsubsection{The Importance of Self-Shadowing}
-
-To motivate the need for accurate shadows when dealing with human-made space objects, consider the error introduced by neglecting shadows for different types of space objects. Kaasalainen and Torppa's work on asteroids reasonably assumed that shadowing was a negligible contribution to the measured light curve. Human-made objects do not afford the same luxury. Figure \ref{fig:hst_bennu_shadows} displays light curves for the asteroid Bennu and the Hubble Space Telescope with and without accurate shadows under a single-axis spin profile with inertially fixed Sun and observer vectors. Without accurate shadowing, the light curve's intensity and its time derivative can be significantly error-prone.
-
-\begin{figure}[!htb]
-  \centering
-  \includegraphics[width=350px]{convex_vs_nconv_lcs.png}
-  \caption{Normalized irradiance errors introduced by neglecting shadows for Bennu and HST. Models from \cite{nasa_models}}
-  \label{fig:hst_bennu_shadows}
-\end{figure}
-
-\subsubsection{Shadow Mapping} \label{sec:shadow_mapping}
-
-Shadow mapping is used in the simulations presented in this work for faster and more accurate self-shadowing. Shadow mapping is a well understood technique in computer graphics \cite{kolivand2013}. Although modern ray traced shadowing may be more computationally efficient, shadow mapping was selected for its ease of implementation \cite{kolivand2013}. Shadow mapping shades individual pixel fragments instead of entire faces, offering increasing shadow quality over facewise ray tracing as the number of mesh faces falls.
-
-Given an observer and Sun vector in the body frame of the object, shadow mapping proceeds in a four step process. In step one, a camera is positioned along the Sun vector and a perpendicular depth texture is computed. In the second step, depth values in Sun camera space are transformed to observer camera space, where a second depth texture is computed. This second texture is used to find the closest fragment along each ray to the Sun \cite{brabec2002}. Self-shadowed fragments are classified as those further from the Sun than the closest fragment along the same ray, indicated in red in Figure \ref{fig:hst_shadows_map}. Fragments that do not pass the convex shadowing condition are horizon shadowed, indicated in blue in Figure \ref{fig:hst_shadows_map}, determining the Sun and observer shadowing conditions at once. All remaining fragments are shaded with using the same Lambertian reflection model in \ref{eq:lc_func_normalized}. Computing the light curve function for the final rendered image requires summing all pixel values and dimensionalizing the result by the area of the observer camera's field of view. The light curve simulation environment used in this work was implemented in C and OpenGL \cite{raylib}.
-
-In order to compute the final shaded and shadowed image, a depth map must be computed from the perspective of two orthographic cameras in the Sun and observer directions. These depth masks require a set of transformations from the model body frame to screen space. With this background laid out, the process for computing a perpendicular depth map $d(x,y)$ from the perspective of an arbitrary orthographic camera is detailed in Algorithm \ref{alg:depth_map}.
-
-\begin{algorithm}
-  \caption{Depth map for shadow mapping} \label{alg:depth_map}
-  \begin{algorithmic}
-    \State $(x, y) \in \mathbb{Z}$ \Comment{Pixel coordinates on the image plane}
-    \State $R_{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
-    \State $d(x, y) \gets \left( R_{cam} - R_{pix} \right) \cdot R_{cam}$ \Comment{Pixel depth in the camera view direction}
-  \end{algorithmic}
-\end{algorithm}
-
-The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading} in Appendix \ref{data:shading}. This shading and shadow mapping procedure is detailed graphically in Figure \ref{fig:hst_shadows_map}.
-
-\begin{figure}[!htb]
-  \centering
-  \includegraphics[width=\figmed]{hst_shadow_mapping/hst_shadow_mapping.png}
-  \caption{Hubble Space Telescope shadow mapping with self (red) and horizon (blue) shadows rendered. Models from \cite{nasa_models}}
-  \label{fig:hst_shadows_map}
-\end{figure}
-
-An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a normalized irradiance value by computing the area of the square orthographic field of view given the image pixel count $n_{pix}$:
-
-\begin{equation} \label{eq:ortho_area}
-  A_{image} = 2 n_{pix} \left(FOV \right)^2.
-\end{equation}
-
-This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_{pix}$ pixels and dimensionalizing by the area of the image plane:
-
-\begin{equation} \label{eq:lc_normalized_engine}
-  \hat{I}_j = \frac{A_{image}}{n_{pix}} \sum_{i=1}^{n_{pix}}{\frac{v_{i}}{255}}
-\end{equation}
 
 \subsection{Observer Constraints}
 
