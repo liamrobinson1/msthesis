@@ -16,13 +16,13 @@ The discrete EGI $\vec{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit v
 
 In the context of shape inversion, the $m$ vectors $\hat{n}$ should be a relatively uniform tessellation of the unit sphere. A convex polytope can be uniquely represented by an EGI of facet normal vectors scaled by each facet's area. The set of normal vectors in an EGI is denoted $\mathcal{N}$ with the set of areas denoted $\mathcal{A}$. The vector of facet areas is denoted $\vec{a} \in \mathbb{R}^{m \times 1}$. The norm of the EGI is nottated $\| \vec{E} \| = \vec{a}$ with the `size' of the EGI $\|\vec{E}\| = m$.
 
-The solution to the Minkowski problem proves the existence and uniqueness of a convex polytope for any EGI satisfying the closure condition in Eq \ref{eq:egi_closure} \cite{minkowski1909}. Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polytope --- with no open boundaries, up to a translation.
+The solution to the Minkowski problem proves the existence and uniqueness of a convex polytope for any EGI satisfying the closure condition \cite{minkowski1909}:
 
 \begin{equation} \label{eq:egi_closure}
-  \sum_{i=1}^m a_i \hat{n}_i = [0, 0, 0]
+  \sum_{i=1}^m a_i \hat{n}_i = [0, 0, 0].
 \end{equation}
 
-While a given EGI uniquely represents a polytope, that same EGI could also be interpreted to be an infinite number of nonconvex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family}.
+Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polytope --- with no open boundaries, up to a translation. While a given EGI uniquely represents a polytope, that same EGI could also be interpreted to be an infinite number of nonconvex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family}.
 
 \begin{figure}[!htb]
   \centering
@@ -80,7 +80,7 @@ Uniformly sampling a cone of half-angle $\phi$ is accomplished by strategically 
   \end{bmatrix}
 \end{equation}
 
-In Eq. \ref{cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\hat{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Eq \ref{eq:cone_sampling_rv} which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
+In Eq \ref{cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\hat{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Eq \ref{eq:cone_sampling_rv} which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
 
 \begin{align*} \label{eq:cone_sampling_rv} \numberthis
   \theta &= \cos^{-1}\left( \hat{n}_{cone,z} \right) \\
@@ -134,14 +134,14 @@ The concept of a closure step is not a novel contribution. Fan's method solved a
 
 The unique convex object encoded by each closed EGI is reconstructed by solving for the polytope's set of vertices $\mathcal{V}$ and faces $\mathcal{F}$ encoding the adjacency relations between vertices. This is accomplished following the procedure introduced by Little through the dual transformation \cite{little1983}. The dual set $\mathcal{D}$ are vertices in $(A, B, C) \in \mathbb{R}^3$ that satisfy the following plane condition for a point $(x, y, z)$ on each face of the object:
 
-\begin{equation} \label{dual_abc_form}
+\begin{equation} \label{eq:dual_abc_form}
   Ax + By + Cz + 1 = 0
 \end{equation}
 
-If $(x, y, z)$ are chosen to be the closest points in the object's planes to the origin, the dual set $\mathcal{D}$ can be expressed in terms of the EGI and a support vector $\vec{h} \in \mathbb{R}^{\|F\| \times 1}$, as expressed in Eq \ref{eq:dual_egi_form}. The support vector is the perpendicular distance of each face defining the object to the origin.
+If $(x, y, z)$ are chosen to be the closest points in the object's planes to the origin, the dual set $\mathcal{D}$ can be expressed in terms of the EGI and a support vector $\vec{h} \in \mathbb{R}^{\|F\| \times 1}$, where the support vector is the vector of perpendicular distances of each face of the object to the origin. The dual is expressed in terms of the EGI and the supports as:
 
 \begin{equation} \label{eq:dual_egi_form}
-  \mathcal{D} = \frac{\vec{E}}{ \| \vec{E} \| \vec{h}}
+  \mathcal{D} = \frac{\vec{E}}{ \| \vec{E} \| \vec{h}}.
 \end{equation}
 
 The object's vertices $\vec{v}_{ref}$ are found by solving a linear system of equations for each face on the convex hull of dual set vertices. Triplets of vertices on the resulting faces are used to find a single real vertex by intersecting the three planes defining the dual set vertices.
@@ -317,22 +317,22 @@ TODO: write
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\figmed]{sphx_glr_lc_uncertainty_002_2_00x.png}
+  \includegraphics[width=\figbig]{sphx_glr_lc_uncertainty_002_2_00x.png}
   \caption{Light curves for a $1$-meter diffuse cube with $C_d = 0.5$ observed from the Purdue Optical Ground Station at \pogslla. Object is in the orbit of GOES 15 under torque-free rigid body motion with an inertia tensor $I = \mathrm{diag}(1.0, 2.0, 3.0) \: \left[kg \cdot m^2\right]$, $q_0 = \left[0, 0, 0, 1\right]^T$, $\omega_0 = \left[ 0.01, 0.02, 0.01 \right] \: \left[rad/s\right]$}
-  \label{fig:interpolating_torus_ico}
+  \label{fig:cube_lcs}
 \end{figure}
 
 \section{Convex Shape Inversion Without Noise}
 
 \subsection{Object Reconstruction Improvements}
 
-The proposed resampling and merging steps in the object reconstruction process produce sparser results, in less computation time, with fewer convergence issues. Figure \ref{fig:egi_reconstructions} shows object reconstructions with each available EGI. The initial and resampled EGIs do not converge well due to the density of faces with nearby normal vectors, causing large linearization errors in the optimizer steps. It is clear that the final merged EGI produces the most accurate reconstruction of the truth object.
+The proposed resampling and merging steps in the object reconstruction process produce sparser results, in less computation time, with fewer convergence issues. Figure \ref{fig:egi_reconstructions} shows object reconstructions with each available EGI. The resampled EGIs does not converge in the maximum number of iterations evaluations ($100$) due to the density of faces with nearby normal vectors, causing large linearization errors the gradient estimation that lead to inefficient optimizer steps. It is clear that the final merged EGI produces the most accurate reconstruction of the truth object.
 
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\figmed]{sphx_glr_egi_figs_aas22_006.png}
-  \caption{Object reconstruction with the EGIs of Figure \ref{fig:initial_egi_sampling, fig:resampled_egi, fig:merged_egi}, wireframe truth object in red}
+  \includegraphics[width=\figbig]{sphx_glr_egi_figs_aas22_006.png}
+  \caption{Object reconstruction with the EGIs of Figure \ref{fig:initial_egi_sampling}, \ref{fig:resampled_egi}, \ref{fig:merged_egi}, wireframe truth object in red}
   \label{fig:egi_reconstructions}
 \end{figure}
 

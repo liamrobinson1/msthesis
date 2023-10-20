@@ -14,33 +14,33 @@ When discussing about the orientation of a rigid body in three dimensions, other
 
 \subsubsection{The Direction Cosine Matrix}
 
-The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes vectors in the $\rf{n}$ frame to the $\rf{b}$ frame:
+The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$:
 
 \begin{equation}
-    \vrf{b}{r} = \dcm{bn} \vrf{n}{r}
+    \vrf{b}{r} = \dcm{bn} \vrf{n}{r}.
 \end{equation}
 
 The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$. 
 
 \subsubsection{Principal Rotation Parameters}
 
-Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation via \ref{eq:dcm_to_prp} \cite{shuster1993}.
+Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with:
 
 \begin{align*} \numberthis \labelAndRemember{eq:dcm_to_prp}
     {
-    \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{1,1} + C_{2,2} + C_{3,3} - 1 \right] \right) \\
+    \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{1,1} + C_{2,2} + C_{3,3} - 1 \right] \right), \\
     \hat{\lambda} &= \frac{1}{2\sin{\theta}} 
-    \begin{bmatrix} C_{2,3} - C_{3,2} \\ C_{3,1}-C_{1,3} \\ C_{1,2} - C_{2,1}\end{bmatrix}
+    \begin{bmatrix} C_{2,3} - C_{3,2} \\ C_{3,1}-C_{1,3} \\ C_{1,2} - C_{2,1}\end{bmatrix},
     }
 \end{align*}
 
-Where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$. The mapping from PRP to DCM is also relatively straightforward.
+where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward:
 
 \begin{equation} \labelAndRemember{eq:prp2dcm}
-    {C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2}
+    {C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2,}
 \end{equation}
 
-Where $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as:
+were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as:
 
 \begin{equation}
     \matcp{\vctr{v}} = \begin{bmatrix}
@@ -54,11 +54,11 @@ This operator is useful as it rephrases the cross product as matrix multiplicati
 
 \subsubsection{Quaternions}
 
-The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by Eq \ref{eq:prp2quat} \cite{crassidis1ed}.
+The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by \cite{crassidis1ed}:
 
 \begin{equation} \labelAndRemember{eq:prp2quat}
     {
-    \vctr{q} = \begin{bmatrix} \hat{\lambda} \sin\left( \theta \right) \\ \cos(\theta) \end{bmatrix}
+    \vctr{q} = \begin{bmatrix} \hat{\lambda} \sin\left( \theta \right) \\ \cos(\theta) \end{bmatrix}.
     }
 \end{equation}
 
@@ -87,7 +87,7 @@ In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
 
 \subsection{Attitude Kinematics}
 
-Because it is cheap to convert between attitude representations, only one set of kinematic equations are needed for propagating a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via Eq \ref{eq:quat_kde}
+Because it is cheap to convert between attitude representations, only one set of kinematic equations are needed for propagating a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via:
 
 \begin{equation} \label{eq:quat_kde}
     \left[\begin{matrix}\dot{\epsilon_1}\\\dot{\epsilon_2}\\\dot{\epsilon_3}\\\dot{\epsilon_4}\\\end{matrix}\right]
@@ -98,7 +98,7 @@ Because it is cheap to convert between attitude representations, only one set of
 
 \subsection{Attitude Dynamics}
 
-Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via Eq \ref{eq:rbtf_dynamics}
+Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via:
 
 \begin{equation} \label{eq:rbtf_dynamics}
     \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
