@@ -102,7 +102,7 @@ The SNR is an important constraint when determining whether an object signal is 
 
 \subsection{Brightness Units}
 
-In the context of photometry, "brightness" is a catch-all term for a variety of units. Let's explore the relationships between these units to make later conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
+In the context of photometry, "brightness" is a catch-all term for a variety of units. Defining the relationships between these units will make later light curve conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
 
 \subsubsection{Irradiance}
 
@@ -173,7 +173,7 @@ In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m
 representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
 spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
 \frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
-speed of light in vacuum. Quantum efficiency has units of photoelectrons which conveys the fraction of incident photons which are (proportionally) converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm} and \ref{data:qe}.
+speed of light in vacuum. Quantum efficiency has units of photoelectrons, conveying the fraction of incident photons converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm} and \ref{data:qe}.
 
 \subsubsection{Magnitude per Square Arcsecond}
 
@@ -186,8 +186,8 @@ $\left[ \frac{mag}{arcsec^2} \right]$ via:
 	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
 \end{equation}
 
-In Eq \ref{s10_to_mag_per_a2} $S_{10}$ is first converted to the total irradiance per square degree,
-convert square degrees to square arcseconds, and transform the result back into apparent magnitude. MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
+In Eq \ref{s10_to_mag_per_a2} $B_{10}$ is converted to the total irradiance per square degree,
+converted square degrees to square arcseconds, and finally transformed into apparent magnitude. MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
 
 \begin{equation} \label{eq:mpsas_to_irrad_per_ster}
   I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}.
@@ -233,10 +233,10 @@ through \cite{krag2003}:
 \end{equation}
 
 In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
-$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun (generally taken to be
-the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$. Read literally, the integral term as
+$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun, generally taken to be
+the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$. Read literally, the integral term has
 units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
-radiation and second of integration time. The aperture diameter factor outside the imtegral accounts
+radiation and second of integration time. The aperture diameter factor outside the integral accounts
 for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
 \right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
 in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU via:
@@ -268,9 +268,9 @@ Figure \ref{fig:light_curve_units} details this equivalence with the same light 
 
 \subsection{Orbit Propagation}
 
-There are many environmental perturbations that effect the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. The Simplified General Perturbations 4 (SGP4) propagator fits these needs well. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. The propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. TLEs themselves are short, standardized collections of orbital elements and mission information, produced from recent observations of the object in question. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
+There are many environmental perturbations that influence the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. The Simplified General Perturbations 4 (SGP4) propagator fits these needs well. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. The propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. TLEs themselves are short, standardized collections of orbital elements and mission information, produced from recent observations of the object in question. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
 
-Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian Date is simply linearly interpolates between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
+Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian date is linearly interpolated between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
 
 \subsection{Discrete Shape Representations}
 
@@ -330,7 +330,7 @@ Most of the analysis in this work used one of the 3D model files shown in Figure
 
 Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, all relevant optical interactions must be modeled. In broad terms, this boils down to determining how the object is illuminated, how it casts shadows on itself, and how it is observed. 
 
-At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of these microfacets. If the facet normals are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the facets normals are at large angles to each other, the surface may appear dull as the direction of the outgoing light may be largely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface can also change the macroscopic properties of the material. 
+At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of these microfacets. If the facet normals are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the microfacet normals are at large angles to each other, the surface may appear dull as the direction of the outgoing light may be largely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface --- can also change the macroscopic properties of the material. 
 
 This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by \cite{duvenhage2013}:
 
@@ -352,7 +352,7 @@ Eq \ref{eq:brdf_energy_cons} states that for all possible illumination direction
 
 \subsection{BRDF Formulations}
 
-Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. This does not mean that they are always sufficient for modeling real-world materials, they merely represent ways hypothetical surfaces could reflect light without breaking any fundamental physics.
+Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. Real-world materials are modeled with these BRDFs by fitting the free parameters of a given BRDF to measured reflectance data \cite{matusik2003}. If a BRDF can be fit to the data with low error, that reflection function can be considered to be a faithful model for the true physics. 
 
 \subsubsection{Lambertian}
 
@@ -366,17 +366,17 @@ In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient
 
 \subsubsection{Phong}
 
-While the diffuse BRDF reflects energy isotropically, many real-world reflections are highly biased. At the extreme end, a perfect mirror reflection is effectively a Dirac delta function in the reflected illumination direction. Many real-world materials are well-modeled as a linear combination of diffuse and specular effects. A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
+While the diffuse BRDF reflects energy isotropically, many real-world reflections are highly biased. At the extreme end, a perfect mirror reflection is effectively a Dirac delta function in the reflected illumination direction. Many real-world materials are well modeled as a linear combination of diffuse and specular effects. A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
 
 \begin{equation} \label{eq:brdf_phong}
   f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
 \end{equation}
 
-In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfectly mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
+In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
 
 \subsubsection{Blinn-Phong}
 
-The Blinn-Phong BRDF is similar to to the Phong BRDF, but parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+The Blinn-Phong BRDF is similar to to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
 
 \begin{equation} \label{eq:brdf_blinn_phong}
   f_r(L \rightarrow O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}
@@ -400,13 +400,13 @@ The Cook-Torrance explicitly accounts for the orientation of the microfacets mak
   D = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
 \end{equation}
 
-In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but is often approximated as \cite{cook1982}:
+In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as \cite{cook1982}:
 
 \begin{equation} \label{eq:fresnel_approx}
   F = C_s + \left( 1 - C_s \right) \left( 1 - \left( H \cdot L \right) \right) ^ 5.
 \end{equation}
 
-The geometric attenuation term expresses how microfacets shadow eachother, and can be approximated with \cite{cook1982}:
+The geometric attenuation term expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
   G = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
@@ -483,7 +483,7 @@ In order to effectively compute reflections and shadows on the surfaces of space
 
 \subsection{Attitude Representations}
 
-When discussing about the orientation of a rigid body in three dimensions, otherwise known as its attitude, that orientation is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
+The orientation --- or attitude --- of a rigid body in three dimensions is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
 
 \subsubsection{The Direction Cosine Matrix}
 
@@ -535,7 +535,7 @@ The quaternion represents attitude with a point on the surface of the hyperspher
     }
 \end{equation}
 
-The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaterion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via
+The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaternion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via
 
 \begin{align*} \numberthis \labelAndRemember{eq:quat2prp_theta} 
     {
@@ -560,7 +560,7 @@ In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
 
 \subsection{Attitude Kinematics}
 
-Because it is cheap to convert between attitude representations, only one set of kinematic equations are needed for propagating a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via:
+Because it is cheap to convert between attitude representations, only one set of kinematic equations is needed to propagate a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via:
 
 \begin{equation} \label{eq:quat_kde}
     \left[\begin{matrix}\dot{\epsilon_1}\\\dot{\epsilon_2}\\\dot{\epsilon_3}\\\dot{\epsilon_4}\\\end{matrix}\right]
@@ -782,7 +782,7 @@ These time scales are relevant for this research as the precise coordinate frame
 
 \subsection{Julian Date}
 
-Most tasks in astrodynamics are easier when using a continuous time system. For this reason, the Julian date is adopted. This quantity is defined is the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, the Julian date is computed via:
+Most tasks in astrodynamics are easier when using a continuous time system. For this reason, the Julian date is adopted. This quantity is defined as the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, the Julian date is computed via:
 
 \begin{equation} \label{eq:date_to_jd}
   JD = 376Y - \fl{\left[ \frac{7Y + 7 \cdot \fl{\left(\frac{M + 9}{12} \right)}}{4} \right]}
@@ -825,7 +825,7 @@ A precise definition of coordinate systems is necessary for determining the posi
 
 \subsection{Latitude, Longitude and Altitude}
 
-Latitude, longitude, and altitude (LLA) are a spherical coordinates representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_{geod}$ is converted to geocentric $\phi_{geoc}$ latitude with \cite{frueh2019notes}:
+Latitude, longitude, and altitude (LLA) is a spherical representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_{geod}$ is converted to geocentric $\phi_{geoc}$ latitude with \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:geod_to_geoc}
   \phi_{geoc} = \tan^{-1} \left((1 - f)^2 \tan\phi_{geod} \right).
@@ -933,7 +933,7 @@ In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$
 
 \subsection{International Celestial Reference Frame (ICRF/J2000)}
 
-Transforming from ITRF to the a standardized intertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Vallado \cite{vallado4ed}. 
+Transforming from ITRF to the a standardized inertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Vallado \cite{vallado4ed}. 
 
 Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from ITRF to Greenwich True of Date (GTOD) via: 
 \begin{equation} \label{eq:itrf_to_gtod}
@@ -972,7 +972,7 @@ The specific realization of ICRF used in this work is referenced to the position
 
 \subsection{Right Ascension and Declination}
 
-Right ascension and declination, often shortened to RA/Dec, are useful angles from describing the angular position of an object on the celestial sphere from the perspective of an observer. Right ascension is defined as the angle
+Right ascension and declination, often shortened to RA/Dec, are useful angles for describing the angular position of an object on the celestial sphere from the perspective of an observer. Right ascension is defined as the angle
 of the observation projected onto the inertial $x-y$ plane, measured counterclockwise from inertial
 $\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
@@ -1024,13 +1024,13 @@ With these transformations, any topocentric observation directions in RA/Dec or 
 
 \section{CCD Performance Model} \label{sec:ccd_performance}
 
-Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much further than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
+Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much farther than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
 \subsection{Background Signal Sources}
 
 \subsubsection{Background Source Importance}
 
-Some background signals are more impactful than others. For simulating realistic light curves, it is important to only model those background sources that have the possibility of being at or above the order of magnitude of the object signal, thereby seriously degrading the signal-to-noise ratio. As a baseline, the background terms modeled by Krag for the PROOF CCD performance model were implemented, namely scattered moonlight, airglow, zodiacal light, and itegrated starlight \cite{krag2003}. In addition, twilight and light pollution models were implemented to increase the time and station location flexibility of the simulation. Each background term is modeled at medium fidelity --- often using tabulated measurements or set of exponential distributions to govern the scattering physics. As a result, this background performance model does not capture local weather conditions or precisely simulate the scattering of each photon through the atmosphere, but still strives to faithfully models the physics of each background signal process. Table \ref{tb:signal_importance} ranks the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
+Some background signals are more impactful than others. For simulating realistic light curves, it is important to only model those background sources that have the possibility of being at or above the order of magnitude of the object signal, thereby seriously degrading the signal-to-noise ratio. As a baseline, the background terms modeled by Krag for the PROOF CCD performance model were implemented, namely scattered moonlight, airglow, zodiacal light, and integrated starlight \cite{krag2003}. In addition, twilight and light pollution models were implemented to increase the time and station location flexibility of the simulation. Each background term is modeled at medium fidelity --- often using tabulated measurements or a set of exponential distributions to govern the scattering physics. As a result, this background performance model does not capture local weather conditions or precisely simulate the scattering of each photon through the atmosphere, but still strives to faithfully model the physics of each background signal process. Table \ref{tb:signal_importance} ranks the approximate magnitudes in photoelectrons per pixel one can expect from a telescope similar to the Purdue Optical Ground Station.
 
 \begin{table}[]
   \centering
@@ -1085,7 +1085,7 @@ mean airglow signal in ADU per pixel is simply given by:
   \bar{S}_{airglow} = AINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
 \end{equation}
 
-In Eq \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass function which accounts for the accumulation of air along the optical path at different zenith angles \cite{frueh2019notes}. This airmass is termed \textit{relative} as it relates the ratio of absolute airmass at a zenith angle to the absolute airmass at zenith. Often, this function is approximated by the Van-Rhijn factor $\textrm{AM}(\theta_z) = \sec{\theta_z}$ which remains accurate up to $\theta_z \approx 70^\circ$ before diverging to infinity. Instead, a function proposed by Pickering is used \cite{pickering2002}.
+In Eq \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass function which accounts for the accumulation of air along the optical path at different zenith angles \cite{frueh2019notes}. This airmass is termed \textit{relative} as it relates the ratio of absolute airmass at a zenith angle to the absolute airmass at zenith. Often, this function is approximated by the Van-Rhijn factor $\textrm{AM}(\theta_z) = \sec{\theta_z}$, which remains accurate up to $\theta_z \approx 70^\circ$ before diverging to infinity. Instead, a function proposed by Pickering is used \cite{pickering2002}.
 
 \begin{equation} \label{eq:pickering_airmass}
   \textrm{AM}(\theta_z) = \frac{1}{\sin\left((90 - \theta_z) +  \frac{244}{165 + 47 * \left(90 - \theta_z \right)^{1.1}}\right)}
@@ -1110,7 +1110,7 @@ Using Eq \ref{eq:pickering_airmass} instead of the Van-Rhijn factor enables the 
 
 \subsubsection{Light Pollution}
 
-Another source of background noise light pollution. On a cloudless night with low levels of atmospheric aerosols, 
+Another source of background noise is light pollution. On a cloudless night with low levels of atmospheric aerosols, 
 the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2}
 \right]$ (MPSAS) \cite{krag2003}. As light pollution increases, this zenith brightness may dip down to
 $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith brightness values,
@@ -1219,7 +1219,7 @@ through the telescope aperture due to integrated starlight.
 \end{equation}
 
 In Eq \ref{eq:starlightmean}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
-\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$, and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
+\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$ and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
 
 \begin{figure}[ht]
   \centering
@@ -1231,13 +1231,13 @@ In Eq \ref{eq:starlightmean}, $b_{is}$ is the integrated starlight brightness in
 
 \subsubsection{Scattered Moonlight}
 
-Moonlight scattering through the atmosphere significant increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_{obs}$, the angle from the Moon to zenith $z_{moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
+Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_{obs}$, the angle from the Moon to zenith $z_{moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
 
 \begin{equation} \label{eq:mie_scattering_moon}
   F_{ms}(\lambda) = a_1 \left[ e^{-\left(\frac{\Psi}{\Psi_1}\right)} + a_2 e^{-\left(\frac{\pi - \Psi}{\Psi_2}\right)} \right] F_{rs}(\lambda).
 \end{equation}
 
-Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^\circ, 20^\circ]$, and $\Psi_2 \approx 50$ \cite{daniels1977}. Prior to any station-specific fitting, the middle of these intervals are chosen, yielding $a_1 = 75$, $a_2 = 0.015$, $\Psi_1 = 15^\circ$, and $\Psi_2 = 50^\circ$. $a_1$ and $a_2$ are dimensionless, such that $F_{ms}$ also has units of $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$. The total intensity of the scattered moonlight $F_{mt}$ following Krag's formulation \cite{krag2003}:
+Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^\circ, 20^\circ]$, and $\Psi_2 \approx 50$ \cite{daniels1977}. Prior to any station-specific fitting, the center of each interval is chosen, yielding $a_1 = 75$, $a_2 = 0.015$, $\Psi_1 = 15^\circ$, and $\Psi_2 = 50^\circ$. $a_1$ and $a_2$ are dimensionless, such that $F_{ms}$ also has units of $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$. The total intensity of the scattered moonlight $F_{mt}$ following Krag's formulation \cite{krag2003}:
 
 \begin{equation} \label{eq:total_scattered_moonlight}
   F_{mt} = f(\theta) \left[ F_{rs}(\lambda) + F_{ms}(\lambda) \right].
@@ -1283,7 +1283,7 @@ As in the integrated starlight signal, the $10^{-4}$ factor reconciles the $S_{1
 
 \subsubsection{Background Sampling}
 
-The background signals are only defined in terms of their means, as each signal models the expected amount of radiation without accounting for the quantized nature of light \cite{krag2003}. Since light is transmitted in individual photons, their incidence on a given pixel will follow a statistical distribution. Assuming that each photon does not interact with others, the incidence of a photon on a pixel is well-modeled as a Poisson process for each background term \cite{frueh2019notes}. This distribution models the number of independent and identically distributed events that occur during a time period. For CCD astronomy, this translates to the event of a photon hitting the sensor. A Poisson distribution is defined on the positive integers by a single parameter $\lambda$ which is both the mean and variance of the distribution. The probability density function (PDF) for the Poisson distribution takes the form \cite{frueh2019notes}:
+The background signals are only defined in terms of their means, as each signal models the expected amount of radiation without accounting for the quantized nature of light \cite{krag2003}. Since light is transmitted in individual photons, their incidence on a given pixel will follow a statistical distribution. Assuming that each photon does not interact with others, the incidence of a photon on a pixel is well modeled as a Poisson process for each background term \cite{frueh2019notes}. This distribution models the number of independent and identically distributed events that occur during a time period. For CCD astronomy, this translates to the event of a photon hitting the sensor. A Poisson distribution is defined on the positive integers by a single parameter $\lambda$ which is both the mean and variance of the distribution. The probability density function (PDF) for the Poisson distribution takes the form \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:poisson_pdf}
   P_\lambda(x=k) = \frac{\lambda^k e^{-\lambda}}{k!}.
@@ -1320,7 +1320,7 @@ Accurately simulating light curves requires realistic constraints on the observi
 
 \subsubsection{Earth Penumbra}
 
-The Earth casts a conical shadow into space. Outside this shadow, the fraction of recieved solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ and object in J2000, the local irradiance fraction a function of the angles \cite{krag2003}:
+The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ and object in J2000, the local irradiance fraction a function of the angles \cite{krag2003}:
 
 \begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
   \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_{obj} \\
@@ -1411,7 +1411,7 @@ In Eq \ref{eq:moon_exclusion}, $\nu_{elevation} = 1$ implies that the observatio
 
 \subsection{Mean Irradiance at The Observer}
 
-Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for convex objects or Eq \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the recieved mean irradiance at the telescope aperture is given by:
+Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for convex objects or Eq \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the received mean irradiance at the telescope aperture is given by:
 
 \begin{equation} \label{eq:mean_irrad_at_aperture}
   \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_0 f_{Sun} \hat{I}}{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2}.
