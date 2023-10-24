@@ -322,6 +322,7 @@ TODO: write
   \label{fig:cube_lcs}
 \end{figure}
 
+\pagebreak
 \section{Convex Shape Inversion Without Noise}
 
 \subsection{Object Reconstruction Improvements}
@@ -336,6 +337,35 @@ The proposed resampling and merging steps in the object reconstruction process p
   \label{fig:egi_reconstructions}
 \end{figure}
 
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_002.png}
+  \caption{Shape inversion results for convex objects without noise in the light curve}
+  \label{fig:res_convex_no_noise}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_003.png}
+  \caption{Shape inversion results for nonconvex objects without noise in the light curve}
+  \label{fig:res_nonconvex_no_noise}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_004.png}
+  \caption{Shape inversion results for convex objects with noise in the light curve}
+  \label{fig:res_convex_with_noise}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_005.png}
+  \caption{Shape inversion results for nonconvex objects with noise in the light curve}
+  \label{fig:res_nonconvex_with_noise}
+\end{figure}
+
+\pagebreak
 \section{Nonconvex Shape Inversion Without Noise}
 
 Displacing free vertices in the EGI error vector direction by $d_i$ yields accurate concavities for objects whose concave boundaries lie in a plane. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:non_convex_recon_of_non_convex}.
@@ -362,10 +392,12 @@ This vertex displacement scheme will negligibly impact the convex guess if the t
 
 Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility of vertex displacement with truly convex objects. All objects are reconstructed faithfully in both their convex and nonconvex inversions, with the same caveats noted in the discussion following Figure \ref{convex_grid}. Some truly sharp edges are rounded during mesh subdivision as seen in the gem or rectangular prism. That said, others like the cylinder become more accurate as subdivision reintroduces continuity lost to discretization in EGI merging.
 
+\pagebreak
 \section{Convex Shape Inversion With Noise}
 
 TODO: this
 
+\pagebreak
 \section{Nonconvex Shape Inversion With Noise}
 
 TODO: this
