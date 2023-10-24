@@ -37,7 +37,7 @@
 
 \section{Astronomical Spectra Data} \label{data:spectra}
 
-\subsubsection{Atmospheric Extinction} \label{data:atm}
+\subsubsection{Atmospheric Extinction} \label{data:atm} Data from \cite{krag2003}.
 The atmospheric extinction coefficient is dimensionless.
 \begin{listing}[H]
 \inputminted[breaklines=true, breakanywhere=true, breaksymbol=\hspace{0pt}, fontsize=\footnotesize]{json}{/Users/liamrobinson/Documents/PyLightCurves/mirage/resources/data/atmos_extinction.json}
@@ -52,13 +52,13 @@ The atmospheric extinction coefficient is dimensionless.
 \subsection{Background Source Data}
 
 \subsubsection{Lunar Phase Factor}
-The lunar phase factor is a function of the phase angle in radians and is dimensionless.
+The lunar phase factor is a function of the phase angle in radians and is dimensionless. Data from \cite{daniels1977}.
 \begin{listing}[H]
 \inputminted[breaklines=true, breakanywhere=true, breaksymbol=\hspace{0pt}, fontsize=\footnotesize]{json}{/Users/liamrobinson/Documents/PyLightCurves/mirage/resources/data/lunar_phase.json}
 \end{listing}
 
 \subsubsection{Scattered Moonlight}
-The scattered moonlight radiance in $\left[ \frac{W}{sr \cdot m^2 \cdot m} \right]$ is a function of the difference in the line of sight and Moon azimuths \texttt{delta\_az} in radians, the zenith angle of the moon \texttt{z\_moon} in radians, and the zenith angle of the line of sight \texttt{z\_obs} in radians.
+The scattered moonlight radiance in $\left[ \frac{W}{sr \cdot m^2 \cdot m} \right]$ is a function of the difference in the line of sight and Moon azimuths \texttt{delta\_az} in radians, the zenith angle of the moon \texttt{z\_moon} in radians, and the zenith angle of the line of sight \texttt{z\_obs} in radians. Data from \cite{daniels1977}.
 
 \begin{listing}[H]
 \inputminted[breaklines=true, breakanywhere=true, breaksymbol=\hspace{0pt}, fontsize=\footnotesize]{json}{/Users/liamrobinson/Documents/PyLightCurves/mirage/resources/data/moonlight.json}
@@ -66,7 +66,7 @@ The scattered moonlight radiance in $\left[ \frac{W}{sr \cdot m^2 \cdot m} \righ
 
 \subsubsection{Zodiacal Light} \label{data:roach_zod}
 
-The zodiacal light surface brightness in $S_10$ is a function of the latitude \texttt{"ecliptic\_lat"} and longitude \texttt{"ecliptic\_lon"} of the line of sight in the solar system ecliptic reference frame, both expressed in radians.
+The zodiacal light surface brightness in $S_10$ is a function of the latitude \texttt{"ecliptic\_lat"} and longitude \texttt{"ecliptic\_lon"} of the line of sight in the solar system ecliptic reference frame, both expressed in radians. Data from \cite{roach1972}.
 
 \begin{listing}[H]
 \inputminted[breaklines=true, breakanywhere=true, breaksymbol=\hspace{0pt}, fontsize=\footnotesize]{json}{/Users/liamrobinson/Documents/PyLightCurves/mirage/resources/data/zodiacal.json}
@@ -98,7 +98,6 @@ The zodiacal light surface brightness in $S_10$ is a function of the latitude \t
     \caption{Purdue Optical Ground Station telescope parameters}
     \label{tb:pogs_parameters}
   \end{table}
-
 
 \subsection{File Formats}
 

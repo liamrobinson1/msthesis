@@ -1022,6 +1022,10 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
 With these transformations, any topocentric observation directions in RA/Dec or Az/El can be converted into a Cartesian representation and transformed into J2000. Simultaneously, any propagated space object orbits can be transformed similarly from an arbitrary propagation frame such that all future computations requiring the observation geometry take place in the same reference frame. 
 
+\section{Planetary Ephemerides}
+
+The Spacecraft, Planet, Instrument, C-matrix, and Events toolkit (SPICE) is used for the propagation of the Sun and moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
+
 \section{CCD Performance Model} \label{sec:ccd_performance}
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much farther than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
