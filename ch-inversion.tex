@@ -68,7 +68,13 @@ The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation
 
 \subsubsection{EGI Optimization Observability}
 
-TODO: write
+Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, the gradient of the light curve error with respect to that normal vector of the EGI is zero, and that face's area cannot be recovered. For a given set of candidate normal vectors, the ability to recover a reliable solution from the area optimization problem is known as its observability. As studied by Friedman, the observability $\mathcal{O}$ of the EGI optimization is governed by the rank of the Gramian \cite{friedman2020}:
+
+\begin{equation} \label{eq:egi_observability}
+  \mathcal{O} = \begin{cases} \mathrm{det}\left( G^T G \right) \neq 0 & 1 \\ \mathrm{else} & 0 \end{cases}.
+\end{equation}
+
+Eq \ref{eq:egi_observability} follows from an unconstrained least-squares estimation of the EGI, and is generally equivalent to the statement that the areas of $n$ normal vectors can be estimated if $m>=n$ measurements are taken with at least one nonzero entry in each column of the reflection matrix $G$. As noted by Cabrera et al., the nonnegative constraint placed on the face areas $a_j$ mean that the constrained EGI optimization is often estimatable even when the unconstrained form is unobservable \cite{cabrera2021}. As a result, the observability condition in Eq \ref{eq:egi_observability} is a very conservative lower bound, but is still useful for quantifying the shape information content of the light curve through the rank of $G^T G$. Going forward, all inversions results presented in this work are performed with observable measurement geometry. 
 
 \subsubsection{EGI Resampling}
 
@@ -354,7 +360,7 @@ yielding a weighting for the data quality attributed to each face of the convex 
 These two uncertainty weightings are combined at each face for a global uncertainty estimate:
 
 \begin{equation} \label{eq:u_total}
-  u_{i} = 1 - u_{qual,j} u_{quant,j}.
+  u_{j} = 1 - u_{qual,j} u_{quant,j}.
 \end{equation}
 
 Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. This method conservatively discounts low quantities of high quality data as well high quantities of low quality data.
