@@ -45,7 +45,7 @@ NNLS problems are efficiently solved via Lawson and Hanson's original algorithm 
 
 The convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined as the normalized received facet irradiance per unit facet area:
 
-\begin{align*} \label{ref_cond_matrix}
+\begin{align*} \label{eq:reflection_matrix}
   G_{ij} &= \frac{I_{ij}}{I_0 a_j} \\
   &= f_r\left(L \rightarrow O \right) \left(L_j \cdot N_i\right) \left(O_j \cdot N_i\right).
 \end{align*}
@@ -65,6 +65,10 @@ The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation
   \caption{Initial EGI optimization example for a cube, using 500 candidate normal vectors, the Phong BRDF with $C_d=0.5$, $C_s=0.5$, $n=10$. Relative face area denoted by higher sphere opacity, reference shape shown in grey.}
   \label{fig:initial_egi_sampling}
 \end{figure}
+
+\subsubsection{EGI Optimization Observability}
+
+TODO: write
 
 \subsubsection{EGI Resampling}
 
@@ -309,7 +313,51 @@ The proposed algorithm for shape interpolation for SDF interpolation of two shap
 
 Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or non-convex meshes, making it well suited to interpolating between light curve inversion results.
 
-TODO: write
+\subsubsection{Shape Estimate Uncertainty}
+
+When merging multiple inaccurate shape guesses it is advantageous to measure the uncertainty in each candidate shape and use that uncertainty as a weighting to bias the merging process. The formulation used in this work relies on two face-wise uncertainty terms. First, a face should have high uncertainty if very little light would have reflected off that face to contribute to the light curve. Second, that face should also have high uncertainty if its reflected light has highly contaminated by background noise. As a result, the only faces of an estimated shape with low uncertainty should be those that reflect a large \textit{quantity} of light, increasing the observability of that face, while being uncontaminated by the background to yield a high \textit{quality} signal. These uncertainty terms are computed by first finding:
+
+\begin{equation} \label{eq:h_matrix}
+  H_{ij} = a_j G_{ij}
+\end{equation}
+
+where $a_j$ is the area of the $j$th face and $G_{ij}$ are entries of the reflection matrix defined by Eq \ref{eq:reflection_matrix}. The resulting matrix $H$ has the same dimensions as $G$, but has entries $H_{ij}$ representing the normalized irradiance expected from face $j$ and time $i$. The total normalized irradiance over all timesteps for each face is given by:
+
+\begin{equation} \label{eq:total_norm_irrad}
+  \hat{I}_{j} = \sum_{i}{H_{ij}}.
+\end{equation}
+
+Computing $\hat{I}_{j}$ is useful as it represents the total quantity of signal expected from face $j$ across the light curve. Using this value, the data quantity weighting is:
+
+\begin{equation} \label{eq:unc_quantity}
+  u_{quant,j} = 1 - \frac{\hat{I}_{j} - \min_{j}{\hat{I}_{j}}}{\max_{j}{\hat{I}_{j}} - \min_{j}{\hat{I}_{j}}}.
+\end{equation}
+
+Via Eq \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. As discussed, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the light curve error:
+
+\begin{equation}
+  \mathrm{Var}\left(\delta \hat{I}\right) = \mathrm{Var}\left(Ga - \hat{I}_{meas}\right)
+\end{equation}
+
+generally matches the true signal and noise variance. This means that scaling the expected normalized irradiance $H_{ij}$ by the absolute value of the light curve error yields a quantity that is proportional to the number of false counts above or below the true mean attributed to a certain face:
+
+\begin{equation}
+  \delta \hat{I}_{tot,j} = a_j \sum_{i}{\left( G_{ij} a_j - \hat{I}_{meas,i} \right) H_{ij}},
+\end{equation}
+
+yielding a weighting for the data quality attributed to each face of the convex guess:
+
+\begin{equation}
+  u_{qual,j} = \frac{\delta \hat{I}_{tot,j} - \min_{j}{\delta \hat{I}_{tot,j}}}{\max_{j}{\delta \hat{I}_{tot,j}} - \min_{j}{\delta \hat{I}_{tot,j}}}.
+\end{equation}
+
+These two uncertainty weightings are combined at each face for a global uncertainty estimate:
+
+\begin{equation} \label{eq:u_total}
+  u_{i} = 1 - u_{qual,j} u_{quant,j}.
+\end{equation}
+
+Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. This method conservatively discounts low quantities of high quality data as well high quantities of low quality data.
 
 \chapter{Results}
 
