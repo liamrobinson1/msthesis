@@ -155,12 +155,13 @@ yielding:
 
 \subsubsection{Normalized Irradiance}
 
-The light curve simulation methods presented in this work use normalized irradiance, 
-the reflected irradiance of a object received at a distance of $1$ meter illuminated by a distant source with an irradiance of $1$ $\left[ W/m^2 \right]$ at the object. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting sources to be at a standard distance enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
+The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of a object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
 
 \begin{equation} \label{eq:irradiance_to_norm_irradiance}
   \hat{I} = \frac{r^2}{I_0} I.
 \end{equation}
+
+To be precise, the normalized irradiance has units $m^2$ and can be interpreted as the area of a flat plate illuminated by a $1 \: \left[W/m^2\right]$ light source required to reflect the same irradiance in the direction of the observer. Throughout this work, normalized irradiance is treated as being nondimensional for light curve simulation and inversion purposes as its physical interpretation is largely irrelevant.
 
 \subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
 
@@ -206,7 +207,7 @@ Some light pollution datasets are given in units that include candela. Candela i
   B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
 \end{equation}
 
-The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al. is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
+The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al.\ is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
 
 \begin{figure}[ht]
   \centering
@@ -279,7 +280,7 @@ Orbital propagation for the simulations performed in this work was done using SG
 
 \subsection{Discrete Shape Representations}
 
-A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.e., $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 
+A computer can represent 3D objects implicitly or explicitly. An implicit representation might be the solution to an algebraic equation, i.\,e.\, $x^2 + y^2 + z^2 = 1$ defines a sphere of radius $1$ centered at the origin. Often, a shape may be defined by a set of signed distance functions (SDFs). An SDF takes in a point in \rthree and outputs the distance from the object, returning negative distance if the queried point is inside the shape. The object can then be rendered via ray marching. A ray is cast from the camera out into the scene for each pixel of the screen, each performing distance queries along its length until it intersects the object or diverges. 
 
 By contrast, an explicit shape representation creates complex 3D geometry from simple 2D building blocks. In the most common case, object faces are defined by triangles. This means that at the scale of the individual faces, the shape is always composed of flat surfaces that meet at sharp angles. While this can add complexity to many fields of shape analysis and geometry processing, triangulated surfaces are perfect for light curve shape inversion. Human-made space objects like most satellites are composed of flat faces, with the exception of parabolic antennas and cylindrical rocket bodies.
 
@@ -301,7 +302,7 @@ The face area is computed with:
     a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
 \end{equation}
 
-The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.e., the first vertex $v_{i,1}$, and the face normal vector $\hat{n}_i$:
+The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\, the first vertex $v_{i,1}$, and the face normal vector $\hat{n}_i$:
 
 \begin{equation} \label{eq:face_support}
     h_i = v_{i,1} \cdot \hat{n}_i.
@@ -466,7 +467,7 @@ In Eq \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Eq \ref
 
 \subsection{Real Material Properties}
 
-Producing accurate light curves requires accurate optical properties for the simulated materials. Matusik et al. compiled measured bidirectional reflectance data from over 100 real materials including various metals and paints that might be found on human-made space objects \cite{matusik2003}. Optimally, such a dataset would be used to model the structure, solar panels, and antenna surfaces of the simulated objects. However, it is far more computationally efficient to fit one of the presented three parameter BRDFs to observed data. The Phong model parameters used for simulations in this work are listed in Table \ref{tb:real_matprops}.
+Producing accurate light curves requires accurate optical properties for the simulated materials. Matusik et al.\ compiled measured bidirectional reflectance data from over 100 real materials including various metals and paints that might be found on human-made space objects \cite{matusik2003}. Optimally, such a dataset would be used to model the structure, solar panels, and antenna surfaces of the simulated objects. However, it is far more computationally efficient to fit one of the presented three parameter BRDFs to observed data. The Phong model parameters used for simulations in this work are listed in Table \ref{tb:real_matprops}.
 
 \begin{table}[]
   \centering
@@ -478,7 +479,7 @@ Producing accurate light curves requires accurate optical properties for the sim
   Multilayer insulation (MLI) (Phong) & $0.1$ & $0.9$ & $20$ \\ \hline
   White paint (Phong) & $0.9$ & $0.1$ & $1$ \\ \hline
   \end{tabular}
-  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated. Significant variance may exist depending on surface finishes.}
+  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated qualtitatively by the author. Significant variance may exist depending on surface finishes.}
   \label{tb:real_matprops}
 \end{table}
 
@@ -528,7 +529,7 @@ were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in 
     \end{bmatrix}.
 \end{equation}
 
-This operator is useful as it rephrases the cross product as matrix multiplication, i.e. $\vctr{v} \times \vctr{u} = \matcp{\vctr{v}}\vctr{u}$. While the PRP $\{\theta, \hat{\lambda}\}$ is a four element set, there are only three degrees of freedom due to the unit norm constraint on $\hat{\lambda}$. 
+This operator is useful as it rephrases the cross product as matrix multiplication, i.\,e.\ $\vctr{v} \times \vctr{u} = \matcp{\vctr{v}}\vctr{u}$. While the PRP $\{\theta, \hat{\lambda}\}$ is a four element set, there are only three degrees of freedom due to the unit norm constraint on $\hat{\lambda}$. 
 
 \subsubsection{Quaternions}
 
@@ -700,7 +701,7 @@ In Eq \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the i
 
 The transformation summarized in Eqs \ref{eq:mvp} and \ref{eq:homo_to_pix} are crucial in Section \ref{sec:shadow_mapping} for the shadow mapping algorithm used to compute pixel-wise self-shadowing effects.
 
-Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al. \cite{frueh2014}.
+Many existing light curve simulation methods for nonconvex objects rely on ray tracing schemes like Möller and Trumbore's ray-triangle intersection algorithm \cite{moller2005,fan2020thesis}. This computation has complexity $\mathcal{O}(n^2)$ if implemented naïvely, but can be improved to $\mathcal{O}(n \ln n)$ with better spatial data structures. For human-made space objects, there may be significant self-shadowing at large phase angles. As a result, it cannot be assumed that the self-shadowing conditions $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$ are zero \cite{frueh2014,fan2020thesis}. Naïve ray traced shadows generally require $\mathcal{O}(n^2)$ ray-triangle intersections per timestep for $n$ faces. For this reason, ray traced shadows quickly become infeasible for complex objects without GPU parallelization. The limitations of ray-triangle intersections for light curve simulation is discussed at length by Frueh et al.\ \cite{frueh2014}.
 
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 \begin{figure}[!htb]
@@ -797,7 +798,7 @@ Most tasks in astrodynamics are easier when using a continuous time system. For 
       + \frac{\frac{\left(\frac{s}{60} + 60\right)}{60} + h}{24}.
 \end{equation}
 
-Note that Eq \ref{eq:date_to_jd} is always a function of the time scale used in the input, i.e., a UTC timestamp yields $JD_{UTC}$ whereas a UT1 timestamp yields $JD_{UT1}$. Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch. The J2000.0 epoch is used unless otherwise stated, resulting in \cite{vallado4ed}:
+Note that Eq \ref{eq:date_to_jd} is always a function of the time scale used in the input, i.\,e.\, a UTC timestamp yields $JD_{UTC}$ whereas a UT1 timestamp yields $JD_{UT1}$. Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch. The J2000.0 epoch is used unless otherwise stated, resulting in \cite{vallado4ed}:
 
 \begin{equation} \label{eq:jd_to_t}
   T = \frac{JD - 2451545.0}{36535}.
@@ -1124,7 +1125,7 @@ the zenith surface brightness is approximately $22 \: \left[ \frac{mag}{arcsec^2
 \right]$ (MPSAS) \cite{krag2003}. As light pollution increases, this zenith brightness may dip down to
 $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith brightness values,
  the 2015 World Atlas of Sky Brightness dataset is used \cite{falchi2016_data}. The data is reported in $\left[
-	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring conversion to a more useful unit. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit the conversions of Falchi et al. \cite{falchi2016}.  
+	\frac{mcd}{cm^2} \right]$ on a 30-arcsecond grid, requiring conversion to a more useful unit. A subset of the global dataset is displayed in \ref{fig:pollution_data} This conversion is listed in Eq \ref{eq:cd_per_m2_to_mpsas}, using a monochromatic $\lambda = 474$ nm to fit the conversions of Falchi et al.\ \cite{falchi2016}.  
 
 \begin{figure}[ht]
   \centering
@@ -1151,7 +1152,7 @@ Note that Krag does not implement a specific light pollution model, but instead 
 
 \subsubsection{Twilight}
 
-Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on the CCD. The twilight model implemented for this work is due to Patat et al. and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. The model of Patat et al. fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \cite{patat2006}:
+Even after the Sun sets, scattered sunlight in the upper atmosphere creates a signal on the CCD. The twilight model implemented for this work is due to Patat et al.\ and was developed for the European Southern Observatory at Paranal in Chile \cite{patat2006}. This model implements the zenith brightness as a function of the solar zenith angle $\gamma$ --- the angle from zenith to the Sun's apparent centroid. The model of Patat et al.\ fits a second-degree polynomial in $\gamma$ to approximately 2000 observations in varying atmospheric conditions, yielding separate curves for each of the UBVRI passbands. For example, for the V band, the twilight zenith brightness in MPSAS is given by \cite{patat2006}:
 
 \begin{equation} \label{eq:b_zenith_twilight}
   B_{twi,z} = 11.84 + 1.518(\gamma - 95^\circ) - 0.057 (\gamma -  95^\circ)^2.
