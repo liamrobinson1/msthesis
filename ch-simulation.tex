@@ -4,27 +4,32 @@
 
 Light curve simulation and inversion requires background knowledge in attitude kinematics, time and coordinate systems, computer graphics, and photometry.
 
-\section{Photometry}
+\section{Photometry Background}
 
 \subsection{The Charge Coupled Device (CCD)}
 
 Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
 
+Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_{pix} = 0.72 \: [arcsec/pixel]$), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
+
 \subsection{Diffraction}
+
+Many objects of interest are far past LEO, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion \cite{frueh2019notes}.
 
 \subsubsection{Rayleigh Criterion}
 
-Many objects of interest are far past low-Earth orbit, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion. The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that:
+The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that \cite{frueh2019notes}:
 
-\begin{equation} \label{eq:rayleigh_criterion}
-  \sin\theta_R = \frac{1.22 \lambda}{d}.
-\end{equation}
+\begin{align*} \numberthis \label{eq:rayleigh_criterion}
+  \sin\theta_R &= \frac{1.22 \lambda}{d}, \\
+  \theta_R &\approx \frac{1.22 \lambda}{d}.
+\end{align*}
 
-For a $1$-meter aperture optical telescope observing a $10$-meter diameter object in GEO --- giving an angular radius of $\approx 10^{-7}$ radians --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $5$ times wider than the object. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
+For a $0.5$-meter aperture optical telescope with a pixel scale of $1$ arcsecond per pixel, observing a $40$-meter wide object in GEO --- occupying approximately $0.2$ pixel widths on the image --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $2.4$ times wider than the object at a wavelength of $550$ nanometers. Similarly, a $60$-centimeter wide object in LEO observed with the same telescope occupies $0.1$ pixel widths in the image while producing an Airy disk $4.5$ times wider than the object itself. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
 
 \subsubsection{The Airy Disk}
 
-The far-field diffraction pattern produced by a point source is known as an Airy pattern \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
+The far-field diffraction pattern produced by a point source is known as an Airy pattern or disk \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
 
 \begin{equation} \label{eq:airy_disk}
   C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
@@ -1024,7 +1029,7 @@ With these transformations, any topocentric observation directions in RA/Dec or 
 
 \section{Planetary Ephemerides}
 
-The Spacecraft, Planet, Instrument, C-matrix, and Events toolkit (SPICE) is used for the propagation of the Sun and moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
+The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
 
 \section{CCD Performance Model} \label{sec:ccd_performance}
 
