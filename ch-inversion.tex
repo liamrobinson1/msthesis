@@ -45,7 +45,7 @@ NNLS problems are efficiently solved via Lawson and Hanson's original algorithm 
 
 The convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined as the normalized received facet irradiance per unit facet area:
 
-\begin{align*} \label{eq:reflection_matrix}
+\begin{align*} \numberthis \label{eq:reflection_matrix}
   G_{ij} &= \frac{I_{ij}}{I_0 a_j} \\
   &= f_r\left(L \rightarrow O \right) \left(L_j \cdot N_i\right) \left(O_j \cdot N_i\right).
 \end{align*}
@@ -189,7 +189,7 @@ Depending on the optimizer, additional function evaluations will be needed to ev
 
 \subsubsection{Nonconvex Feature Detection and Location}
 
-Many human-made space objects are, as highlighted in Figure \ref{hst_bennu_shadows}, highly nonconvex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{little_problem} cannot recover nonconvex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
+Many human-made space objects are, as highlighted in Figure \ref{fig:hst_bennu_shadows}, highly nonconvex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{eq:little_problem} cannot recover nonconvex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
 
 Information about large, unilateral object concavities is obtained during EGI estimation in Eq. \ref{eq:area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Eq. \ref{eq:fixing_egi} is still employed.
 
@@ -376,12 +376,26 @@ Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncert
   \label{fig:cube_lcs}
 \end{figure}
 
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_noisy_inversion_pdf_001.png}
+  \caption{Convex shape inversions of a cube from noisy measurements}
+  \label{fig:noisy_convex_inversions}
+\end{figure}
+
 \clearpage
 \section{Convex Shape Inversion Without Noise}
 
 \subsection{Object Reconstruction Improvements}
 
 The proposed resampling and merging steps in the object reconstruction process produce sparser results, in less computation time, with fewer convergence issues. Figure \ref{fig:egi_reconstructions} shows object reconstructions with each available EGI. The resampled EGIs does not converge in the maximum number of iterations evaluations ($100$) due to the density of faces with nearby normal vectors, causing large linearization errors the gradient estimation that lead to inefficient optimizer steps. It is clear that the final merged EGI produces the most accurate reconstruction of the truth object.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_egi_figs_aas22_006.png}
+  \caption{Shape inversions from the initial, resampled, and merged EGIs}
+  \label{fig:egi_reconstructions}
+\end{figure}
 
 \begin{figure}[!htb]
   \centering
