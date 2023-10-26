@@ -329,8 +329,6 @@ The proposed algorithm for shape interpolation for SDF interpolation of two shap
 
 Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or nonconvex meshes, making it well suited to interpolating between light curve inversion results.
 
-\subsubsection{Spherical Weights for Shape Interpolation}
-
 The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by allowing the weights $w_i$ to be functions of the location in $\mathbb{R}^3$ of each SDF grid point:
 
 \begin{equation}
@@ -383,7 +381,34 @@ These two uncertainty weightings are combined at each face for a global uncertai
   u_{j} = \frac{u_{qual,j}}{2} + \frac{u_{quant,j}}{2}.
 \end{equation}
 
-Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. This method conservatively discounts low quantities of high quality data as well high quantities of low quality data.
+Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. This method conservatively discounts low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{sphx_glr_face_uncertainty_005.png}
+      \caption{Quantity uncertainty weights}
+      \label{fig:quant_weights}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.3\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{sphx_glr_face_uncertainty_006.png}
+      \caption{Quality uncertainty weights}
+      \label{fig:qual_weights}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.3\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{sphx_glr_face_uncertainty_007.png}
+      \caption{Overall face uncertainty}
+      \label{fig:qual_overall}
+  \end{subfigure}
+     \label{fig:face_uncertainties}
+\end{figure}
+
+Figure \ref{fig:face_uncertainties} conveys that $u_{qual}$ and $u_{quant}$ convey independent information about each face depending on the measured light curve and its noise --- higher data quantity does not necessarily imply higher quality.
 
 \subsubsection{Spherical Nearest Neighbor Weights}
 
@@ -406,11 +431,11 @@ In practice, this optimization problem is solved with a Balltree, a spatial sear
 
 Given $n$ noisy light curves from an object of unknown shape, the procedure determining a single best estimate of the object's true shape has three stages. 
 
-\begin{itemize}
+\begin{enumerate}
   \item Convex shape guesses are computed for each noisy light curve.
   \item Each shape is checked for potential nonconvex features by introducing singular concavities in the direction of the EGI error vector following Algorithm \ref{alg:concavity_iter}. Each nonconvex guess along with the convex guess is simulated in the same observation conditions to compute an error with respect to to the original light curve. The guess --- convex or nonconvex --- with the lowest error is selected moving forward.
   \item Now with $n$ convex or nonconvex shape estimates, one for each original light curve, the uncertainty in each face of each object is computed with Eq \ref{eq:u_total}.
   \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$.
   \item The objects are merged together via their weights using the SDF procedure outlined by Algorithm \ref{alg:sdf_interp}, yielding a final shape estimate.
-\end{itemize}
+\end{enumerate}
 
