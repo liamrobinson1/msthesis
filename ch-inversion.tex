@@ -380,8 +380,37 @@ yielding a weighting for the data quality attributed to each face of the convex 
 These two uncertainty weightings are combined at each face for a global uncertainty estimate:
 
 \begin{equation} \label{eq:u_total}
-  u_{j} = 1 - u_{qual,j} u_{quant,j}.
+  u_{j} = \frac{u_{qual,j}}{2} + \frac{u_{quant,j}}{2}.
 \end{equation}
 
 Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. This method conservatively discounts low quantities of high quality data as well high quantities of low quality data.
+
+\subsubsection{Spherical Nearest Neighbor Weights}
+
+One final challenge remains: translating the uncertainties of the faces of an object to a weighting function that can be applied throughout $\mathbb{R}^3$ to weight the SDF. Simply projecting points onto the unit sphere and performing nearest-neighbor interpolation accomplishes this task well. For a set of reference points $\vctr{r}_{i}$ each with a weight $w_i$, the weight $w_q$ of query point $\vctr{r}_q \in \mathbb{R}^3$ is the solution to:
+
+\begin{equation}
+  w_q = \min_{i}\left( \| \vctr{r}_q - \vctr{r}_i \| \right).
+\end{equation}
+
+In practice, this optimization problem is solved with a Balltree, a spatial search data structure designed to efficiently find nearest neighbors in $n$-dimensional space bounded by the $n-1$-dimensional sphere \cite{omohundro1989}. The results of this nearest neighbor interpolation for a number of query points is shown in Figure \ref{fig:ball_tree_nn_interp}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_spherical_voronoi_interp_001.png}
+  \caption{Nearest neighbor interpolation between reference poitns (red) with uniformly distributed weights on $[0,1]$.}
+  \label{fig:ball_tree_nn_interp}
+\end{figure}
+
+\subsubsection{Full Noisy Inversion Procedure}
+
+Given $n$ noisy light curves from an object of unknown shape, the procedure determining a single best estimate of the object's true shape has three stages. 
+
+\begin{itemize}
+  \item Convex shape guesses are computed for each noisy light curve.
+  \item Each shape is checked for potential nonconvex features by introducing singular concavities in the direction of the EGI error vector following Algorithm \ref{alg:concavity_iter}. Each nonconvex guess along with the convex guess is simulated in the same observation conditions to compute an error with respect to to the original light curve. The guess --- convex or nonconvex --- with the lowest error is selected moving forward.
+  \item Now with $n$ convex or nonconvex shape estimates, one for each original light curve, the uncertainty in each face of each object is computed with Eq \ref{eq:u_total}.
+  \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$.
+  \item The objects are merged together via their weights using the SDF procedure outlined by Algorithm \ref{alg:sdf_interp}, yielding a final shape estimate.
+\end{itemize}
 
