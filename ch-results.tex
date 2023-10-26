@@ -1,0 +1,87 @@
+\ProvidesFile{ch-results.tex}[Results]
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+
+\chapter{Results}
+
+\section{Realistic Light Curves}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_lc_uncertainty_002_2_00x.png}
+  \caption{Light curves for a $1$-meter diffuse cube with $C_d = 0.5$ observed from the Purdue Optical Ground Station at \pogslla. Object is in the orbit of GOES 15 under torque-free rigid body motion with an inertia tensor $I = \mathrm{diag}(1.0, 2.0, 3.0) \: \left[kg \cdot m^2\right]$, $q_0 = \left[0, 0, 0, 1\right]^T$, $\omega_0 = \left[ 0.01, 0.02, 0.01 \right] \: \left[rad/s\right]$}
+  \label{fig:cube_lcs}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_noisy_inversion_pdf_001.png}
+  \caption{Convex shape inversions of a cube from noisy measurements}
+  \label{fig:noisy_convex_inversions}
+\end{figure}
+
+\clearpage
+\section{Convex Shape Inversion Without Noise}
+
+\subsection{Object Reconstruction Improvements}
+
+The proposed resampling and merging steps in the object reconstruction process produce sparser results, in less computation time, with fewer convergence issues. Figure \ref{fig:egi_reconstructions} shows object reconstructions with each available EGI. The resampled EGIs does not converge in the maximum number of iterations evaluations ($100$) due to the density of faces with nearby normal vectors, causing large linearization errors the gradient estimation that lead to inefficient optimizer steps. It is clear that the final merged EGI produces the most accurate reconstruction of the truth object.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_egi_figs_aas22_006.png}
+  \caption{Shape inversions from the initial, resampled, and merged EGIs}
+  \label{fig:egi_reconstructions}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_002.png}
+  \caption{Shape inversion results for convex objects without noise in the light curve}
+  \label{fig:res_convex_no_noise}
+\end{figure}
+
+\clearpage
+\section{Nonconvex Shape Inversion Without Noise}
+
+Displacing free vertices in the EGI error vector direction by $d_i$ yields accurate concavities for objects whose concave boundaries lie in a plane. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:res_convex_no_noise}.
+
+The collapsed cube and icosahedron in Figure \ref{fig:res_convex_no_noise} are recovered effectively, but the collapsed house and box-wing satellite expose two limitations of the vertex displacement technique. In the case of the house where the concavity boundary is not constrained to a plane, the edges of the created concave feature are incorrect. The box-wing satellite's shadowing geometry leads the convex guess to be a poor approximation of the geometry outside of the concavity while also inheriting the same problem as the house.
+
+This vertex displacement scheme will negligibly impact the convex guess if the truth object is also convex. A convex truth object will produce a small $\|\vec{e}_{EGI}\|$, causing the vertex update depth $d_{i}$ to trend towards zero as the estimated internal angle approaches $\psi = 180^\circ$. This is illustrated in Figure \ref{fig:non_convex_recon_of_convex} using the same input convex objects and attitude profiles as in Figure \ref{convex_grid}.
+
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_003.png}
+  \caption{Shape inversion results for nonconvex objects without noise in the light curve}
+  \label{fig:res_nonconvex_no_noise}
+\end{figure}
+
+Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility of vertex displacement with truly convex objects. All objects are reconstructed faithfully in both their convex and nonconvex inversions, with the same caveats noted in the discussion following Figure \ref{convex_grid}. Some truly sharp edges are rounded during mesh subdivision as seen in the gem or rectangular prism. That said, others like the cylinder become more accurate as subdivision reintroduces continuity lost to discretization in EGI merging.
+
+\clearpage
+\section{Convex Shape Inversion With Noise}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_004.png}
+  \caption{Shape inversion results for convex objects with noise in the light curve}
+  \label{fig:res_convex_with_noise}
+\end{figure}
+
+TODO: this
+
+\clearpage
+\section{Nonconvex Shape Inversion With Noise}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_005.png}
+  \caption{Shape inversion results for nonconvex objects with noise in the light curve}
+  \label{fig:res_nonconvex_with_noise}
+\end{figure}
+
+TODO: this
+
+\section{Multiple Hypothesis Inversion}
+
