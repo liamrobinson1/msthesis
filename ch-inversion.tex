@@ -279,9 +279,19 @@ In practice, a line search is sufficient to find the interior angle that minimiz
 
 \subsection{Shape Inversion With Noisy Measurements}
 
-\subsubsection{Shape Interpolation With Signed Distance Functions}
+When the light curve measurements are subject to environmental noise, the shape inversion result --- convex or nonconvex --- may vary significantly from the noiseless shape estimate. Fan addressed this problem most recently with a multiple hypothesis scheme \cite{fan2020thesis}. Given a number of noisy light curves, Fan produced a convex shape estimate from each and ranked each by its error when simulated against a new set of observations \cite{fan2020thesis}. Fan and Frueh later adapted this scheme with a sequential Monte Carlo method, which began identically by producing a collection of convex guesses from samples of the same noisy light curve \cite{fan20201}. The error in each guess was measured against a new noisy light curve, enabling a weighted merge of the estimated EGIs, which was then perturbed to produce a new set of estimated shapes \cite{fan2021}. Throughout these methods, Fan assumed that the noise on the light curve was Gaussian and of constant magnitude, although it was noted that the real character of the noise is dependent on both the geometry of the observation and the magnitude of the signal itself \cite{fan2020thesis}. 
 
-The signed distance field (SDF) implicitly represents a shape by associating each point in $\mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. For a given SDF $f(x, y, z)$, the surface of the object is given by:
+This work presents a method for multiple hypothesis shape inversion that builds on Fan's work by relaxing the constant, Gaussian noise assumption and is agnostic to the convexity of the candidate objects. This new method also uses an face-dependent estimate of the uncertainty in each candidate shape's geometry, yielding final object estimates that take only the most accurate features from each candidate object.
+
+\subsubsection{Weighted Shape Interpolation}
+
+To develop this multiple hypothesis inversion procedure that works for both convex and nonconvex shape candidates, it is useful to be able to take a weighted average of an arbitrary set of triangle meshes. Given candidate object meshes $M_i$ with scalars $w_i$, this weighted average process should be of the form:
+
+\begin{equation}
+  M_{interp} = \sum_{i}{w_i M_i}.
+\end{equation}
+
+The algorithm presented in this work for weighted mesh averaging depends on signed distance fields (SDFs). The SDF implicitly represents a shape by associating each point $(x, y, z) \in \mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. As a result, the gradient of the SDF points directly away from the closest piece of the object's geometry. For a given SDF $f(x, y, z)$, the surface of the object is given by:
 
 \begin{equation} \label{eq:sdf_zero_level_set}
   \begin{bmatrix} x \\ y \\ z \end{bmatrix} : \: \: f(x, y, z) = 0.
@@ -297,7 +307,7 @@ Computing the SDF of a triangulated mesh breaks down into computing distances fr
   \label{fig:sdf_slice}
 \end{figure}
 
-Interpolating three-dimensional meshes using signed distance fields is not a novel concept of this work. Cohen-Or et al.\ used distance fields with anchor points to find warping functions between two geometries \cite{cohen_or1998}. A simpler, less robust interpolation strategy between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
+Interpolating three-dimensional meshes using signed distance fields is not a novel concept of this work. Cohen-Or et al.\ used distance fields with anchor points to find warping functions between two geometries \cite{cohen_or1998}. A simple interpolation strategy between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
 
 \begin{figure}[!htb]
   \centering
@@ -312,12 +322,22 @@ The proposed algorithm for shape interpolation for SDF interpolation of two shap
   \caption{SDF interpolation}\label{alg:sdf_interp}
   \begin{algorithmic}
   \Require $w_1 + w_2 = 1$
-  \State $\mathrm{SDF}_{\textrm{interp}} \gets w_1 \cdot \mathrm{SDF}(M_1) + w_2 \cdot \mathrm{SDF}(M_2)$
+  \State $\mathrm{SDF}_{\textrm{interp}} \gets w_1 \cdot \mathrm{SDF}_{M_1} + w_2 \cdot \mathrm{SDF}_{M_2}$
   \State $M_{\textrm{interp}} = \mathrm{Isocontour}(\mathrm{SDF}_{\textrm{interp}}, 0)$.
   \end{algorithmic}
 \end{algorithm}
 
-Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or non-convex meshes, making it well suited to interpolating between light curve inversion results.
+Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or nonconvex meshes, making it well suited to interpolating between light curve inversion results.
+
+\subsubsection{Spherical Weights for Shape Interpolation}
+
+The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by allowing the weights $w_i$ to be functions of the location in $\mathbb{R}^3$ of each SDF grid point:
+
+\begin{equation}
+  \mathrm{SDF}_{\textrm{interp}}(x, y, z) = w_1(x, y, z) \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
+\end{equation}
+
+To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \forall (x,y,z) \in \mathbb{R}^3$.
 
 \subsubsection{Shape Estimate Uncertainty}
 
