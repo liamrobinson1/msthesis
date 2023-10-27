@@ -67,13 +67,13 @@ It must be noted that Eq \ref{eq:reflection_matrix} assumes that the BRDF of the
   \hat{I}_{convex} = G \vec{a}.
 \end{equation}
 
-Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\hat{n}$ on the unit sphere to fit an EGI to the observed light curve $\vec{L}_\textrm{ref} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vec{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares (NNLS) problem and can be solved efficiently for large numbers of normal vectors and light curve data points:
+Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\hat{n}$ on the unit sphere to fit an EGI to the observed light curve $\hat{I}_\textrm{obs} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vec{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares (NNLS) problem and can be solved efficiently for large numbers of normal vectors and light curve data points $\hat{I}_\textrm{obs}$:
 
 \begin{equation} \label{eq:area_opt_convex}
-  \min_{a}{\|\vec{L}_{\textrm{ref}} - G \vec{a}\|_2} \:\:\: \textrm{ subject to } \vec{a}_i \geq 0.
+  \min_{a}{\|\hat{I}_{\textrm{obs}} - G \vec{a}\|_2} \:\:\: \textrm{ subject to } \vec{a}_i \geq 0,
 \end{equation}
 
-NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Eq \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
+to yield an optimal set of face areas $\vec{a}_i$. In Eq \ref{eq:area_opt_convex}, $G$ is computed from the chosen normal vectors $\hat{n}_i$, the uniform BRDF, and the Sun and observer vectors in the body frame of the object. NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Eq \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
 
 The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibbonaci mapping described by Keinert et al.\ in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{fig:initial_egi_sampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
 
@@ -252,7 +252,7 @@ In Eq \ref{eq:root_free}, $C(F_i) = 0$ implies a root face, with $C(F_i) = 1$ im
   C(\vec{v}_i) = \begin{cases}
     0 & \sum_{j \in \mathcal{N}(\vec{v}_i)}{C(F_j)} = 0 \\
     1 & \sum_{j \in \mathcal{N}(\vec{v}_i)}{C(F_j)} > 0 \\    
-  \end{cases} \forall i \in \left\{ i \mid C(F_i) = 1 \right\}.
+  \end{cases} \: \: \forall i \in \left\{ i \mid C(F_i) = 1 \right\}.
 \end{equation}
 
 In Eq \ref{eq:root_free_verts}, $\mathcal{N}(\vec{v}_i)$ is the set of face indices including $\vec{v}_i$ as a vertex, yielding $C(\vec{v}_i) = 0$ to imply a free vertex, and $C(\vec{v}_i) = 1$ to imply a root-adjacent face. Classifying vertices in this way results in a border of root-adjacent vertices around the interior free vertices, visualized in Figure \ref{fig:root_and_free}.
@@ -285,9 +285,13 @@ Prior work by the author indicated an analytical relationship between this inter
   \label{fig:misleading_egi_error}
 \end{figure}
 
-The objects in Figure \ref{fig:misleading_egi_error} were illuminated with a simple Lambertian BRDF and the brightness measurements used to optimize the EGI were produced by randomly sampled Sun and observer vectors. Once specular effects and non-random observation conditions are accounted for, the linear relationship between $\psi$ and $\sqrt{\frac{\|\vec{e}_{EGI}\|}{\|\vec{E}\|}}$ no longer exists. 
+The objects in Figure \ref{fig:misleading_egi_error} were illuminated with a simple Lambertian BRDF and the brightness measurements used to optimize the EGI were produced by randomly sampled Sun and observer vectors. Once specular effects and non-random observation conditions are accounted for, the linear relationship between $\psi$ and $\sqrt{\frac{\|\vec{e}_{EGI}\|}{\|\vec{E}\|}}$ no longer exists. In short, the optimal concavity angle $\psi_{opt}$ is sought such that:
 
-In practice, a line search is sufficient to find the interior angle that minimizes the light curve error of the reconstructed object, summarized in Algorithm \ref{alg:concavity_iter}.
+\begin{equation}
+  \psi_{opt} = \min_{\psi} \left( \| \hat{I} - \hat{I}(\psi) \| \right),
+\end{equation}
+
+where $\hat{I}$ is the observed normalized light curve and $\hat{I}(\psi)$ is the light curve resulting with Eq \ref{eq:lc_normalized_engine} using a nonconvex mesh with a concavity of angle $\psi$ introduced. In practice, a line search is sufficient to find the interior angle that minimizes the light curve error of the reconstructed object, summarized in Algorithm \ref{alg:concavity_iter}.
 
 \begin{algorithm}
   \caption{Concavity sizing algorithm}\label{alg:concavity_iter}
@@ -322,10 +326,10 @@ To develop this multiple hypothesis inversion procedure that works for both conv
   M_{interp} = \sum_{i}{w_i M_i}.
 \end{equation}
 
-The algorithm presented in this work for weighted mesh averaging depends on signed distance fields (SDFs). The SDF implicitly represents a shape by associating each point $(x, y, z) \in \mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. As a result, the gradient of the SDF points directly away from the closest piece of the object's geometry. For a given SDF $f(x, y, z)$, the surface of the object is given by:
+The algorithm presented in this work for weighted mesh averaging depends on signed distance fields (SDFs). The SDF implicitly represents a shape by associating each point $\vctr{x} \in \mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. As a result, the gradient of the SDF points directly away from the closest piece of the object's geometry. For a given SDF $f(\vctr{x})$, the surface of the object $\mathcal{S}_{obj}$ is given by all points $\vctr{x}$ that yield $f(\vctr{x}) = 0$:
 
 \begin{equation} \label{eq:sdf_zero_level_set}
-  \begin{bmatrix} x \\ y \\ z \end{bmatrix} : \: \: f(x, y, z) = 0.
+  \mathcal{S}_{obj} = \left\{ \vctr{x} \in \mathbb{R}^3 \mid f(\vctr{x}) = 0 \right\}.
 \end{equation}
 
 Computing the SDF of a triangulated mesh breaks down into computing distances from the points, line segments, and planes making up the mesh to the queried point \cite{baerentzen2002}. A slice of the SDF of a test model is displayed in Figure \ref{fig:sdf_slice}.
@@ -370,13 +374,13 @@ To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \f
 
 \subsubsection{Shape Estimate Uncertainty}
 
-When merging multiple inaccurate shape guesses it is advantageous to measure the uncertainty in each candidate shape and use that uncertainty as a weighting to bias the merging process. The formulation used in this work relies on two face-wise uncertainty terms. First, a face should have high uncertainty if very little light would have reflected off that face to contribute to the light curve. Second, that face should also have high uncertainty if its reflected light has highly contaminated by background noise. As a result, the only faces of an estimated shape with low uncertainty should be those that reflect a large \textit{quantity} of light, increasing the observability of that face, while being uncontaminated by the background to yield a high \textit{quality} signal. These uncertainty terms are computed by first finding:
+When merging multiple inaccurate shape guesses it is advantageous to measure the uncertainty in each candidate shape and use that uncertainty as a weighting to bias the merging process. The formulation used in this work relies on two face-wise uncertainty terms. First, a face should have high uncertainty if very little light would have reflected off that face to contribute to the light curve. Second, that face should also have high uncertainty if its reflected light has highly contaminated by background noise. As a result, the only faces of an estimated shape with low uncertainty should be those that reflect a large \textit{quantity} of light, increasing the observability of that face, while being uncontaminated by the background to yield a high \textit{quality} signal. These uncertainty terms are computed by first scaling the columns of the reflection matrix defined in Eq \ref{eq:reflection_matrix} by the area of each respective face $a_j$:
 
 \begin{equation} \label{eq:h_matrix}
-  H_{ij} = a_j G_{ij}
+  H_{ij} = a_j G_{ij}.
 \end{equation}
 
-where $a_j$ is the area of the $j$th face and $G_{ij}$ are entries of the reflection matrix defined by Eq \ref{eq:reflection_matrix}. The resulting matrix $H$ has the same dimensions as $G$, but has entries $H_{ij}$ representing the normalized irradiance expected from face $j$ and time $i$. The total normalized irradiance over all timesteps for each face is given by:
+The resulting matrix $H$ has the same dimensions as $G$, but has entries $H_{ij}$ representing the normalized irradiance expected from face $j$ and time $i$. The total normalized irradiance over all timesteps for each face is given by:
 
 \begin{equation} \label{eq:total_norm_irrad}
   \hat{I}_{j} = \sum_{i}{H_{ij}}.

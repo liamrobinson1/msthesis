@@ -12,7 +12,7 @@ Light curve simulation and inversion requires background knowledge in attitude k
   \item Simulating light curves for nonconvex objects.
 \end{enumerate}
 
-The discussion of the observation simulation proceeds with:
+\noindent The discussion of the observation simulation proceeds with:
 
 \begin{enumerate}
   \item Time and coordinate systems,
@@ -287,17 +287,17 @@ The overall reflectance for the Cook-Torrance BRDF is given by:
 The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-world materials like ceramics and the surface of the Moon. These materials diverge from the Lambertian model near the horizon, reflecting much more light than would be predicted by simple cosine loss \cite{oren1994}. This BRDF relies on the surface roughness $\alpha$ to compute a set of constants \cite{oren1994}:
 
 \begin{align*} \numberthis
-  A &= 1 - 0.5 * \frac{\alpha^2}{\alpha^2 + 0.33} \\
-  B &= 0.45 * \frac{\alpha^2}{\alpha^2 + 0.09} \\
-  C &= \frac{\mathrm{proj}_{N}\left(L\right)}{\|\mathrm{proj}_{N}\left(L\right)\|} \cdot  \frac{\mathrm{proj}_{N}\left(O\right)}{\|\mathrm{proj}_{N}\left(O\right)\|}. \\
+  A &= 1 - 0.5 \frac{\alpha^2}{\alpha^2 + 0.33} \\
+  B &= 0.45 \frac{\alpha^2}{\alpha^2 + 0.09} \\
+  C &= \frac{\mathrm{proj}_{N}\left(L\right)}{\|\mathrm{proj}_{N}\left(L\right)\|} \cdot  \frac{\mathrm{proj}_{N}\left(O\right)}{\|\mathrm{proj}_{N}\left(O\right)\|} \\
   \beta &= \max \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
-  \gamma &= \min \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
+  \gamma &= \min \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\}. \\
 \end{align*}
 
 With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
 
 \begin{equation}
-  f_r(L, O) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right)
+  f_r(L, O) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
 \end{equation}
 
 \subsubsection{Ashikhmin-Shirley}
@@ -1446,7 +1446,7 @@ Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for 
   \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \hat{I}}{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2}.
 \end{equation}
 
-In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:irrad_to_count}, yielding $\bar{C}_{all}$:
+In Eq \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_{Sun}$ determines the solar irradiance incident on the object, and the remaining terms $\hat{I} / \left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:irrad_to_count}, yielding $\bar{C}_{all}$:
 
 \begin{equation}
   \bar{C}_{all} = \textrm{SINT} \cdot \bar{I} \cdot \Delta t.
