@@ -516,10 +516,10 @@ Many existing light curve simulation methods for nonconvex objects rely on ray t
   \centering
   \includegraphics[width=350px]{hst_shadow_mapping/composite_hst_raytraced.png}
   \caption{Hubble Space Telescope ray traced shadow categorization and shading. Models from \cite{nasa_models}}
-  \label{hst_shadows_ray}
+  \label{fig:hst_shadows_ray}
 \end{figure}
 
-% Figure \ref{}
+The facet-wise shadow categorization shown in Figure \ref{fig:hst_shadows_ray} informs the $\mu_{ij}$ self-shadowing term in Eq \ref{eq:lc_func_normalized}. The major downside of facet-wise shadow categorization is that it is difficult to determine the fraction of each face is illuminated -- it categorizes the entire face together, leading to unphysical discontinuities in simulated light curves.
 
 \subsubsection{The Importance of Self-Shadowing}
 
@@ -541,7 +541,7 @@ Given an observer and Sun vector in the body frame of the object, shadow mapping
 In order to compute the final shaded and shadowed image, a depth map must be computed from the perspective of two orthographic cameras in the Sun and observer directions. These depth masks require a set of transformations from the model body frame to screen space. With this background laid out, the process for computing a perpendicular depth map $d(x,y)$ from the perspective of an arbitrary orthographic camera is detailed in Algorithm \ref{alg:depth_map}.
 
 \begin{algorithm}
-  \caption{Depth map for shadow mapping} \label{alg:depth_map}
+  \caption{Pixel-wise depth map computation for shadow mapping} \label{alg:depth_map}
   \begin{algorithmic}
     \State $(x, y) \in \mathbb{Z}$ \Comment{Pixel coordinates on the image plane}
     \State $R_{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
@@ -667,7 +667,7 @@ Due to Earth's equatorial bulge, it is common to model the rough shape of the Ea
   Equatorial radius $R_E$             & $6378.137 \: [km]$ \\ \hline
   Flattening ratio $f$                & $1 / 298.257$      \\ \hline
   \end{tabular}
-  \caption{WGS-84 ellipsoid model of the Earth \cite{vallado4ed}}
+  \caption{WGS-84 ellipsoid model of the Earth \cite{vallado4ed}.}
   \label{tb:wgs84}
 \end{table}
 
@@ -697,7 +697,7 @@ Terrain elevation is usually the final component needed to fully define the alti
 
 \subsubsection{Altitude Conversions}
 
-Given an altitude relative to the terrain $a_{terrain}$, the elevation above the ellipsoid $a_{ellip}$ is given as a function of the terrain elevation above the geoid $h_{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_{terrain}(\lambda, \phi)$ by:
+Given an altitude relative to the terrain $a_{terrain}$, the elevation above the ellipsoid $a_{ellip}$ is given as a function of the terrain elevation above the geoid $h_{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_{terrain}(\lambda, \phi)$ by \cite{vallado4ed}:
 
 \begin{equation} \label{eq:altitude_above_ellipsoid}
   a_{ellip} = a_{terrain} + h_{terrain}(\lambda, \phi_{geod}) + h_{geoid}(\lambda, \phi_{geod}).
@@ -705,11 +705,11 @@ Given an altitude relative to the terrain $a_{terrain}$, the elevation above the
 
 \subsection{International Terrestrial Reference Frame (ITRF)}
 
-The cartesian form of LLA is known as the Earth-centered Earth-fixed (ECEF) reference frame. Throughout this work, ECEF and ITRF will be used interchangeably. This frame has its origin at the center of mass of the Earth and its axes fixed in the crust. The
+The Cartesian form of LLA is known as the Earth-centered Earth-fixed (ECEF) reference frame. Throughout this work, ECEF and ITRF will be used interchangeably. This frame has its origin at the center of mass of the Earth and its axes fixed in the crust. The
 fundamental plane of the frame is defined to be the equator ---  orienting the $z$-axis through Earth's
 instantaneous spin axis, and the reference direction through the intersection of the prime meridian
 and the equator ---  defining the $x$-axis. Completing the right-handed system with $\hat{y} = \hat{z} \times \hat{x}$ yields a
-reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_{geod}, a_{ellip} \right)$ to ITRF is given by Eq \ref{eq:lla_to_itrf}.
+reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_{geod}, a_{ellip} \right)$ to ITRF is given by \cite{vallado4ed}:
 
 \begin{align*} \numberthis \label{eq:lla_to_itrf}
   e^2 &= 2f - f^2 \\
@@ -717,22 +717,22 @@ reference frame that remains fixed, neglecting effects like continental drift. T
   \rho &= (N + a_{ellip}) \cos(\phi_{geod}) \\
   x_{itrf} &= \rho \cos(\lambda) \\
   y_{itrf} &= \rho \sin(\lambda) \\
-  z_{itrf} &= \left(N (1 - e^2) + a_{ellip} \right) \sin(\phi_{geod}) \\
+  z_{itrf} &= \left(N (1 - e^2) + a_{ellip} \right) \sin(\phi_{geod}). \\
 \end{align*}
 
 In Eq \ref{eq:lla_to_itrf}, $e^2$ is the squared eccentricity of the ellipsoid, $N$ is the radius of curvature in the meridian, and $\rho$ is the $x-y$ plane magnitude of the station's position \cite{vallado4ed}.
 
-Many later transformations require the body axis rotation matrices $R_1$, $R_2$, and $R_3$ which are expressed in Eq \ref{eq:body_rotms}.
+Many later transformations require the body axis rotation matrices $R_1$, $R_2$, and $R_3$ which are expressed:
 
 \begin{align*} \numberthis \label{eq:body_rotms}
   R_1(\theta) &= \begin{bmatrix}  1 & 0 & 0 \\ 0 & \cos\theta & \sin\theta \\ 0 & -\sin\theta & \cos\theta \end{bmatrix} \\
   R_2(\theta) &= \begin{bmatrix}  \cos\theta & 0 & -\sin\theta \\ 0 & 1 & 0 \\ \sin\theta & 0 & \cos\theta \end{bmatrix} \\
-  R_3(\theta) &= \begin{bmatrix}  \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix} \\
+  R_3(\theta) &= \begin{bmatrix}  \cos\theta & \sin\theta & 0 \\ -\sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix}. \\
 \end{align*}
 
-\subsection{Topocentric Reference Frame (ENU)}
+\subsection{Topocentric East North Up (ENU) Reference Frame}
 
-The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from ITRF to ENU is given by \cite{frueh2019notes}:
+The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vec{r}_{itrf}$ in ITRF to $\vec{r}_{enu}$ in ENU is given by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:itrf_to_enu}
   \vec{r}_{enu} = F_2 F_1 R_2(\phi_{geoc}) R_3(\lambda) \vec{r}_{itrf}.
@@ -749,26 +749,27 @@ In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$
 
 \subsection{International Celestial Reference Frame (ICRF/J2000)}
 
-Transforming from ITRF to the a standardized inertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Vallado \cite{vallado4ed}. 
+Transforming from ITRF to the a standardized inertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Montenbruck and Gill \cite{montenbruck2012}. 
 
-Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from ITRF to Greenwich True of Date (GTOD) via: 
+Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vec{r}_{itrf}$ in ITRF to $\vec{r}_{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
+
 \begin{equation} \label{eq:itrf_to_gtod}
   \vec{r}_{gtod} = R_1(y_p) R_2(x_p) \vec{r}_{itrf},
 \end{equation}
 
-where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from GTOD to the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
+where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from $\vec{r}_{gtod}$ in GTOD to $\vec{r}_{teme}$ in the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:gtod_to_teme}
-  \vec{r}_{teme} = R_3(-\theta_{GMST}) \vec{r}_{gtod}.
+  \vec{r}_{teme} = R_3(-\theta_{GMST}) \vec{r}_{gtod},
 \end{equation}
 
-Accounting for the difference between GMST and GAST at the date of interest transforms from TEME to the True of Date (TOD) reference frame via \cite{vallado4ed}:
+where $\theta_{GMST}$ is the Greenwich mean sidereal time. Accounting for the difference between GMST and GAST at the date of interest transforms $\vec{r}_{teme}$ TEME to $\vec{r}_{tod}$ in the True of Date (TOD) reference frame via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:teme_to_tod}
-  \vec{r}_{tod} = R_3(-\Delta \Psi \cos \epsilon) \vec{r}_{teme}.
+  \vec{r}_{tod} = R_3(-\Delta \Psi \cos \epsilon) \vec{r}_{teme},
 \end{equation}
 
-Accounting for the nutation of Earth's pole transforms from TOD to the Mean of Date (MOD) reference frame via:
+where $\Delta \Psi$ is the angular difference in the longitude of the vernal equinox between GMST and GAST, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}. Accounting for the nutation of Earth's pole transforms $\vec{r}_{tod}$ from TOD to $\vec{r}_{mod}$ in the Mean of Date (MOD) reference frame via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:tod_to_mod}
   \vec{r}_{mod} = R_1(-\bar{\epsilon}) R_3(\Delta\Psi) R_1(\bar{\epsilon} + \Delta\epsilon) \vec{r}_{tod},
@@ -776,19 +777,19 @@ Accounting for the nutation of Earth's pole transforms from TOD to the Mean of D
 
 where $\bar{\epsilon}$ is the mean inclination of the ecliptic at the time of interest, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}.
 
-Accounting for the secular precession of Earth's pole transforms from MOD to ICRF via:
+Accounting for the secular precession of Earth's pole transforms $\vec{r}_{mod}$ from MOD to $\vec{r}_{icrf}$ in ICRF via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:mod_to_icrf}
-  \vec{r}_{icrd} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{mod},
+  \vec{r}_{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{mod},
 \end{equation}
 
-through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$, which are each a function of the date of the transformation \cite{frueh2019notes}.
+through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$. Each of these angles modeling the precession are a function of the date of the transformation, and are approximated by polynomial expansions in the Julian century $T$ \cite{frueh2019notes}.
 
 The specific realization of ICRF used in this work is referenced to the position of the equator and equinox at the J2000.0 epoch (January 1, 2000 12:00:00.000 TT), leading to the common name for this reference frame, "J2000" \cite{vallado4ed}.
 
 \subsection{Right Ascension and Declination}
 
-Right ascension and declination, often shortened to RA/Dec, are useful angles for describing the angular position of an object on the celestial sphere from the perspective of an observer. Right ascension is defined as the angle
+Right ascension and declination, often shortened to RA/Dec, are useful angles for describing the angular position of an object on the celestial sphere from the perspective of an observer. As such, RA/Dec values are inertial, but can be defined relative to a topocentric observer or the center of the Earth \cite{frueh2019notes}. The topocentric RA/Dec is exclusively used in this work for later simulations. Right ascension is defined as the angle
 of the observation projected onto the inertial $x-y$ plane, measured counterclockwise from inertial
 $\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
@@ -838,7 +839,7 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
 With these transformations, any topocentric observation directions in RA/Dec or Az/El can be converted into a Cartesian representation and transformed into J2000. Simultaneously, any propagated space object orbits can be transformed similarly from an arbitrary propagation frame such that all future computations requiring the observation geometry take place in the same reference frame. 
 
-\subsection{Planetary Ephemerides}
+\subsection{Planetary Ephemerides} \label{sec:planet_ephem}
 
 The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
 
@@ -1070,7 +1071,7 @@ Some background signals are more impactful than others. For simulating realistic
   Light pollution        & $10^2 - 10^3$                              \\ \hline
   Integrated starlight   & $10^1 - 10^2$                              \\ \hline
   \end{tabular}
-  \caption{Background signal importance}
+  \caption{Background signal importance, values generated by the author using models by Krag and Daniels \cite{krag2003, daniels1977}}
   \label{tb:signal_importance}
 \end{table}
 
@@ -1096,7 +1097,7 @@ Certain chemical reactions from 80-110 km altitude in the upper atmosphere relea
 airglow. Since these reactions are assumed to be isotropic ---  equally intense when integrated along any
 vertical line extending upwards from the surface. The airglow signal $\textrm{AINT}$ is modeled in a
 similar fashion to integrated starlight. Given the airglow spectra $\textrm{GLINT}(\lambda) \:
-\left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the airglow signal is computed via \cite{krag2003}:
+\left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the sensor quantum efficiency $\textrm{QE}(\lambda)$, the atmospheric transmission $\textrm{ATM}(\lambda)$, as well as Plank's constant $h$ and the speed of light in vacuum $c$, the airglow signal is computed via \cite{krag2003}:
 
 \begin{equation} \label{eq:aint}
  \textrm{AINT} = A_{aperture}
@@ -1199,7 +1200,7 @@ Computing the mean CCD signal in ADU per pixel due to the twilight brightness pr
 
 \subsubsection{Integrated Starlight}
 
-Stars are almost always present in optical images of space objects. The brightest stars streaking across the field of view in Figure \ref{fig:pogs_observation_example} have high SNRs and stand out clearly against the dark background. This raises a question: if the telescope observes a full $1^\circ \times 1^\circ$ area of the sky, where are the rest of the stars? The Milky Way alone contains approximately $1\cdot10^{11}$ stars. The answer is clear: many more stars are present in the image, most of them falling into the background. This residual faint starlight is called "integrated" starlight. 
+Stars are almost always present in optical images of space objects. The brightest stars streaking across the field of view in Figure \ref{fig:pogs_observation_example} have high SNRs and stand out clearly against the dark background. This raises a question: if the telescope observes a full $1^\circ \times 1^\circ$ area of the sky, where are the rest of the stars? The Milky Way alone contains approximately $1\cdot10^{11}$ stars. The answer is clear: many more stars are present in the image, most of them falling into the background. This residual faint starlight is termed "integrated" starlight. Computing the brightness of the integrated starlight in the background of the image circumvents the need to model all the stars in the catalog.
 
 \begin{figure}[ht]
   \centering
@@ -1275,7 +1276,7 @@ in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase functio
   f_{corr} = \frac{I_s}{SUN(550 \: \left[\textrm{nm}\right])}.
 \end{equation}
 
-With all these pieces, the mean scattered moonlight signal in ADU per pixel is:
+With all these pieces, the mean scattered moonlight signal in ADU per pixel is \cite{krag2003}:
 
 \begin{equation} \label{eq:moonlight_adu}
   \bar{S}_{moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot SINT \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_{corr}.
@@ -1346,7 +1347,7 @@ Accurately simulating light curves requires realistic constraints on the observi
 
 \subsubsection{Earth Penumbra}
 
-The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ and object in J2000, the local irradiance fraction a function of the angles \cite{krag2003}:
+The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ computed following Section \ref{sec:planet_ephem} and object in J2000, the local irradiance fraction a function of the angles \cite{krag2003}:
 
 \begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
   \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_{obj} \\
@@ -1419,7 +1420,7 @@ Focusing the irradiance of the Moon onto the sensor grid will seriously damage t
   \end{cases}.
 \end{equation}
 
-In Eq \ref{eq:moon_exclusion}, $\nu_{Moon} = 1$ implies that the observation is valid, with $\nu_{Moon} = 0$ implying that the observation is too close to the Moon.
+In Eq \ref{eq:moon_exclusion}, $\nu_{Moon} = 1$ implies that the observation is valid, with $\nu_{Moon} = 0$ implying that the observation is too close to the Moon. $\vctr{r}_{Moon}$ should be computed with SPICE following Section \ref{sec:planet_ephem}.
 
 \subsubsection{Minimum Elevation}
 
@@ -1433,7 +1434,7 @@ Due to the local topology at the observer location, an operator may assign a min
   \end{cases}.
 \end{equation}
 
-In Eq \ref{eq:moon_exclusion}, $\nu_{elevation} = 1$ implies that the observation is valid, with $\nu_{elevation} = 0$ implying that the observation is too close to the horizon.
+In Eq \ref{eq:moon_exclusion}, $\nu_{elevation} = 1$ implies that the observation is valid, with $\nu_{elevation} = 0$ implying that the observation is too close to the horizon. $\vctr{r}_{Moon}$ is be computed using SPICE following Section \ref{sec:planet_ephem}.
 
 \subsection{Mean Irradiance at The Observer}
 
