@@ -1326,6 +1326,8 @@ Drawing samples from the Poisson distribution defined by $\lambda_{background}$ 
 
 \subsection{Sensor Effects}
 
+CCD sensors accumulate noise during both the integration time and readout phases. Characterizing these noise sources is necessary to sample realistic light curves and compute the signal-to-noise ratio of the measurements.
+
 \subsubsection{Dark Noise}
 
 The dark noise, also called the dark current or dark count, captures the temperature-dependent accumulation of electrons in the CCD pixel wells \cite{krag2003}. This noise source is modeled as a Poisson process with parameter $\lambda_{dark}$ \cite{frueh2019notes} and is assumed to be independent from the other sensor effects. This source accumulates with the integration time, giving it units of counts per second \cite{krag2003}.
@@ -1448,7 +1450,7 @@ In order to sample a noisy light curve, this mean irradiance must be converted i
 
 \subsection{Sampling Noisy Light Curves} \label{sec:sampling_lcs}
 
-Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian}:
+Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian} where the angle $\theta$ from the center of the frame is converted into pixels via $\theta^2 = \left((x - x_0)^2 + (y - y_0)^2 \right) / s_{pix}^2$:
 
 \begin{equation} \label{eq:obj_signal_grid}
   \bar{C}_{obj}(x, y) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_{pix}^2} \right).
