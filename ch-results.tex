@@ -1,9 +1,29 @@
 \ProvidesFile{ch-results.tex}[Results]
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
-\chapter{Results}
+\chapter{Simulated Light Curve Results}
+
+\section{Accurate Satellite Models}
+
+Most of the analysis in this work used one of the 3D model files shown in Figure \ref{fig:satellite_lineup}. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\figbig]{sphx_glr_satellite_lineup_001.png}
+    \caption{Selected space objects with soccer field for size reference. In order, the objects are TESS, Starlink V1, TDRS, Landsat 8, Hispasat 30W-6, Saturn V SII, TELSTAR 19V, HYLAS 4, and simplified ASTRA.
+    }
+    \label{fig:satellite_lineup}
+\end{figure}
+
+\section{Noiseless Light Curves}
+
+TODO: this
 
 \section{Realistic Light Curves}
+
+TODO: this
+
+\chapter{Shape Inversion Results}
 
 \begin{figure}[!htb]
   \centering
@@ -85,3 +105,9 @@ TODO: this
 
 \section{Multiple Hypothesis Inversion}
 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\figbig]{sphx_glr_convex_inversion_with_uncertainty_001.png}
+    \caption{Multiple hypothesis candidates from 16 nights of noisy observations of a $1$-meter cylinder in the orbit of GOES 15. The object is simulated with inverted with a Phong BRDF using $C_d=0.5$, $C_s=0.5$, $n=10$. Nightly light curves are each $3$ hours long with data collected every $10$ seconds, beginning January 1, 2023, 05:00 UTC.}
+    \label{fig:multi_hyp_candidates}
+\end{figure}

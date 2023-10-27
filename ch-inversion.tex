@@ -46,7 +46,7 @@ NNLS problems are efficiently solved via Lawson and Hanson's original algorithm 
 The convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined as the normalized received facet irradiance per unit facet area:
 
 \begin{align*} \numberthis \label{eq:reflection_matrix}
-  G_{ij} &= \frac{I_{ij}}{I_0 a_j} \\
+  G_{ij} &= \frac{I_{ij}}{I_s a_j} \\
   &= f_r\left(L \rightarrow O \right) \left(L_j \cdot N_i\right) \left(O_j \cdot N_i\right).
 \end{align*}
 
@@ -388,24 +388,22 @@ Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncert
   \begin{subfigure}[b]{0.3\textwidth}
       \centering
       \includegraphics[width=\textwidth]{sphx_glr_face_uncertainty_005.png}
-      \caption{Quantity uncertainty weights}
       \label{fig:quant_weights}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.3\textwidth}
       \centering
       \includegraphics[width=\textwidth]{sphx_glr_face_uncertainty_006.png}
-      \caption{Quality uncertainty weights}
       \label{fig:qual_weights}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.3\textwidth}
       \centering
       \includegraphics[width=\textwidth]{sphx_glr_face_uncertainty_007.png}
-      \caption{Overall face uncertainty}
       \label{fig:qual_overall}
   \end{subfigure}
-     \label{fig:face_uncertainties}
+  \caption{Quantity (left), quality (middle), and overall face uncertainty}
+  \label{fig:face_uncertainties}
 \end{figure}
 
 Figure \ref{fig:face_uncertainties} conveys that $u_{qual}$ and $u_{quant}$ convey independent information about each face depending on the measured light curve and its noise --- higher data quantity does not necessarily imply higher quality.

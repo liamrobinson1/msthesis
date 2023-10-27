@@ -2,260 +2,26 @@
 
 \chapter{Light Curve Simulation}
 
-Light curve simulation and inversion requires background knowledge in attitude kinematics, time and coordinate systems, computer graphics, and photometry.
-
-\section{Photometry Background}
-
-\subsection{The Charge Coupled Device (CCD)}
-
-Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
-
-Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_{pix} = 0.72 \: [arcsec/pixel]$), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
-
-\subsection{Diffraction}
-
-Many objects of interest are far past LEO, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion \cite{frueh2019notes}.
-
-\subsubsection{Rayleigh Criterion}
-
-The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ such that \cite{frueh2019notes}:
-
-\begin{align*} \numberthis \label{eq:rayleigh_criterion}
-  \sin\theta_R &= \frac{1.22 \lambda}{d}, \\
-  \theta_R &\approx \frac{1.22 \lambda}{d}.
-\end{align*}
-
-For a $0.5$-meter aperture optical telescope with a pixel scale of $1$ arcsecond per pixel, observing a $40$-meter wide object in GEO --- occupying approximately $0.2$ pixel widths on the image --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $2.4$ times wider than the object at a wavelength of $550$ nanometers. Similarly, a $60$-centimeter wide object in LEO observed with the same telescope occupies $0.1$ pixel widths in the image while producing an Airy disk $4.5$ times wider than the object itself. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
-
-\subsubsection{The Airy Disk}
-
-The far-field diffraction pattern produced by a point source is known as an Airy pattern or disk \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ as:
-
-\begin{equation} \label{eq:airy_disk}
-  C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
-\end{equation}
-
-In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
-
-\begin{equation} \label{eq:airy_center}
-  C_0 = \frac{S_{obj}^2 A_{aperture}^2}{2 f^4}.
-\end{equation}
-
-In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_airy_disk_diffraction_001_2_00x.png}
-  \caption{Airy disk diffraction pattern}
-  \label{fig:airy_disk_magnitude}
-\end{figure}
-
-The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:fwhm_airy}
-  FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
-\end{equation}
-
-The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
-
-\begin{equation} \label{eq:airy_variance}
-  \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
-\end{equation}
-
-The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
-
-\begin{equation} \label{eq:airy_gaussian}
-  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
-\end{equation}
-
-In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
-
-\begin{equation}
-  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
-\end{equation}
-
-The area within the first maximum of the Airy disk is given by:
-
-\begin{equation} \label{eq:airy_area}
-  A_{airy} = \pi \left(\frac{648000 / \pi}{s_{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
-\end{equation}
-
-\subsection{Signal-to-Noise Ratio (SNR)}
-
-Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:ccd_snr}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
-\end{equation}
-
-Explicitly, the SNR can be expanded in terms of the signal means and variances \cite{frueh2019notes}:
-
-\begin{equation} \label{eq:ccd_snr_expanded}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
-\end{equation}
-
-Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_snr_001_2_00x.png}
-  \caption{Signal-to-noise ratio reduction on a synthetic CCD pixel grid}
-  \label{fig:snr_grid}
-\end{figure}
-
-The SNR is an important constraint when determining whether an object signal is visible above the background. If the SNR is too low, it becomes difficult or impossible to notice and quantify the object signal. Simulations in this work are all performed with a reasonable SNR limit of $3$.
-
-\subsection{Brightness Units}
-
-In the context of photometry, "brightness" is a catch-all term for a variety of units. Defining the relationships between these units will make later light curve conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
-
-\subsubsection{Irradiance}
-
-Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
-surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
-\: [m^2]$ area would experience $10 \: [W]$ of incident power. The mean irradiance of the Sun --- termed the solar constant --- is derived from the mean luminosity of the Sun $L_s = 3.828\cdot10^{26} \: [W]$ and a distance of $1$ Astronomical Unit $1 \: [AU] = 149597870.7 \: [km]$ \cite{frueh2019notes}. The mean solar constant is then computed via
-
-\begin{equation} \label{eq:solar_constant_mean}
-  I_0 = \frac{L_s}{4\pi \left(AU\right)^2} \approx 1361.0 \: \left[ \frac{W}{m^2} \right].
-\end{equation}
-
-In reality, the exoatmospheric irradiance at Earth varies \cite{frueh2019notes}. Figure \ref{fig:tsi} displays the small variations in the solar irradiance due to the solar cycle and the much larger variations due to Earth's eccentric orbit.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_total_solar_irradiance_003_2_00x.png}
-  \caption{Total solar irradiance variations at Earth and 1 AU. The solar cycle is apparent when distance is held constant at 1 AU, yielding small variations in the peak intensity at Earth.}
-  \label{fig:tsi}
-\end{figure}
-
-\subsubsection{Apparent Magnitude}
-
-Apparent magnitude ---  also known as visual or relative magnitude --- is a reverse logarithmic scale
-that originates in astronomy \cite{frueh2019notes}. Stellar sources span many orders of magnitude of brightness, making a
-logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
-expresses brightness at the observer's location; absolute magnitude is a different quantity that
-normalizes brightness from a distance of $10$ parsecs \cite{frueh2019notes}. Apparent magnitude $m$
-is computed from irradiance via:
-
-\begin{equation} \label{eq:irradiance_to_mag}
-  m = -2.5 \log_{10}\left( \frac{I}{I_z} \right).
-\end{equation}
-
-In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_z$ is
-irradiance of the zero-point source. This makes sense; substituting $I = I_z$ returns
-$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_z = 2.518021002\cdot
-10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
-
-Eq \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude,
-yielding:
-
-\begin{equation} \label{eq:mag_to_irradiance}
-  I = I_z \cdot 10^{-\frac{m}{2.5}}.
-\end{equation}
-
-\subsubsection{Normalized Irradiance}
-
-The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of a object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
-
-\begin{equation} \label{eq:irradiance_to_norm_irradiance}
-  \hat{I} = \frac{r^2}{I_0} I.
-\end{equation}
-
-To be precise, the normalized irradiance has units $m^2$ and can be interpreted as the area of a flat plate illuminated by a $1 \: \left[W/m^2\right]$ light source required to reflect the same irradiance in the direction of the observer. Throughout this work, normalized irradiance is treated as being nondimensional for light curve simulation and inversion purposes as its physical interpretation is largely irrelevant.
-
-\subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
-
-While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
-to describe diffuse or extended sources where brightness is spread over an
-area. $S_{10}$ is a unit of surface brightness representing the number of 10th magnitude stars per square degree that would produce the same flux as a given diffuse source.
-Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ sr \right]$ can be converted to total irradiance $I \: \left[ \frac{W}{m^2} \right]$ via:
-
-\begin{equation} \label{eq:s10toirrad}
- \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
-  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
-\end{equation}
-
-In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
-representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
-spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
-\frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
-speed of light in vacuum. Quantum efficiency has units of photoelectrons, conveying the fraction of incident photons converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendices \ref{data:atm}.
-
-\subsubsection{Magnitude per Square Arcsecond}
-
-A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond). This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
-magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
-brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
-$\left[ \frac{mag}{arcsec^2} \right]$ via:
-
-\begin{equation} \label{s10_to_mag_per_a2}
-	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
-\end{equation}
-
-In Eq \ref{s10_to_mag_per_a2} $B_{10}$ is converted to the total irradiance per square degree,
-converted square degrees to square arcseconds, and finally transformed into apparent magnitude. MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
-
-\begin{equation} \label{eq:mpsas_to_irrad_per_ster}
-  I = \left( \frac{180}{ 3600\pi} \right)^2 I_0 \cdot 10^{-\frac{MPSAS}{2.5}}.
-\end{equation}
-
-\subsubsection{Candela} \label{sec:candela}
-
-Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \cite{nist_units}:
-
-\begin{equation} \label{eq:cd_to_w_per_sr}
-  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
-\end{equation}
-
-The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al.\ is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
-
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\figmed]{sphx_glr_luminous_efficiency_001_2_00x.png}
-  \caption{Luminous effiency function from \cite{sharpe2005}}
-  \label{fig:luminous_efficiency}
-\end{figure}
-
-Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding a formulation which is still a function of the source's wavelength:
-
-\begin{equation} \label{eq:cd_per_m2_to_mpsas}
-  MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_0} \right).
-\end{equation}
-
-\subsubsection{Photoelectron Counts}
-
-Accurately simulating measured light curves requires an accurate simulation of the CCD camera taking the image. The first step towards that is understanding how irradiance at the telescope aperture is converted into pixel values in the final image. Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single
-pixel obtained is directly proportional (via the CCD's gain) to the number of
-photons incident on that pixel during the integration time. Higher order effects in the silicon of
-the CCD makes this description incomplete, but for non-resolved imaging applications
-concerned about, effects smaller than the sensor readout noise and dark current can be safely neglected
-\cite{frueh2019notes}. Irradiance can be converted to ADU via the conversion factor $SINT$
-through \cite{krag2003}:
-
-\begin{equation} \label{eq:sint}
- \textrm{SINT} = A_{aperture}
-	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
-  \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
-\end{equation}
-
-In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
-$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun, generally taken to be
-the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$. Read literally, the integral term has
-units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
-radiation and second of integration time. The aperture diameter factor outside the integral accounts
-for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
-\right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
-in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU via:
-
-\begin{equation} \label{eq:irrad_to_count}
-  \bar{C}_{all} = \textrm{SINT} \cdot I \cdot \Delta t.
-\end{equation}
-
-For completeness, irradiance can be recovered from a signal in ADU and the integration time:
-
-\begin{equation} \label{eq:count_to_irrad}
-  I = \frac{S}{\textrm{SINT} \cdot \Delta t}.
-\end{equation}
+Light curve simulation and inversion requires background knowledge in attitude kinematics, time and coordinate systems, computer graphics, and photometry. This section is broken into two major parts: simulating the object and its properties, and simulating the observations. The object simulation discussion proceeds with:
+
+\begin{enumerate}
+  \item Orbit and attitude propagation,
+  \item Discrete mesh representations of shapes,
+  \item Reflectance functions,
+  \item Simulating light curves for convex objects,
+  \item Simulating light curves for nonconvex objects.
+\end{enumerate}
+
+The discussion of the observation simulation proceeds with:
+
+\begin{enumerate}
+  \item Time and coordinate systems,
+  \item Modeling the telescope sensor,
+  \item Modeling the background,
+  \item Observer constraints.
+\end{enumerate}
+
+This overall ordering for the simulation section of this work was chosen to promote an understanding of the object and its reflection properties in a simplified manner before expanding on the physics of the observer to introduce noise and accurate observation intervals to the light curve. To preface this section, the light curve and its common units must first be defined.
 
 \subsection{The Light Curve}
 
@@ -270,13 +36,119 @@ The light curve expresses the observed brightness of an object over time. In lit
 
 Figure \ref{fig:light_curve_units} details this equivalence with the same light curve expressed in these four unit systems. This figure also displays an important characteristic of real measured light curves: they are always contaminated with noise. As a result, the "true mean" signal in Figure \ref{fig:light_curve_units} cannot be obtained through the raw measurements, and is merely computed here as a stepping stone to the measured digital signal in the CCD. The sources of this noise are described in detail in Section \ref{sec:ccd_performance}.
 
-\section{Simulating The Object}
+\section{Simulating Space Object Dynamics and Properties}
 
 \subsection{Orbit Propagation}
 
-There are many environmental perturbations that influence the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. The Simplified General Perturbations 4 (SGP4) propagator fits these needs well. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. The propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. TLEs themselves are short, standardized collections of orbital elements and mission information, produced from recent observations of the object in question. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
+There are many environmental perturbations that influence the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. To access historical and predicted trajectories of real space objects in the public catalog, Two-Line Element sets (TLEs) are used. TLEs are short, standardized collections of orbital elements and mission information, produced from observations of the object in question close to the publication date \cite{vallado4ed}. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. The Simplified General Perturbations 4 (SGP4) propagator is used to propagate near-Earth objects from TLEs. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. It should be noted that an improved propagator known as SGP4-XP has been developed to better model SRP, cislunar objects, gravitational harmonics, and atmospheric drag \cite{payne2022}. The SGP4 propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
 
 Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian date is linearly interpolated between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
+
+\subsection{Attitude Propagation}
+
+In order to effectively compute reflections and shadows on the surfaces of space objects, that object must have an assigned orientation in inertial space. While defunct satellites and space debris are slowly spun up by the Yarkovsky-O'Keefe-Radzievskii-Paddack (YORP) effect, the short-term motion of non-operational space objects is well-approximated by torque-free motion \cite{benson2018cyclic}. Developing the kinematics of torque-free motion first requires an understanding of common kinematic representations of orientation.
+
+The orientation --- or attitude --- of a rigid body in three dimensions is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
+
+\subsubsection{The Direction Cosine Matrix}
+
+The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$:
+
+\begin{equation}
+    \vrf{b}{r} = \dcm{bn} \vrf{n}{r}.
+\end{equation}
+
+The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$. 
+
+\subsubsection{Principal Rotation Parameters}
+
+Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with:
+
+\begin{align*} \numberthis \labelAndRemember{eq:dcm_to_prp}
+    {
+    \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{1,1} + C_{2,2} + C_{3,3} - 1 \right] \right), \\
+    \hat{\lambda} &= \frac{1}{2\sin{\theta}} 
+    \begin{bmatrix} C_{2,3} - C_{3,2} \\ C_{3,1}-C_{1,3} \\ C_{1,2} - C_{2,1}\end{bmatrix},
+    }
+\end{align*}
+
+where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward:
+
+\begin{equation} \labelAndRemember{eq:prp2dcm}
+    {C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2,}
+\end{equation}
+
+were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as:
+
+\begin{equation}
+    \matcp{\vctr{v}} = \begin{bmatrix}
+        0 & -v_3 & v_2 \\
+        v_3 & 0 & -v_1 \\
+        -v_2 & v_1 & 0
+    \end{bmatrix}.
+\end{equation}
+
+This operator is useful as it rephrases the cross product as matrix multiplication, i.\,e.\ $\vctr{v} \times \vctr{u} = \matcp{\vctr{v}}\vctr{u}$. While the PRP $\{\theta, \hat{\lambda}\}$ is a four element set, there are only three degrees of freedom due to the unit norm constraint on $\hat{\lambda}$. 
+
+\subsubsection{Quaternions}
+
+The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by \cite{crassidis1ed}:
+
+\begin{equation} \labelAndRemember{eq:prp2quat}
+    {
+    \vctr{q} = \begin{bmatrix} \hat{\lambda} \sin\left( \theta \right) \\ \cos(\theta) \end{bmatrix}.
+    }
+\end{equation}
+
+The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaternion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via
+
+\begin{align*} \numberthis \labelAndRemember{eq:quat2prp_theta} 
+    {
+    \theta &= \cos^{-1}\left(q_4 \right) \\
+    \lambda &= \frac{\vctr{q}_{1:3}}{\sin{\theta}}.
+    }
+\end{align*}
+
+The quaternion maps to the DCM \cite{crassidis1ed} via 
+
+\begin{equation} \labelAndRemember{eq:quat2dcm}
+    {
+        C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]=\Xi\left(q\right)^T\Psi\left(q\right).
+    }
+\end{equation}
+
+In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
+
+\begin{equation} \label{eq:quat_psi}
+    \Psi = \left[\begin{matrix}q_4&q_3&-q_2\\{-q}_3&q_4&q_1\\q_2&-q_1&q_4\\-q_1&-q_2&-q_3\\\end{matrix}\right].
+\end{equation}
+
+\subsection{Attitude Kinematics}
+
+Because it is cheap to convert between attitude representations, only one set of kinematic equations is needed to propagate a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via:
+
+\begin{equation} \label{eq:quat_kde}
+    \left[\begin{matrix}\dot{\epsilon_1}\\\dot{\epsilon_2}\\\dot{\epsilon_3}\\\dot{\epsilon_4}\\\end{matrix}\right]
+    =
+    \frac{1}{2}\left[\begin{matrix}\epsilon_4&-\epsilon_3&\epsilon_2&\epsilon_1\\\epsilon_3&\epsilon_4&-\epsilon_1&\epsilon_2\\-\epsilon_2&\epsilon_1&\epsilon_4&\epsilon_3\\-\epsilon_1&-\epsilon_2&-\epsilon_3&\epsilon_4\\\end{matrix}\right]
+    \left[\begin{matrix}\omega_1\\\omega_2\\\omega_3\\0\\\end{matrix}\right].
+\end{equation} 
+
+\subsection{Attitude Dynamics}
+
+Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via:
+
+\begin{equation} \label{eq:rbtf_dynamics}
+    \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
+    =
+    \left[\begin{matrix}
+        \left(M_1+I_2\omega_2\omega_3-I_3\omega_2\omega_3\right) / I_1 \\
+        \left(M_2-I_1\omega_1\omega_3+I_3\omega_1\omega_3\right) / I_2 \\
+        \left(M_3+I_1\omega_1\omega_2-I_2\omega_1\omega_2\right) / I_3 \\
+    \end{matrix}\right].
+\end{equation}
+
+Equations \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} are numerically integrated to yield the orientation time history which is necessary for later light curve simulations. Often, $\vctr{M} = \mathbf{0}$ is chosen to simulate the torque-free evolution of an initial orientation and spin state, neglecting small attitude perturbations over the simulation interval.
 
 \subsection{Discrete Shape Representations}
 
@@ -320,18 +192,6 @@ In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining 
     \vec{E}_i = \vec{a}_i \vec{n}_i.
 \end{equation}
 
-\subsection{Selected Satellite Models}
-
-Most of the analysis in this work used one of the 3D model files shown in Figure \ref{fig:satellite_lineup}. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\figbig]{sphx_glr_satellite_lineup_001.png}
-    \caption{Selected space objects with soccer field for size reference. In order, the objects are TESS, Starlink V1, TDRS, Landsat 8, Hispasat 30W-6, Saturn V SII, TELSTAR 19V, HYLAS 4, and simplified ASTRA.
-    }
-    \label{fig:satellite_lineup}
-\end{figure}
-
 \subsection{The Bidirectional Reflectance Distribution Function}
 
 Although light curves come from unresolved measurements, the interactions that produce them are directly driven by the shape and material properties of the object being observed. In order to simulate accurate light curves, all relevant optical interactions must be modeled. In broad terms, this boils down to determining how the object is illuminated, how it casts shadows on itself, and how it is observed. 
@@ -355,8 +215,6 @@ Eq \ref{eq:brdf_energy_cons} states that for all possible illumination direction
 \begin{equation} \label{eq:brdf_reciprocity}
   \forall L, O \in \mathbb{S}^2 : \:\: f_r(L \rightarrow O) = f_r(O \rightarrow L).
 \end{equation}
-
-\subsection{BRDF Formulations}
 
 Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. Real-world materials are modeled with these BRDFs by fitting the free parameters of a given BRDF to measured reflectance data \cite{matusik2003}. If a BRDF can be fit to the data with low error, that reflection function can be considered to be a faithful model for the true physics. 
 
@@ -483,113 +341,61 @@ Producing accurate light curves requires accurate optical properties for the sim
   \label{tb:real_matprops}
 \end{table}
 
-\section{Attitude}
+\subsection{Brightness Units}
 
-In order to effectively compute reflections and shadows on the surfaces of space objects, that object must have an assigned orientation in inertial space. While defunct satellites and space debris are slowly spun up by the Yarkovsky-O'Keefe-Radzievskii-Paddack (YORP) effect, the short-term motion of non-operational space objects is well-approximated by torque-free motion \cite{benson2018cyclic}. Developing the kinematics of torque-free motion first requires an understanding of common kinematic representations of orientation.
+\subsubsection{Irradiance}
 
-\subsection{Attitude Representations}
+Irradiance is the standard SI linear unit used to describe the total amount of energy incident on a
+surface from a given source. An irradiance of $1 \: \left[ \frac{W}{m^2} \right]$ implies that a $10
+\: [m^2]$ area would experience $10 \: [W]$ of incident power. The mean irradiance of the Sun --- termed the solar constant --- is derived from the mean luminosity of the Sun $L_s = 3.828\cdot10^{26} \: [W]$ and a distance of $1$ Astronomical Unit $1 \: [AU] = 149597870.7 \: [km]$ \cite{frueh2019notes}. The mean solar constant is then computed via
 
-The orientation --- or attitude --- of a rigid body in three dimensions is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
-
-\subsubsection{The Direction Cosine Matrix}
-
-The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$:
-
-\begin{equation}
-    \vrf{b}{r} = \dcm{bn} \vrf{n}{r}.
+\begin{equation} \label{eq:solar_constant_mean}
+  I_s = \frac{L_s}{4\pi \left(AU\right)^2} \approx 1361.0 \: \left[ \frac{W}{m^2} \right].
 \end{equation}
 
-The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$. 
+In reality, the exoatmospheric irradiance at Earth varies \cite{frueh2019notes}. Figure \ref{fig:tsi} displays the small variations in the solar irradiance due to the solar cycle and the much larger variations due to Earth's eccentric orbit.
 
-\subsubsection{Principal Rotation Parameters}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_total_solar_irradiance_003_2_00x.png}
+  \caption{Total solar irradiance variations at Earth and 1 AU. The solar cycle is apparent when distance is held constant at 1 AU, yielding small variations in the peak intensity at Earth.}
+  \label{fig:tsi}
+\end{figure}
 
-Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with:
+\subsubsection{Apparent Magnitude}
 
-\begin{align*} \numberthis \labelAndRemember{eq:dcm_to_prp}
-    {
-    \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{1,1} + C_{2,2} + C_{3,3} - 1 \right] \right), \\
-    \hat{\lambda} &= \frac{1}{2\sin{\theta}} 
-    \begin{bmatrix} C_{2,3} - C_{3,2} \\ C_{3,1}-C_{1,3} \\ C_{1,2} - C_{2,1}\end{bmatrix},
-    }
-\end{align*}
+Apparent magnitude ---  also known as visual or relative magnitude --- is a reverse logarithmic scale
+that originates in astronomy \cite{frueh2019notes}. Stellar sources span many orders of magnitude of brightness, making a
+logarithmic scale a helpful middle ground for comparison. Note that apparent magnitude always
+expresses brightness at the observer's location; absolute magnitude is a different quantity that
+normalizes brightness from a distance of $10$ parsecs \cite{frueh2019notes}. Apparent magnitude $m$
+is computed from irradiance via \cite{frueh2019notes}:
 
-where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward:
-
-\begin{equation} \labelAndRemember{eq:prp2dcm}
-    {C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2,}
+\begin{equation} \label{eq:irradiance_to_mag}
+  m = -2.5 \log_{10}\left( \frac{I}{I_0} \right).
 \end{equation}
 
-were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as:
+In Eq \ref{eq:irradiance_to_mag}, $I$ is the irradiance of the source of interest and $I_0$ is
+irradiance of the zero-point source. This makes sense; substituting $I = I_0$ returns
+$m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_0 = 2.518021002\cdot
+10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
 
-\begin{equation}
-    \matcp{\vctr{v}} = \begin{bmatrix}
-        0 & -v_3 & v_2 \\
-        v_3 & 0 & -v_1 \\
-        -v_2 & v_1 & 0
-    \end{bmatrix}.
+Eq \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude,
+yielding:
+
+\begin{equation} \label{eq:mag_to_irradiance}
+  I = I_0 \cdot 10^{-\frac{m}{2.5}}.
 \end{equation}
 
-This operator is useful as it rephrases the cross product as matrix multiplication, i.\,e.\ $\vctr{v} \times \vctr{u} = \matcp{\vctr{v}}\vctr{u}$. While the PRP $\{\theta, \hat{\lambda}\}$ is a four element set, there are only three degrees of freedom due to the unit norm constraint on $\hat{\lambda}$. 
+\subsubsection{Normalized Irradiance}
 
-\subsubsection{Quaternions}
+The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of a object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
 
-The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by \cite{crassidis1ed}:
-
-\begin{equation} \labelAndRemember{eq:prp2quat}
-    {
-    \vctr{q} = \begin{bmatrix} \hat{\lambda} \sin\left( \theta \right) \\ \cos(\theta) \end{bmatrix}.
-    }
+\begin{equation} \label{eq:irradiance_to_norm_irradiance}
+  \hat{I} = \frac{r^2}{I_s} I.
 \end{equation}
 
-The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaternion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via
-
-\begin{align*} \numberthis \labelAndRemember{eq:quat2prp_theta} 
-    {
-    \theta &= \cos^{-1}\left(q_4 \right) \\
-    \lambda &= \frac{\vctr{q}_{1:3}}{\sin{\theta}}.
-    }
-\end{align*}
-
-The quaternion maps to the DCM \cite{crassidis1ed} via 
-
-\begin{equation} \labelAndRemember{eq:quat2dcm}
-    {
-        C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]=\Xi\left(q\right)^T\Psi\left(q\right).
-    }
-\end{equation}
-
-In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
-
-\begin{equation} \label{eq:quat_psi}
-    \Psi = \left[\begin{matrix}q_4&q_3&-q_2\\{-q}_3&q_4&q_1\\q_2&-q_1&q_4\\-q_1&-q_2&-q_3\\\end{matrix}\right].
-\end{equation}
-
-\subsection{Attitude Kinematics}
-
-Because it is cheap to convert between attitude representations, only one set of kinematic equations is needed to propagate a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via:
-
-\begin{equation} \label{eq:quat_kde}
-    \left[\begin{matrix}\dot{\epsilon_1}\\\dot{\epsilon_2}\\\dot{\epsilon_3}\\\dot{\epsilon_4}\\\end{matrix}\right]
-    =
-    \frac{1}{2}\left[\begin{matrix}\epsilon_4&-\epsilon_3&\epsilon_2&\epsilon_1\\\epsilon_3&\epsilon_4&-\epsilon_1&\epsilon_2\\-\epsilon_2&\epsilon_1&\epsilon_4&\epsilon_3\\-\epsilon_1&-\epsilon_2&-\epsilon_3&\epsilon_4\\\end{matrix}\right]
-    \left[\begin{matrix}\omega_1\\\omega_2\\\omega_3\\0\\\end{matrix}\right].
-\end{equation} 
-
-\subsection{Attitude Dynamics}
-
-Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via:
-
-\begin{equation} \label{eq:rbtf_dynamics}
-    \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
-    =
-    \left[\begin{matrix}
-        \left(M_1+I_2\omega_2\omega_3-I_3\omega_2\omega_3\right) / I_1 \\
-        \left(M_2-I_1\omega_1\omega_3+I_3\omega_1\omega_3\right) / I_2 \\
-        \left(M_3+I_1\omega_1\omega_2-I_2\omega_1\omega_2\right) / I_3 \\
-    \end{matrix}\right].
-\end{equation}
-
-Equations \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} are numerically integrated to yield the orientation time history which is necessary for later light curve simulations. Often, $\vctr{M} = \mathbf{0}$ is chosen to simulate the torque-free evolution of an initial orientation and spin state, neglecting small attitude perturbations over the simulation interval.
+To be precise, the normalized irradiance has units $m^2$ and can be interpreted as the area of a flat plate illuminated by a $1 \: \left[W/m^2\right]$ light source required to reflect the same irradiance in the direction of the observer. Throughout this work, normalized irradiance is treated as being nondimensional for light curve simulation and inversion purposes as its physical interpretation is largely irrelevant.
 
 \subsection{Simulating Normalized Light Curves of Convex Objects}
 
@@ -624,7 +430,7 @@ the object and the solar constant to yield the noiseless received irradiance. Fo
 In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face and $f_{Sun}$ is the solar irradiance fraction. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
-  I_{j} = \frac{I_0 \hat{I}_j}{r_j^2}.
+  I_{j} = \frac{I_s \hat{I}_j}{r_j^2}.
 \end{equation}
 
 Note that using $r_j = \| \vctr{r}_{obj} - \vctr{r}_{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
@@ -761,7 +567,7 @@ This field of view must be set dynamically at runtime to account for the size of
   \hat{I}_j = \frac{A_{image}}{n_{pix}} \sum_{i=1}^{n_{pix}}{\frac{v_{i}}{255}}
 \end{equation}
 
-\section{Simulating The Observer}
+\section{Simulating The Observations}
 
 \section{Time Systems}
 
@@ -1028,13 +834,219 @@ $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
 With these transformations, any topocentric observation directions in RA/Dec or Az/El can be converted into a Cartesian representation and transformed into J2000. Simultaneously, any propagated space object orbits can be transformed similarly from an arbitrary propagation frame such that all future computations requiring the observation geometry take place in the same reference frame. 
 
-\section{Planetary Ephemerides}
+\subsection{Planetary Ephemerides}
 
 The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
 
-\section{CCD Performance Model} \label{sec:ccd_performance}
+\section{The Charge Coupled Device (CCD)} \label{sec:ccd_performance}
+
+Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
+
+Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_{pix} = 0.72 \: [arcsec/pixel]$), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much farther than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
+
+\subsection{Diffraction}
+
+Many objects of interest are far past LEO, making optical observations diffraction limited. Diffraction is always occuring when observing an object at any distance through any optics, but it begins to dominate when the object's scale is equal or smaller than the Rayleigh criterion \cite{frueh2019notes}.
+
+\subsubsection{Rayleigh Criterion}
+
+The Rayleigh criterion states that light of wavelength $\lambda$ will spread into a diffraction pattern with the first minimum of the distribution at an angular radius $\theta_R$ when passing through a circular aperture of diameter $d$ \cite{frueh2019notes} such that:
+
+\begin{align*} \numberthis \label{eq:rayleigh_criterion}
+  \sin\theta_R &= \frac{1.22 \lambda}{d}, \\
+  \theta_R &\approx \frac{1.22 \lambda}{d}.
+\end{align*}
+
+For a $0.5$-meter aperture optical telescope with a pixel scale of $1$ arcsecond per pixel, observing a $40$-meter wide object in GEO --- occupying approximately $0.2$ pixel widths on the image --- Eq \ref{eq:rayleigh_criterion} predicts that the diffraction pattern will be $2.4$ times wider than the object at a wavelength of $550$ nanometers. Similarly, a $60$-centimeter wide object in LEO observed with the same telescope occupies $0.1$ pixel widths in the image while producing an Airy disk $4.5$ times wider than the object itself. As a result, GEO objects cannot be resolved from the ground, independent of atmospheric effects. 
+
+\subsubsection{The Airy Disk}
+
+The far-field diffraction pattern produced by a point source is known as an Airy pattern or disk \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ \cite{frueh2019notes} as:
+
+\begin{equation} \label{eq:airy_disk}
+  C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
+\end{equation}
+
+In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
+
+\begin{equation} \label{eq:airy_center}
+  C_0 = \frac{S_{obj}^2 A_{aperture}^2}{2 f^4}.
+\end{equation}
+
+In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_airy_disk_diffraction_001_2_00x.png}
+  \caption{Airy disk diffraction pattern}
+  \label{fig:airy_disk_magnitude}
+\end{figure}
+
+The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:fwhm_airy}
+  FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
+\end{equation}
+
+The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
+
+\begin{equation} \label{eq:airy_variance}
+  \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
+\end{equation}
+
+The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
+
+\begin{equation} \label{eq:airy_gaussian}
+  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
+\end{equation}
+
+In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
+
+\begin{equation}
+  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
+\end{equation}
+
+The area within the first maximum of the Airy disk is given by \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:airy_area}
+  A_{airy} = \pi \left(\frac{648000 / \pi}{s_{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
+\end{equation}
+
+\subsection{Signal-to-Noise Ratio (SNR)}
+
+Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
+\end{equation}
+
+Explicitly, the SNR can be expanded in terms of the signal means and variances, assuming that their respective probability density functions are independent \cite{frueh2019notes}:
+
+\begin{equation} \label{eq:ccd_snr_expanded}
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
+\end{equation}
+
+It should be noted that the SNR computed in Eq \ref{eq:ccd_snr_expanded} is idealized. In reality, the discrete sampling of each random variable in each object pixel --- as well as the Poisson sampling of the object signal --- results in a slightly different value. As the number of object pixels approaches infinity, the SNR computed from the image would approach the theoretical value. Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_snr_001_2_00x.png}
+  \caption{Signal-to-noise ratio reduction on a synthetic CCD pixel grid}
+  \label{fig:snr_grid}
+\end{figure}
+
+The SNR is an important constraint when determining whether an object signal is visible above the background. If the SNR is too low, it becomes difficult or impossible to notice and quantify the object signal. Simulations in this work are all performed with a reasonable SNR limit of $3$.
+
+\subsection{Telescope Properties} \label{sec:telescope_properties}
+
+While much of the focus in this work is directed towards the CCD, the telescope it is mounted within has a few important properties which must be known for accurate CCD simulation. 
+
+The aperture of the telescope is the beginning of the optical path within the telescope --- the area that collects incoming light. The area of the aperture $A_{aperture} = \pi r_{d}^2$, where $r_d$ is the radius of the aperture must be distinguished from the \textit{effective} aperture area, which is the total area of the aperture which actually collects light. Some telescopes have central obstructions which remove an amount of aperture area from the optical path, such that the effective aperture area is:
+
+\begin{equation}
+  A_{eff} = A_{aperture} - \pi r_{o}^2,
+\end{equation}
+
+where $r_o$ is the radius of the obstruction. The telescope focal length $f$ is the length of the optical path within the optics required to resolve a focused image. The pixel scale $s_{pix}$ is a measure of the angle spanned by the side length of each square pixel, often expressed in arcseconds per pixel. 
+
+\subsection{Brightness Units}
+
+In the context of photometry, "brightness" is a catch-all term for a variety of units. Defining the relationships between these units will make later light curve conversions more clear. Brightness conversions are needed for both light curves and the environmental data sources that drive the CCD performance model described in Section \ref{sec:ccd_performance}.
+
+\subsubsection{$\mathbf{S_{10}}$ Surface Brightness}
+
+While apparent magnitude and irradiance are effective for quantifying the flux of point sources, other units exist
+to describe diffuse or extended sources where brightness is spread over an
+area. $S_{10}$ is a unit of surface brightness representing the number of 10th magnitude stars per square degree that would produce the same flux as a given diffuse source.
+Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ sr \right]$ can be converted to total irradiance $I \: \left[ \frac{W}{m^2} \right]$ via \ref{krag2003}:
+
+\begin{equation} \label{eq:s10toirrad}
+ \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
+  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
+\end{equation}
+
+In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
+representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
+spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
+\frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
+speed of light in vacuum. Quantum efficiency has units of photoelectrons, conveying the fraction of incident photons converted to photoelectrons in the CCD sensor. Atmospheric transmission is a unitless quantity conveying the fraction of light that is not absorbed by the atmosphere. Example spectra for $\textrm{ATM}(\lambda)$ and $\textrm{QE}(\lambda)$ are displayed in Figure \ref{fig:spectra}, with underlying data provided in Appendix \ref{data:atm}.
+
+\subsubsection{Magnitude per Square Arcsecond}
+
+A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond) \cite{krag2003}. This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
+magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
+brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
+$\left[ \frac{mag}{arcsec^2} \right]$ by applying Eq \ref{eq:mag_to_irradiance}.
+
+\begin{equation} \label{s10_to_mag_per_a2}
+	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
+\end{equation}
+
+In Eq \ref{s10_to_mag_per_a2} $B_{10}$ is converted to the total irradiance per square degree,
+converted square degrees to square arcseconds, and finally transformed into apparent magnitude. MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
+
+\begin{equation} \label{eq:mpsas_to_irrad_per_ster}
+  I = \left( \frac{180}{ 3600\pi} \right)^2 I_s \cdot 10^{-\frac{MPSAS}{2.5}}.
+\end{equation}
+
+\subsubsection{Candela} \label{sec:candela}
+
+Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "Fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \cite{nist_units}:
+
+\begin{equation} \label{eq:cd_to_w_per_sr}
+  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
+\end{equation}
+
+The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed Sharpe et al.\ is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_luminous_efficiency_001_2_00x.png}
+  \caption{Luminous effiency function from \cite{sharpe2005}}
+  \label{fig:luminous_efficiency}
+\end{figure}
+
+Candela per unit area can be converted into MPSAS by combining Eq \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding a formulation which is still a function of the source's wavelength:
+
+\begin{equation} \label{eq:cd_per_m2_to_mpsas}
+  MPSAS(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_s} \right).
+\end{equation}
+
+\subsubsection{Photoelectron Counts}
+
+Accurately simulating measured light curves requires an accurate simulation of the CCD camera taking the image. The first step towards that is understanding how irradiance at the telescope aperture is converted into pixel values in the final image. Raw images taken by a CCD-equipped telescope have pixel values measured in photoelectron counts, otherwise known as Analog-to-Digital Units (ADU) \cite{krag2003}. The count in a single pixel obtained is directly proportional (via the CCD's gain) to the number of
+photons incident on that pixel during the integration time \cite{krag2003}. Higher order effects in the silicon of
+the CCD makes this description incomplete, but for non-resolved imaging applications
+concerned about, effects smaller than the sensor readout noise and dark current can be safely neglected
+\cite{frueh2019notes}. Irradiance can be converted to ADU via the conversion factor $SINT$
+through \cite{krag2003}:
+
+\begin{equation} \label{eq:sint}
+ \textrm{SINT} = A_{eff}
+	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+  \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
+\end{equation}
+
+In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
+$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun, generally taken to be
+the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$, and $A_{eff}$ is the effective aperture area. Read literally, the integral term has
+units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
+radiation and second of integration time. The aperture diameter factor outside the integral accounts
+for the area of light incident on the CCD, giving $\textrm{SINT}$ units of $\left[ \frac{m^2}{Ws}
+\right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
+in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU via:
+
+\begin{equation} \label{eq:irrad_to_count}
+  \bar{C}_{all} = \textrm{SINT} \cdot I \cdot \Delta t.
+\end{equation}
+
+For completeness, irradiance can be recovered from a signal in ADU and the integration time:
+
+\begin{equation} \label{eq:count_to_irrad}
+  I = \frac{S}{\textrm{SINT} \cdot \Delta t}.
+\end{equation}
 
 \subsection{Background Signal Sources}
 
@@ -1256,7 +1268,7 @@ Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^
 in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness is reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
 
 \begin{equation} \label{eq:krag_f_corr}
-  f_{corr} = \frac{I_0}{SUN(550 \: \left[\textrm{nm}\right])}.
+  f_{corr} = \frac{I_s}{SUN(550 \: \left[\textrm{nm}\right])}.
 \end{equation}
 
 With all these pieces, the mean scattered moonlight signal in ADU per pixel is:
@@ -1424,7 +1436,7 @@ In Eq \ref{eq:moon_exclusion}, $\nu_{elevation} = 1$ implies that the observatio
 Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for convex objects or Eq \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the received mean irradiance at the telescope aperture is given by:
 
 \begin{equation} \label{eq:mean_irrad_at_aperture}
-  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_0 f_{Sun} \hat{I}}{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2}.
+  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \hat{I}}{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2}.
 \end{equation}
 
 In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:sint}, yielding $\bar{C}_{all}$.
@@ -1462,11 +1474,15 @@ In Eq \ref{eq:noisy_counts}, $A_{airy}$ is the area of the central maximum of th
 or to apparent magnitude by applying Eq \ref{eq:mag_to_irradiance}:
 
 \begin{equation}
-  m_{obj,meas} = -2.5 \log_{10}\left( \frac{I_{obj,meas}}{I_z} \right)
+  m_{obj,meas} = -2.5 \log_{10}\left( \frac{I_{obj,meas}}{I_0} \right)
 \end{equation}
 
 or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
 
 \begin{equation}
-  \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_0} I_{obj,meas}.
+  \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_s} I_{obj,meas}.
 \end{equation}
+
+\subsection{Light Curve Simulation Summary}
+
+TODO: this show some results
