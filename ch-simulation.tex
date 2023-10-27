@@ -40,7 +40,7 @@ Figure \ref{fig:light_curve_units} details this equivalence with the same light 
 
 \subsection{Orbit Propagation}
 
-There are many environmental perturbations that influence the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. To access historical and predicted trajectories of real space objects in the public catalog, Two-Line Element sets (TLEs) are used. TLEs are short, standardized collections of orbital elements and mission information, produced from observations of the object in question close to the publication date \cite{vallado4ed}. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. The Simplified General Perturbations 4 (SGP4) propagator is used to propagate near-Earth objects from TLEs. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. It should be noted that an improved propagator known as SGP4-XP has been developed to better model SRP, cislunar objects, gravitational harmonics, and atmospheric drag \cite{payne2022}. The SGP4 propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
+There are many environmental perturbations that influence the natural motion of space objects in orbits around Earth. In LEO, drag and the $J_2$ term of Earth's gravity field due to equatorial oblateness are the dominant perturbations \cite{frueh2019notes}. In MEO and GEO, solar radiation pressure (SRP) and the third-body effects of the Sun and Moon become increasingly important while drag is negligible \cite{frueh2019notes}. For the purposes of accurate light curve simulation, the orbit propagation must be accurate enough for the hour to week-long scenarios, and it should also be easy to access real initial conditions for objects of interest near the propagation dates. To access historical and predicted trajectories of real space objects in the public catalog, Two-Line Element sets (TLEs) are used. TLEs are short, standardized collections of orbital elements and mission information, produced from observations of the object in question close to the publication date \cite{vallado4ed}. TLEs are available programatically through Space-Track, a service provided by the US Space Force's 18th Space Defense Squadron \cite{spacetrack}. The Simplified General Perturbations 4 (SGP4) propagator is used to propagate near-Earth objects from TLEs. SGP4 models the secular effects of the first few zonal terms of Earth's gravity field, drag through an exponential density atmosphere, and some of the effects of third bodies like the Sun and Moon \cite{vallado4ed}. It should be noted that an improved propagator known as SGP4-XP has been developed to better model SRP, cislunar objects, gravitational harmonics, and atmospheric drag \cite{payne2022}. TLEs for SGP4-XP and SGP4 are not interchangeable \cite{payne2022}. The SGP4 propagator takes as input a Two-Line Element (TLE) set along with the Julian dates to propagate the object to and returns the position and velocity in TEME \cite{vallado4ed}. While SGP4 does not model some important perturbations like SRP, the availability of frequently updated TLEs for regularly tracked objects alleviates most concerns, although errors on the order of a few kilometers are still expected for LEO objects \cite{vallado4ed}. 
 
 Orbital propagation for the simulations performed in this work was done using SGP4 with TLE interpolation. For a given set of Julian dates and the satellite name in question, Space-Track is queried to find all TLEs produced for that object in the interval of interest. SGP4 is run for all Julian dates and all TLEs, and the final position at each Julian date is linearly interpolated between the most recent past TLE and the next future TLE. If there is only one neighboring TLE, its position is used without interpolation.
 
@@ -48,21 +48,21 @@ Orbital propagation for the simulations performed in this work was done using SG
 
 In order to effectively compute reflections and shadows on the surfaces of space objects, that object must have an assigned orientation in inertial space. While defunct satellites and space debris are slowly spun up by the Yarkovsky-O'Keefe-Radzievskii-Paddack (YORP) effect, the short-term motion of non-operational space objects is well-approximated by torque-free motion \cite{benson2018cyclic}. Developing the kinematics of torque-free motion first requires an understanding of common kinematic representations of orientation.
 
-The orientation --- or attitude --- of a rigid body in three dimensions is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities. 
+The orientation --- or attitude --- of a rigid body in three dimensions is implicitly understood to be relative to some other reference frame. The direction of a unit vector can be expressed with two numbers ---  the azimuth and elevation of that vector. Naïvely, this could be extrapolated to conclude that six numbers are needed to express an orientation. Because the basis vectors form an orthonormal set $\left\{ \hat{b}_1, \hat{b}_2, \hat{b}_3\right\}$, it follows for a right-handed system that $\hat{b}_3 = \hat{b}_1 \times \hat{b}_2$, $\hat{b}_2 = \hat{b}_3 \times \hat{b}_1$, and $\hat{b}_1 = \hat{b}_2 \times \hat{b}_3$. Each of these equations constrains one further degree of freedom, revealing that a minimum of three quantities are necessary to express the relative orientation of two reference frames. This minimum bound does not make any statements about the usefulness of three element sets; at least four dimensions are needed to remove singularities \cite{crassidis1ed}.
 
 \subsubsection{The Direction Cosine Matrix}
 
-The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$:
+The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$ \cite{shuster1993}:
 
 \begin{equation}
     \vrf{b}{r} = \dcm{bn} \vrf{n}{r}.
 \end{equation}
 
-The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$. 
+The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$ \cite{markley2016}. 
 
 \subsubsection{Principal Rotation Parameters}
 
-Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with:
+Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with \cite{shuster1993}:
 
 \begin{align*} \numberthis \labelAndRemember{eq:dcm_to_prp}
     {
@@ -72,13 +72,13 @@ Another common attitude representation is the Euler angle-axis set, otherwise kn
     }
 \end{align*}
 
-where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward:
+where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward \cite{shuster1993}:
 
 \begin{equation} \labelAndRemember{eq:prp2dcm}
     {C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2,}
 \end{equation}
 
-were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as:
+were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as \cite{shuster1993}:
 
 \begin{equation}
     \matcp{\vctr{v}} = \begin{bmatrix}
@@ -100,7 +100,7 @@ The quaternion represents attitude with a point on the surface of the hyperspher
     }
 \end{equation}
 
-The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaternion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via
+The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaternion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via:
 
 \begin{align*} \numberthis \labelAndRemember{eq:quat2prp_theta} 
     {
@@ -109,7 +109,7 @@ The first three entries of the quaternion are often called the vector component,
     }
 \end{align*}
 
-The quaternion maps to the DCM \cite{crassidis1ed} via 
+The quaternion maps to the DCM \cite{crassidis1ed} via :
 
 \begin{equation} \labelAndRemember{eq:quat2dcm}
     {
@@ -125,7 +125,7 @@ In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
 
 \subsection{Attitude Kinematics}
 
-Because it is cheap to convert between attitude representations, only one set of kinematic equations is needed to propagate a rigid body attitude profile from an initial condition. Quaternion kinematic differential equations are chosen as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via:
+Quaternion kinematic differential equations are chosen for simulating object attitude profiles as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:quat_kde}
     \left[\begin{matrix}\dot{\epsilon_1}\\\dot{\epsilon_2}\\\dot{\epsilon_3}\\\dot{\epsilon_4}\\\end{matrix}\right]
@@ -136,7 +136,7 @@ Because it is cheap to convert between attitude representations, only one set of
 
 \subsection{Attitude Dynamics}
 
-Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via:
+Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:rbtf_dynamics}
     \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
@@ -337,7 +337,7 @@ Producing accurate light curves requires accurate optical properties for the sim
   Multilayer insulation (MLI) (Phong) & $0.1$ & $0.9$ & $20$ \\ \hline
   White paint (Phong) & $0.9$ & $0.1$ & $1$ \\ \hline
   \end{tabular}
-  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated qualtitatively by the author. Significant variance may exist depending on surface finishes.}
+  \caption{Reflection properties of real materials. MLI and white paint parameters are estimated qualtitatively by the author. Significant variance may exist between objects depending on surface finishes \cite{matusik2003}.}
   \label{tb:real_matprops}
 \end{table}
 
@@ -421,7 +421,7 @@ refers to otherwise visible faces blocked by other portions of the geometry.
 
 The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
 normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
-the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$:
+the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
 
 \begin{equation} \label{eq:lc_func_normalized}
   \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} \mu_{Earth,j} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
@@ -450,6 +450,8 @@ In computer graphics, a camera is defined by its position $R_{cam}$, target $T_{
   \caption{Perspective and orthographic projections with relevant camera frustum attributes labeled}
   \label{fig:ortho_perspective_cameras}
 \end{figure}
+
+While the perspective projection is shown in Figure \ref{fig:ortho_perspective_cameras}, only orthographic projection is relevant for future simulation tasks as both the observer and sun are assumed to be very far from the object. In the limit, the true perspective nature of the camera behaves as an orthographic projection as negligible foreshortening occurs for objects as they retreat from the camera. 
 
 \subsubsection{Transformations} \label{sec:graphics_trans}
 
@@ -516,6 +518,8 @@ Many existing light curve simulation methods for nonconvex objects rely on ray t
   \caption{Hubble Space Telescope ray traced shadow categorization and shading. Models from \cite{nasa_models}}
   \label{hst_shadows_ray}
 \end{figure}
+
+% Figure \ref{}
 
 \subsubsection{The Importance of Self-Shadowing}
 
