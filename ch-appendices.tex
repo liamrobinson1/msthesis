@@ -27,11 +27,11 @@
       \State $\delta_{ss} = 0$ \Comment{Pixel may be illuminated}
     \EndIf
     \If{$\left(N \cdot L\right) > 0 \textrm{ and } \left(N \cdot O\right) > 0$}
-      \State $f_r(\vctr{x}, L \rightarrow O) = 0$ \Comment{Pixel cannot be both observed and illuminated}
+      \State $f_r(\vctr{x}, L, O) = 0$ \Comment{Pixel cannot be both observed and illuminated}
     \Else 
-      \State $f_r(\vctr{x}, L \rightarrow O) = \mathrm{Phong}(L, O, N, C_d, C_s, n)$ \Comment{The pixel is shaded with the BRDF}
+      \State $f_r(\vctr{x}, L, O) = \mathrm{Phong}(L, O, N, C_d, C_s, n)$ \Comment{The pixel is shaded with the BRDF}
     \EndIf
-    \State $\mathrm{IM}(x, y) = f_r(\vctr{x}, L \rightarrow O) \left(N \cdot L\right) $ \Comment{Image pixel value}
+    \State $\mathrm{IM}(x, y) = f_r(\vctr{x}, L, O) \left(N \cdot L\right) $ \Comment{Image pixel value}
   \end{algorithmic}
 \end{algorithm}
 
