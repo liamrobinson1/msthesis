@@ -136,15 +136,15 @@ Quaternion kinematic differential equations are chosen for simulating object att
 
 \subsection{Attitude Dynamics}
 
-Rigid body dynamics can be easily expressed in the body principal axes with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via \cite{crassidis1ed}:
+Rigid body dynamics can be easily expressed in the body principal axes for an object with the diagonal inertia tensor $J = \mathrm{diag}\left( J_1, J_2, J_3 \right)$ with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:rbtf_dynamics}
     \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
     =
     \left[\begin{matrix}
-        \left(M_1+I_2\omega_2\omega_3-I_3\omega_2\omega_3\right) / I_1 \\
-        \left(M_2-I_1\omega_1\omega_3+I_3\omega_1\omega_3\right) / I_2 \\
-        \left(M_3+I_1\omega_1\omega_2-I_2\omega_1\omega_2\right) / I_3 \\
+        \left(M_1+I_2\omega_2\omega_3-I_3\omega_2\omega_3\right) / J_1 \\
+        \left(M_2-I_1\omega_1\omega_3+I_3\omega_1\omega_3\right) / J_2 \\
+        \left(M_3+I_1\omega_1\omega_2-I_2\omega_1\omega_2\right) / J_3 \\
     \end{matrix}\right].
 \end{equation}
 
@@ -641,16 +641,16 @@ A precise definition of coordinate systems is necessary for determining the posi
 
 \subsection{Latitude, Longitude and Altitude}
 
-Latitude, longitude, and altitude (LLA) is a spherical representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_{geod}$ is converted to geocentric $\phi_{geoc}$ latitude with \cite{frueh2019notes}:
+Latitude, longitude, and altitude (LLA) is a spherical representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_\mathrm{geod}$ is converted to geocentric $\phi_\mathrm{geoc}$ latitude with \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:geod_to_geoc}
-  \phi_{geoc} = \tan^{-1} \left((1 - f)^2 \tan\phi_{geod} \right).
+  \phi_\mathrm{geoc} = \tan^{-1} \left((1 - f)^2 \tan\phi_\mathrm{geod} \right).
 \end{equation}
 
 Additionally, the radius of the ellipsoid $r_E$ at a given geocentric latitude is necessary for later conversion, expressed by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:rad_at_geoc}
-  r_E = R_E - f \sin^2 \left( \phi_{geoc} \right).
+  r_E = R_E - f \sin^2 \left( \phi_\mathrm{geoc} \right).
 \end{equation}
 
 The altitude in an set of LLA coordinates needs a reference point. Different observers may be defined differently --- either relative to the approximate ellipsoidal shape of the Earth, the hypothetical mean sea level, or the surrounding terrain.
@@ -700,7 +700,7 @@ Terrain elevation is usually the final component needed to fully define the alti
 Given an altitude relative to the terrain $a_{terrain}$, the elevation above the ellipsoid $a_{ellip}$ is given as a function of the terrain elevation above the geoid $h_{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_{terrain}(\lambda, \phi)$ by \cite{vallado4ed}:
 
 \begin{equation} \label{eq:altitude_above_ellipsoid}
-  a_{ellip} = a_{terrain} + h_{terrain}(\lambda, \phi_{geod}) + h_{geoid}(\lambda, \phi_{geod}).
+  a_{ellip} = a_{terrain} + h_{terrain}(\lambda, \phi_\mathrm{geod}) + h_{geoid}(\lambda, \phi_\mathrm{geod}).
 \end{equation}
 
 \subsection{International Terrestrial Reference Frame (ITRF)}
@@ -709,15 +709,15 @@ The Cartesian form of LLA is known as the Earth-centered Earth-fixed (ECEF) refe
 fundamental plane of the frame is defined to be the equator ---  orienting the $z$-axis through Earth's
 instantaneous spin axis, and the reference direction through the intersection of the prime meridian
 and the equator ---  defining the $x$-axis. Completing the right-handed system with $\hat{y} = \hat{z} \times \hat{x}$ yields a
-reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_{geod}, a_{ellip} \right)$ to ITRF is given by \cite{vallado4ed}:
+reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_\mathrm{geod}, a_{ellip} \right)$ to ITRF is given by \cite{vallado4ed}:
 
 \begin{align*} \numberthis \label{eq:lla_to_itrf}
   e^2 &= 2f - f^2 \\
-  N &= \frac{R_E}{\sqrt(1 - e^2 \sin(\phi_{geod})^2)} \\
-  \rho &= (N + a_{ellip}) \cos(\phi_{geod}) \\
-  x_{itrf} &= \rho \cos(\lambda) \\
-  y_{itrf} &= \rho \sin(\lambda) \\
-  z_{itrf} &= \left(N (1 - e^2) + a_{ellip} \right) \sin(\phi_{geod}). \\
+  N &= \frac{R_E}{\sqrt(1 - e^2 \sin(\phi_\mathrm{geod})^2)} \\
+  \rho &= (N + a_{ellip}) \cos(\phi_\mathrm{geod}) \\
+  x_\mathrm{itrf} &= \rho \cos(\lambda) \\
+  y_\mathrm{itrf} &= \rho \sin(\lambda) \\
+  z_\mathrm{itrf} &= \left(N (1 - e^2) + a_{ellip} \right) \sin(\phi_\mathrm{geod}). \\
 \end{align*}
 
 In Eq \ref{eq:lla_to_itrf}, $e^2$ is the squared eccentricity of the ellipsoid, $N$ is the radius of curvature in the meridian, and $\rho$ is the $x-y$ plane magnitude of the station's position \cite{vallado4ed}.
@@ -732,10 +732,10 @@ Many later transformations require the body axis rotation matrices $R_1$, $R_2$,
 
 \subsection{Topocentric East North Up (ENU) Reference Frame}
 
-The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vec{r}_{itrf}$ in ITRF to $\vec{r}_{enu}$ in ENU is given by \cite{frueh2019notes}:
+The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vec{r}_\mathrm{itrf}$ in ITRF to $\vec{r}_{enu}$ in ENU is given by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:itrf_to_enu}
-  \vec{r}_{enu} = F_2 F_1 R_2(\phi_{geoc}) R_3(\lambda) \vec{r}_{itrf}.
+  \vec{r}_{enu} = F_2 F_1 R_2(\phi_\mathrm{geoc}) R_3(\lambda) \vec{r}_\mathrm{itrf}.
 \end{equation}
 
 In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$ swaps the second and third unit vectors, and $F_2$ swaps the first and third unit vectors. The orientation of the ENU reference frame at the Purdue Optical Ground Station is depicted in Figure \ref{fig:pogs_enu}.
@@ -751,10 +751,10 @@ In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$
 
 Transforming from ITRF to the a standardized inertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Montenbruck and Gill \cite{montenbruck2012}. 
 
-Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vec{r}_{itrf}$ in ITRF to $\vec{r}_{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
+Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vec{r}_\mathrm{itrf}$ in ITRF to $\vec{r}_{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:itrf_to_gtod}
-  \vec{r}_{gtod} = R_1(y_p) R_2(x_p) \vec{r}_{itrf},
+  \vec{r}_{gtod} = R_1(y_p) R_2(x_p) \vec{r}_\mathrm{itrf},
 \end{equation}
 
 where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from $\vec{r}_{gtod}$ in GTOD to $\vec{r}_{teme}$ in the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
@@ -777,10 +777,10 @@ where $\Delta \Psi$ is the angular difference in the longitude of the vernal equ
 
 where $\bar{\epsilon}$ is the mean inclination of the ecliptic at the time of interest, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}.
 
-Accounting for the secular precession of Earth's pole transforms $\vec{r}_{mod}$ from MOD to $\vec{r}_{icrf}$ in ICRF via \cite{vallado4ed}:
+Accounting for the secular precession of Earth's pole transforms $\vec{r}_{mod}$ from MOD to $\vec{r}_\mathrm{icrf}$ in ICRF via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:mod_to_icrf}
-  \vec{r}_{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{mod},
+  \vec{r}_\mathrm{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{mod},
 \end{equation}
 
 through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$. Each of these angles modeling the precession are a function of the date of the transformation, and are approximated by polynomial expansions in the Julian century $T$ \cite{frueh2019notes}.
@@ -793,7 +793,7 @@ Right ascension and declination, often shortened to RA/Dec, are useful angles fo
 of the observation projected onto the inertial $x-y$ plane, measured counterclockwise from inertial
 $\hat{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
-Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x_{ITRF}, y_{ITRF}, z_{ITRF} \right]^T$ in J2000, RA/Dec is computed via \cite{frueh2019notes}:
+Declination is represented by $\delta$. Given a unit vector direction $\hat{v} = \left[ x_\mathrm{itrf}, y_\mathrm{itrf}, z_\mathrm{itrf} \right]^T$ in J2000, RA/Dec is computed via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:eci_to_ra_dec}
   \begin{bmatrix}
@@ -801,8 +801,8 @@ Declination is represented by $\delta$. Given a unit vector direction $\hat{v} =
 	\delta
   \end{bmatrix} = 
   \begin{bmatrix}
-	\atantwo(y_{ITRF}, x_{ITRF}) \\
-	\atantwo(z_{ITRF}, \sqrt{x_{ITRF}^2 + y_{ITRF}^2})
+	\atantwo(y_\mathrm{itrf}, x_\mathrm{itrf}) \\
+	\atantwo(z_\mathrm{itrf}, \sqrt{x_\mathrm{itrf}^2 + y_\mathrm{itrf}^2})
   \end{bmatrix}.
 \end{equation}
 
@@ -1494,6 +1494,46 @@ or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
   \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_s} I_{obj,meas}.
 \end{equation}
 
-\subsection{Light Curve Simulation Summary}
+\subsection{Light Curve Simulation Results}
 
-TODO: this show some results
+\subsubsection{Case 1: Normalized Light Curve for a Cube}
+
+This section presents the entire process for simulating the normalized light curve of a simple object. To begin, the properties of the object and the observing station are defined in Table \ref{tb:case1_obj_props}.
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{|l|l|}
+  \hline
+  \textbf{Parameter} & \textbf{Value} \\ \hline
+  Object & \texttt{cube.obj} \ref{sec:obj_listing} \\ \hline
+  $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
+  $w_0$ & $\left[ [0.04082483, 0.08164966, 0.04082483] \right]^T$ \\ \hline
+  $J$ & $\mathrm{diag}\left( 1.0, 2.0, 3.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
+  BRDF & Phong \\ \hline
+  $C_s$ & $0.3$ \\ \hline
+  $C_d$ & $0.7$ \\ \hline
+  $n$ & $5$ \\ \hline
+  Initial date & 2023-03-26 05:00:00 UTC \\ \hline
+  $\Delta t$ & $0.1$ $[s]$ \\ \hline
+  $n_{obs}$ & $360$ $[s]$ \\ \hline
+  $\phi_{geod}$ & $32.900^\circ$ \\ \hline
+  $\lambda$ & $-105.533^\circ$ \\ \hline
+  \end{tabular}
+  \caption{Object and station simulation parameters}
+  \label{tb:case1_obj_props}
+\end{table}
+
+To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
+
+The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $q(t)$, $\omega(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case1_attitude}
+
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_light_curves_types_001_2_00x.png}
+  \caption{Attitude time history for case 1}
+  \label{fig:case1_attitude}
+\end{figure}
+
+
+\subsubsection{Realistic Light Curve for a Box-Wing Satellite}
