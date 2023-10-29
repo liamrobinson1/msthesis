@@ -1478,7 +1478,7 @@ Assuming perfect knowledge of the image background mean in the region around the
 
 In Eq \ref{eq:noisy_counts}, $A_{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Eq \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Eq \ref{eq:count_to_irrad}:
 
-\begin{equation} \ref{eq:noisy_counts_to_irrad}
+\begin{equation} \label{eq:noisy_counts_to_irrad}
   I_{obj,meas} = \frac{C_{obj,meas}}{\mathrm{SINT} \cdot \Delta t}
 \end{equation}
 
@@ -1508,7 +1508,7 @@ This section presents the entire process for simulating the normalized light cur
   Object & \texttt{cube.obj} \ref{sec:obj_listing} \\ \hline
   SATNUM & $36411$ \\ \hline
   $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
-  $w_0$ & $\left[ 0.04082483, 0.08164966, 0.04082483 \right]^T$ \\ \hline
+  $w_0$ & $\left[ 0.04082483, 0.08164966, 0.04082483 \right]^T$ $[rad/s]$ \\ \hline
   $J$ & $\mathrm{diag}\left( 1.0, 2.0, 3.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
   BRDF & Phong \\ \hline
   $C_s$ & $0.3$ \\ \hline
@@ -1557,7 +1557,7 @@ The second case deals with simulating a realistic noisy light curve for a comple
   Object & \href{https://raw.githubusercontent.com/liamrobinson1/Light-Curve-Models/main/accurate_sats/matlib_goes17.obj}{goes17.obj} \\ \hline
   SATNUM & $32711$ \\ \hline
   $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
-  $w_0$ & $\left[ 0.00707107, 0.,         0.00707107 \right]^T$ \\ \hline
+  $w_0$ & $\left[ 0.00707107, 0.,         0.00707107 \right]^T$ $[rad/s]$ \\ \hline
   $J$ & $\mathrm{diag}\left( 1.0, 2.0, 2.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
   BRDF & Phong \\ \hline
   Initial date & 2022-12-09 08:00:00 UTC \\ \hline
@@ -1596,6 +1596,6 @@ The mean value of the total photoelectron counts due to the object signal is com
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curves_types_005_2_00x.png}
-  \caption{Light curve for case 2}
+  \caption{Light curve for case 2, produced with an object scale factor of $1/10$ to exaggerate noise}
   \label{fig:case2_lc}
 \end{figure}
