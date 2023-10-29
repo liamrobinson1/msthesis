@@ -1529,7 +1529,7 @@ This section presents the entire process for simulating the normalized light cur
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curves_types_001.png}
   \caption{Cube model for case 1}
-  \label{fig:case1_attitude}
+  \label{fig:case1_obj}
 \end{figure}
 
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
@@ -1585,7 +1585,7 @@ The second case deals with simulating a realistic noisy light curve for a comple
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curves_types_005.png}
   \caption{GOES 17 model for case 2}
-  \label{fig:case2_attitude}
+  \label{fig:case2_obj}
 \end{figure}
 
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
