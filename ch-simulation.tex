@@ -908,8 +908,8 @@ The full Gaussian approximation at an angular distance $\theta$ from the source 
 
 In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
 
-\begin{equation}
-  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C(\theta(x, y))} \: dy \: dy.
+\begin{equation} \label{eq:pix_values_gauss}
+  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_{Gauss}(\theta(x, y))} \: dy \: dy.
 \end{equation}
 
 The area within the first maximum of the Airy disk is given by \cite{frueh2019notes}:
@@ -1117,6 +1117,7 @@ In Eq \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass func
   \textrm{AM}(\theta_z) = \frac{1}{\sin\left((90 - \theta_z) +  \frac{244}{165 + 47 * \left(90 - \theta_z \right)^{1.1}}\right)}
 \end{equation}
 
+
 Using Eq \ref{eq:pickering_airmass} instead of the Van-Rhijn factor enables the computation of background signals near the horizon without the singularity of $\sec{\theta}$. Figure \ref{fig:airmass_fcns} displays this comparison in action.
 
 \begin{figure}[ht]
@@ -1189,6 +1190,7 @@ Computing the mean CCD signal in ADU per pixel due to the twilight brightness pr
   \bar{S}_{twilight} = B_{twi,z} \cdot SINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
 \end{equation}
 
+
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_background_signals_006.png}
@@ -1239,12 +1241,12 @@ is the speed of light in vacuum in $\left[ \frac{m}{s} \right]$. The resulting q
 $\textrm{BINT}$ has units of $\left[ \frac{1}{s} \right]$, representing the mean total photons passing
 through the telescope aperture due to integrated starlight. 
 
-\begin{equation} \label{eq:starlightmean}
+\begin{equation} \label{eq:starlight_adu}
   \bar{S}_{star} = 10^{-4} \cdot BINT \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot
   b_{is}
 \end{equation}
 
-In Eq \ref{eq:starlightmean}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
+In Eq \ref{eq:starlight_adu}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
 \right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$ and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\textrm{BINT}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
 
 \begin{figure}[ht]
@@ -1341,7 +1343,6 @@ Truncation noise in a CCD stems from the fact that the charge in each pixel is d
 
 The particular noise variances for the Purdue Optical Ground Station are listed in \ref{tb:pogs_parameters}.
 
-
 \subsection{Observer Constraints}
 
 Accurately simulating light curves requires realistic constraints on the observing station. For an optical ground station, basic operational constraints include local eclipse, target SNR, Moon exclusion angle, and minimum elevation constraints. This section develops these constraints.
@@ -1401,14 +1402,14 @@ Computing Eq \ref{eq:irradiance_fraction} for a dense grid of points in the J200
 
 As the signal-to-noise ratio of an object signal on the CCD pixel grid degrades, it becomes more difficult to determine whether an object is present at all. Given a minimum limiting SNR $\mathrm{SNR}_{min}$ this constraint takes the form:
 
-\begin{equation} \label{eq:moon_exclusion}
+\begin{equation} \label{eq:snr_exclusion}
   \nu_{\mathrm{SNR}} = \begin{cases}
     1 & \mathrm{SNR} > \mathrm{SNR}_{min}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
 
-In Eq \ref{eq:moon_exclusion}, $\nu_{\mathrm{SNR}} = 1$ implies that the observation is valid, with $\nu_{\mathrm{SNR}} = 0$ implying that the object signal cannot be discerned from the image background.
+In Eq \ref{eq:snr_exclusion}, $\nu_{\mathrm{SNR}} = 1$ implies that the observation is valid, with $\nu_{\mathrm{SNR}} = 0$ implying that the object signal cannot be discerned from the image background.
 
 \subsubsection{Moon Exclusion Angle}
 
@@ -1430,12 +1431,12 @@ Due to the local topology at the observer location, an operator may assign a min
 
 \begin{equation} \label{eq:elevation_exclusion}
   \nu_{elevation} = \begin{cases}
-    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obs} \right)}{\| \vctr{r}_{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obs} \|} \right) > \theta_{Moon,ex}\\
+    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obs} \right)}{\| \vctr{r}_{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obs} \|} \right) > \theta_{elev,min}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
 
-In Eq \ref{eq:moon_exclusion}, $\nu_{elevation} = 1$ implies that the observation is valid, with $\nu_{elevation} = 0$ implying that the observation is too close to the horizon. $\vctr{r}_{Moon}$ is be computed using SPICE following Section \ref{sec:planet_ephem}.
+In Eq \ref{eq:elevation_exclusion}, $\nu_{elevation} = 1$ implies that the observation is valid, with $\nu_{elevation} = 0$ implying that the observation is too close to the horizon.
 
 \subsection{Mean Irradiance at The Observer}
 
@@ -1477,7 +1478,7 @@ Assuming perfect knowledge of the image background mean in the region around the
 
 In Eq \ref{eq:noisy_counts}, $A_{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Eq \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Eq \ref{eq:count_to_irrad}:
 
-\begin{equation}
+\begin{equation} \ref{eq:noisy_counts_to_irrad}
   I_{obj,meas} = \frac{C_{obj,meas}}{\mathrm{SINT} \cdot \Delta t}
 \end{equation}
 
@@ -1493,9 +1494,9 @@ or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
   \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_s} I_{obj,meas}.
 \end{equation}
 
-\subsection{Light Curve Simulation Results}
+\section{Light Curve Simulation Results}
 
-\subsubsection{Case 1: Normalized Light Curve for a Cube}
+\subsection{Case 1: Normalized Light Curve of a Simple Object}
 
 This section presents the entire process for simulating the normalized light curve of a simple object. To begin, the properties of the object and the observing station are defined in Table \ref{tb:case1_obj_props}.
 
@@ -1505,6 +1506,7 @@ This section presents the entire process for simulating the normalized light cur
   \hline
   \textbf{Parameter} & \textbf{Value} \\ \hline
   Object & \texttt{cube.obj} \ref{sec:obj_listing} \\ \hline
+  SATNUM & $36411$ \\ \hline
   $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
   $w_0$ & $\left[ 0.04082483, 0.08164966, 0.04082483 \right]^T$ \\ \hline
   $J$ & $\mathrm{diag}\left( 1.0, 2.0, 3.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
@@ -1518,7 +1520,7 @@ This section presents the entire process for simulating the normalized light cur
   $\phi_{geod}$ & $32.900^\circ$ \\ \hline
   $\lambda$ & $-105.533^\circ$ \\ \hline
   \end{tabular}
-  \caption{Object and station simulation parameters}
+  \caption{Object and station simulation parameters for case 1}
   \label{tb:case1_obj_props}
 \end{table}
 
@@ -1538,9 +1540,62 @@ Next, the BRDF is used to compute the reflection matrix for the cube with Eq \re
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_003_2_00x.png}
+  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_003_2_00x.png}
   \caption{Normalized light curve for case 1}
   \label{fig:case1_lc}
 \end{figure}
 
-\subsubsection{Realistic Light Curve for a Box-Wing Satellite}
+\subsection{Case 2: Realistic Light Curve for a Box-Wing Satellite}
+
+The second case deals with simulating a realistic noisy light curve for a complex, nonconvex satellite model with observer constraints. Table \ref{tb:case2_obj_props} summarizes the simulation parameters for the object and station.
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{|l|l|}
+  \hline
+  \textbf{Parameter} & \textbf{Value} \\ \hline
+  Object & \href{https://raw.githubusercontent.com/liamrobinson1/Light-Curve-Models/main/accurate_sats/matlib_goes17.obj}{goes17.obj} \\ \hline
+  SATNUM & $32711$ \\ \hline
+  $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
+  $w_0$ & $\left[ 0.00707107, 0.,         0.00707107 \right]^T$ \\ \hline
+  $J$ & $\mathrm{diag}\left( 1.0, 2.0, 2.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
+  BRDF & Phong \\ \hline
+  Initial date & 2022-12-09 08:00:00 UTC \\ \hline
+  $\Delta t$ & $10$ $[s]$ \\ \hline
+  $n_{obs}$ & $180$ $[s]$ \\ \hline
+  Telescope & Table \ref{tb:pogs_parameters} \\ \hline
+  $\phi_{geod}$ & $32.900^\circ$ \\ \hline
+  $\lambda$ & $-105.533^\circ$ \\ \hline
+  $SNR_{min}$ & $3$ \\ \hline
+  $\theta_{Moon,ex}$ & $30^\circ$ \\ \hline
+  $\theta_{elev,min}$ & $15^\circ$ \\ \hline
+  \end{tabular}
+  \caption{Object and station simulation parameters for case 2}
+  \label{tb:case2_obj_props}
+\end{table}
+
+To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
+
+The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $q(t)$, $\omega(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case2_attitude}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_004_2_00x.png}
+  \caption{Attitude time history for case 2}
+  \label{fig:case2_attitude}
+\end{figure}
+
+The BRDF --- which varies across the surface of the object --- is encoded in the \texttt{.obj} file in the red channel of the diffuse material color $R$ such that $C_d = R$ and $C_s = 1 - R$. Given the unit vectors in the object body frame pointing towards the observer and the Sun, Algorithms \ref{alg:depth_map} and \ref{alg:pix_shading} are used to render images of the object which are integrated to yield a mean normalized irradiance value $\hat{I}$ with Eqs \ref{ortho_area} and \ref{lc_normalized_engine}. 
+
+This normalized irradiance is dimensionalized with Eq \ref{irradiance_to_norm_irradiance} to yield a mean irradiance $I$. Next, the background signal variances are computed for the Moonlight in Eq \ref{moonlight_adu}, zodiacal light in Eq \ref{zodiacal_adu}, integrated starlight in Eq \ref{starlight_adu}, twilight in eq \ref{twilight_adu}, light pollution in Eq \ref{pollution_adu}, and airglow in Eq \ref{airglow_adu}. These background signal variances are used to compute the overall background variance $\lambda_{background}$. The signal variance due to read noise, dark noise, and truncation noise are found in Table \ref{tb:pogs_parameters}, yielding the overall mean and variance of the background pixels. 
+
+These means and variances are used to compute the SNR of each attempted observation using Eq \ref{ccd_snr}. This SNR is used compute the minimum SNR constraint in Eq \ref{eq:snr_exclusion}. The Moon exclusion angle constraint is also evaluated with Eq \ref{eq:moon_exclusion} and the minimum elevation constraint is evaluated with Eq \ref{eq:elevation_exclusion}. If all constraints are satisfied, the object is observable and the light curve measurement process can continue. Otherwise, the measurement is impossible and no value is saved for this timestep.
+
+The mean value of the total photoelectron counts due to the object signal is computed from the mean irradiance $I$ using Eq \ref{eq:irrad_to_count} using the telescope parameters in Table \ref{tb:pogs_parameters}. This total mean count is then distributed across the CCD pixel grid using Eq \ref{eq:obj_signal_grid}. Now that all mean values are known, samples from the Poisson, Gaussian, and uniform distributions are sampled pixel-by-pixel to yield a final background and object signal on the CCD grid. The noisy light curve in ADU is then computed with Eq \ref{eq:noisy_counts} and transformed back to irradiance with Eq \ref{eq:noisy_counts_to_irrad}, depicted in Figure \ref{fig:case2_lc}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_005_2_00x.png}
+  \caption{Light curve for case 2}
+  \label{fig:case2_lc}
+\end{figure}
