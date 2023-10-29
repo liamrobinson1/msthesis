@@ -258,10 +258,10 @@ where the parameter $\sigma$ controls the width of the specular Gaussian.
 
 \subsubsection{Cook-Torrance}
 
-The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D$, a Fresnel term $F$, and a geometric attenuation factor $G$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $H$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
+The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $H$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
 
 \begin{equation} \label{eq:d_beckmann}
-  D = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
+  D_{ct} = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
 \end{equation}
 
 In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as \cite{cook1982}:
@@ -273,13 +273,13 @@ In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \
 The geometric attenuation term expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
-  G = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
+  G_{ct} = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
 \end{equation}
 
 The overall reflectance for the Cook-Torrance BRDF is given by:
 
 \begin{equation} \label{eq:brdf_cook_torrance}
-  f_r(L, O) = \frac{C_d}{\pi} + \frac{D \cdot G \cdot F}{4 \left(N \cdot L\right) \left( N \cdot O \right)}
+  f_r(L, O) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(N \cdot L\right) \left( N \cdot O \right)}
 \end{equation}
 
 \subsubsection{Oren-Nayar}
@@ -424,17 +424,16 @@ normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance f
 the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
 
 \begin{equation} \label{eq:lc_func_normalized}
-  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} \mu_{Earth,j} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
+  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
 \end{equation}
 
-In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face and $f_{Sun}$ is the solar irradiance fraction. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
+In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
   I_{j} = \frac{I_s \hat{I}_j}{r_j^2}.
 \end{equation}
 
 Note that using $r_j = \| \vctr{r}_{obj} - \vctr{r}_{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
-
 
 \subsection{Simulating Normalized Light Curves of Nonconvex Objects}
 
@@ -1507,7 +1506,7 @@ This section presents the entire process for simulating the normalized light cur
   \textbf{Parameter} & \textbf{Value} \\ \hline
   Object & \texttt{cube.obj} \ref{sec:obj_listing} \\ \hline
   $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
-  $w_0$ & $\left[ [0.04082483, 0.08164966, 0.04082483] \right]^T$ \\ \hline
+  $w_0$ & $\left[ 0.04082483, 0.08164966, 0.04082483 \right]^T$ \\ \hline
   $J$ & $\mathrm{diag}\left( 1.0, 2.0, 3.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
   BRDF & Phong \\ \hline
   $C_s$ & $0.3$ \\ \hline
@@ -1525,15 +1524,23 @@ This section presents the entire process for simulating the normalized light cur
 
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
 
-The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $q(t)$, $\omega(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case1_attitude}
+The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $q(t)$, $\omega(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case1_attitude}.
 
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\figbig]{sphx_glr_light_curves_types_001_2_00x.png}
+  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_001_2_00x.png}
   \caption{Attitude time history for case 1}
   \label{fig:case1_attitude}
 \end{figure}
 
+Next, the BRDF is used to compute the reflection matrix for the cube with Eq \ref{eq:reflection_matrix}. The normalized light curve is simply computed with Eq \ref{eq:lc_func_normalized}, using Eq \ref{eq:brdf_phong} and noting that $\mu_{ij} = 0$ as the object is convex. This yields the normalized light curve depicted in Figure \ref{fig:case1_lc}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_003_2_00x.png}
+  \caption{Normalized light curve for case 1}
+  \label{fig:case1_lc}
+\end{figure}
 
 \subsubsection{Realistic Light Curve for a Box-Wing Satellite}
