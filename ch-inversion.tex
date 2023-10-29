@@ -23,11 +23,11 @@ Traditionally, direct light curve inversion involves two distinct optimization p
 
 In the continuous case, the Gaussian Image associates each point on the surface of a shape with a outward-pointing normal vector direction on the unit sphere $\mathbb{S}^2$ \cite{horn1984}. The determinant of the Jacobian of this forward mapping yields the Gaussian curvature $\kappa(u,v)$ of the surface at each surface point --- expressing how rapidly local normal vectors change direction \cite{horn1984}. The continuous \textit{Extended} Gaussian Image (EGI) $E(\theta, \phi)$ is a function on the unit sphere parameterized by an azimuth $\theta$ and elevation $\phi$ which sums the inverse Gaussian curvature for all points $(u_i, v_i)$ on the surface of the object with a normal pointing towards $(\theta, \phi)$ \cite{horn1984}:
 
-\begin{equation} \ref{egi_deg}
+\begin{equation} \label{eq:egi_deg}
   E(\theta, \phi) = \sum_i{\frac{1}{\| \kappa(u_i, v_i) \|}}.
 \end{equation}
 
-By Eq \ref{egi_deg}, flat areas of the object are mapped to point masses in the EGI, motivating a simpler definition of the EGI for discrete surfaces. The discrete EGI $\vec{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\hat{n}$ each scaled by a nonnegative areea $a \in \mathbb{R}$, where $a_i \geq 0 \forall i$ \cite{little1983}.
+By Eq \ref{eq:egi_deg}, flat areas of the object are mapped to point masses in the EGI, motivating a simpler definition of the EGI for discrete surfaces. The discrete EGI $\vec{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\hat{n}$ each scaled by a nonnegative areea $a \in \mathbb{R}$, where $a_i \geq 0 \forall i$ \cite{little1983}.
 
 \begin{equation}
   \vec{E}_i = a_i \hat{n}_i
