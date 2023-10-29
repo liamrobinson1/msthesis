@@ -1498,7 +1498,7 @@ or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
 
 \subsection{Case 1: Normalized Light Curve of a Simple Object}
 
-This section presents the entire process for simulating the normalized light curve of a simple object. To begin, the properties of the object and the observing station are defined in Table \ref{tb:case1_obj_props}.
+This section presents the entire process for simulating the normalized light curve of a simple object. To begin, the properties of the object and the observing station are defined in Table \ref{tb:case1_obj_props}. The cube model used for this case is displayed in Figure \ref{fig:case1_obj}.
 
 \begin{table}[]
   \centering
@@ -1524,14 +1524,21 @@ This section presents the entire process for simulating the normalized light cur
   \label{tb:case1_obj_props}
 \end{table}
 
+\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_001_2_00x.png}
+  \caption{Cube model for case 1}
+  \label{fig:case1_attitude}
+\end{figure}
+
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
 
 The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $q(t)$, $\omega(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case1_attitude}.
 
-\graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_001_2_00x.png}
+  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_002_2_00x.png}
   \caption{Attitude time history for case 1}
   \label{fig:case1_attitude}
 \end{figure}
@@ -1540,14 +1547,14 @@ Next, the BRDF is used to compute the reflection matrix for the cube with Eq \re
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_003_2_00x.png}
+  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_004_2_00x.png}
   \caption{Normalized light curve for case 1}
   \label{fig:case1_lc}
 \end{figure}
 
 \subsection{Case 2: Realistic Light Curve for a Box-Wing Satellite}
 
-The second case deals with simulating a realistic noisy light curve for a complex, nonconvex satellite model with observer constraints. Table \ref{tb:case2_obj_props} summarizes the simulation parameters for the object and station.
+The second case deals with simulating a realistic noisy light curve for a complex, nonconvex satellite model with observer constraints. Table \ref{tb:case2_obj_props} summarizes the simulation parameters for the object and station. The object geometry is displayed in Figure \ref{fig:case2_obj}.
 
 \begin{table}[]
   \centering
@@ -1574,13 +1581,20 @@ The second case deals with simulating a realistic noisy light curve for a comple
   \label{tb:case2_obj_props}
 \end{table}
 
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_005_2_00x.png}
+  \caption{GOES 17 model for case 2}
+  \label{fig:case2_attitude}
+\end{figure}
+
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Eq \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
 
 The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $q(t)$, $\omega(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case2_attitude}.
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_004_2_00x.png}
+  \includegraphics[width=\textwidth]{sphx_glr_light_curves_types_006_2_00x.png}
   \caption{Attitude time history for case 2}
   \label{fig:case2_attitude}
 \end{figure}
@@ -1595,7 +1609,7 @@ The mean value of the total photoelectron counts due to the object signal is com
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_005_2_00x.png}
+  \includegraphics[width=\figmed]{sphx_glr_light_curves_types_007_2_00x.png}
   \caption{Light curve for case 2, produced with an object scale factor of $1/10$ to exaggerate noise}
   \label{fig:case2_lc}
 \end{figure}
