@@ -678,7 +678,7 @@ The geoid accounts for the gravitational potential differences across the Earth'
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\figmed]{sphx_glr_geoid_heights_001_2_00x.png}
+  \includegraphics[width=\figbig]{sphx_glr_geoid_heights_001_2_00x.png}
   \caption{EGM-96 geoid heights above the WGS-84 ellipsoid}
   \label{fig:geoid_shape}
 \end{figure}
@@ -689,7 +689,7 @@ Terrain elevation is usually the final component needed to fully define the alti
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\figsmall]{sphx_glr_pogs_local_terrain_001.png}
+  \includegraphics[width=\figmed]{sphx_glr_pogs_local_terrain_001.png}
   \caption{MSL elevations surrounding the Purdue Optical Ground Station}
   \label{fig:pogs_terrain}
 \end{figure}
@@ -731,7 +731,7 @@ Many later transformations require the body axis rotation matrices $R_1$, $R_2$,
 
 \subsection{Topocentric East North Up (ENU) Reference Frame}
 
-The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vec{r}_\mathrm{itrf}$ in ITRF to $\vec{r}_{enu}$ in ENU is given by \cite{frueh2019notes}:
+The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vec{r}_\mathrm{itrf}$ in ITRF to $\vec{r}_{enu}$ in ENU is a function of the longitude of the station $\lambda$ and the geocentric latitude $\phi_\mathrm{geoc}$ by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:itrf_to_enu}
   \vec{r}_{enu} = F_2 F_1 R_2(\phi_\mathrm{geoc}) R_3(\lambda) \vec{r}_\mathrm{itrf}.
@@ -1222,7 +1222,7 @@ using GAIA \cite{astroquery_gaia}, resulting in Figure
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figbig]{sphx_glr_gaia_patched_catalog_001_2_00x.png}
-  \caption{Integrated starlight brightness map}
+  \caption{Integrated starlight brightness map, produced from Gaia DR3 data \cite{gaia_dr3} using \ref{astroquery_gaia}}
   \label{fig:gaiapatched}
 \end{figure}
 
