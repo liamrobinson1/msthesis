@@ -25,7 +25,7 @@ This overall ordering for the simulation section of this work was chosen to prom
 
 \subsection{The Light Curve}
 
-The light curve expresses the observed brightness of an object over time. In literature, that brightness is commonly expressed in terms of irradiance, apparent magnitude, or photoelectron counts. This work also considers the normalized irradiance for some simulation and inversion tasks. Converting between these representations is accomplished with Eqs \ref{eq:count_to_irrad} and \ref{eq:irradiance_to_mag}.
+The light curve expresses the observed brightness of an object over time. In literature, that brightness is commonly expressed in terms of irradiance, apparent magnitude, or photoelectron counts. These units are discussed in Section \ref{sec:brightness_units} This work also considers the normalized irradiance for some simulation and inversion tasks. Converting between these representations is accomplished with Eqs \ref{eq:count_to_irrad} and \ref{eq:irradiance_to_mag}.
 
 \begin{figure}[!htb]
   \centering
@@ -341,7 +341,7 @@ Producing accurate light curves requires accurate optical properties for the sim
   \label{tb:real_matprops}
 \end{table}
 
-\subsection{Brightness Units}
+\subsection{Brightness Units} \label{sec:brightness_units}
 
 \subsubsection{Irradiance}
 
@@ -1552,7 +1552,20 @@ Next, the BRDF is used to compute the reflection matrix for the cube with Eq \re
   \label{fig:case1_lc}
 \end{figure}
 
-\subsection{Case 2: Realistic Light Curve for a Box-Wing Satellite}
+
+\subsection{Accurate Satellite Models}
+
+To produce accurate light curves for real space objects, 3D models files were collected and tuned for use with the light curve simulator. These models are shown in Figure \ref{fig:satellite_lineup}. Each model is correctly scaled, with accurate material properties applied to their faces. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\figbig]{sphx_glr_satellite_lineup_001.png}
+    \caption{Selected space objects with soccer field for size reference. In order, the objects are TESS, Starlink V1, TDRS, Landsat 8, Hispasat 30W-6, Saturn V SII, TELSTAR 19V, HYLAS 4, and simplified ASTRA.
+    }
+    \label{fig:satellite_lineup}
+\end{figure}
+
+\subsection{Case 2: Realistic Light Curve for a Box-Wing Satellite} \label{sec:case2}
 
 The second case deals with simulating a realistic noisy light curve for a complex, nonconvex satellite model with observer constraints. Table \ref{tb:case2_obj_props} summarizes the simulation parameters for the object and station. The object geometry is displayed in Figure \ref{fig:case2_obj}.
 
