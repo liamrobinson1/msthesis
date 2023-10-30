@@ -389,7 +389,7 @@ yielding:
 
 \subsubsection{Normalized Irradiance}
 
-The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of a object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
+The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of an object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
 
 \begin{equation} \label{eq:irradiance_to_norm_irradiance}
   \hat{I} = \frac{r^2}{I_s} I.
@@ -626,7 +626,7 @@ A solar day is defined as the time required for the Sun to pass and return to an
         - 6.2 \cdot 10^{-6} T_{UT1}^3.
 \end{equation}
 
-Accounting for the variations in the inclination of the ecliptic $\epsilon$ and the the change in the equinox compared to the reference epoch $\Delta \Psi$ produces Greenwich apparent sidereal time (GAST) via \cite{frueh2019notes}:
+Accounting for the variations in the inclination of the ecliptic $\epsilon$ and the change in the equinox compared to the reference epoch $\Delta \Psi$ produces Greenwich apparent sidereal time (GAST) via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:date_to_gast}
   \theta_{GAST} = \theta_{GMST} + \Delta \Psi \cos\epsilon.
@@ -1222,7 +1222,7 @@ using GAIA \cite{astroquery_gaia}, resulting in Figure
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figbig]{sphx_glr_gaia_patched_catalog_001_2_00x.png}
-  \caption{Integrated starlight brightness map, produced from Gaia DR3 data \cite{gaia_dr3} using \ref{astroquery_gaia}}
+  \caption{Integrated starlight brightness map, produced from Gaia DR3 data \cite{gaia_dr3} using \cite{astroquery_gaia}}
   \label{fig:gaiapatched}
 \end{figure}
 

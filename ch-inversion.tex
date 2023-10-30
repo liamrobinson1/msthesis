@@ -470,7 +470,7 @@ In practice, this is solved with a Balltree, a spatial search data structure des
 
 The final spherical weighting $w(\vctr{r}_q)$ applied to each object at a given query point location $\vctr{r}_q \in \mathbb{R}^3$ is the certainty of the nearest face $1-u_j(\vctr{r}_q)$ scaled by the light curve error of that object:
 
-\begin{equation}
+\begin{equation} \label{eq:merge_weighting}
   w(\vctr{r}_q) = \left( 1-u_j(\vctr{r}_q) \right) \left( \hat{I}_{meas} - \hat{I}_{obj} \right),
 \end{equation}
 
