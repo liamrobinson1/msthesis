@@ -125,13 +125,13 @@ Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedm
 
 \subsubsection{EGI Merging}
 
-After resampling and reoptimizing with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\alpha$:
+After resampling and reoptimizing with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
 
 \begin{equation} \label{eq:egi_merge}
-  \mathcal{G}_k = \left\{ \vec{E}_i \in \vec{E} \:\| \cos^{-1}\left( \frac{\hat{E}_i \cdot \hat{E}_k}{\|\vec{E}_i \| \| \vec{E}_k \|}\right) < \alpha \right\}.
+  \mathcal{G}_k = \left\{ \vec{E}_i \in \vec{E} \:\| \cos^{-1}\left( \frac{\hat{E}_i \cdot \hat{E}_k}{\|\vec{E}_i \| \| \vec{E}_k \|}\right) < \theta_\mathrm{merge} \right\}.
 \end{equation}
 
-In practice, the choice of $\alpha$ is dependent on the user's tolerance for discretization, as merging will approximate smooth geometry by discrete faces with normal vectors offset by $2\alpha$. Groups are merged by summing all group members, yielding a single EGI vector $\vec{E}_m$ without loss of closure. 
+In practice, the choice of $\theta_\mathrm{merge}$ is dependent on the user's tolerance for discretization, as merging will approximate smooth geometry by discrete faces with normal vectors offset by $2\theta_\mathrm{merge}$. Groups are merged by summing all group members, yielding a single EGI vector $\vec{E}_m$ without loss of closure. 
 
 \begin{equation} \label{eq:fixing_egi}
   \vec{E}_m = \sum_{\vec{E} \in \mathcal{G}_k}{\vec{E}}
@@ -287,7 +287,7 @@ Prior work by the author indicated an analytical relationship between this inter
 
 The objects in Figure \ref{fig:misleading_egi_error} were illuminated with a simple Lambertian BRDF and the brightness measurements used to optimize the EGI were produced by randomly sampled Sun and observer vectors. Once specular effects and non-random observation conditions are accounted for, the linear relationship between $\psi$ and $\sqrt{\frac{\|\vec{e}_{EGI}\|}{\|\vec{E}\|}}$ no longer exists. In short, the optimal concavity angle $\psi_{opt}$ is sought such that:
 
-\begin{equation}
+\begin{equation} \label{eq:psi_opt}
   \psi_{opt} = \min_{\psi} \left( \| \hat{I} - \hat{I}(\psi) \| \right),
 \end{equation}
 

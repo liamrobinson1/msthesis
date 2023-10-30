@@ -10,21 +10,7 @@
 %   \label{fig:cube_lcs}
 % \end{figure}
 
-\subsection{Convex Inversion Noise Dependence}
-
-The effect of the noise model on the inversion process is most clearly seen when the object signal is lowered while holding the noise distribution constant for the same observation scenario. This can be accomplished by placing the object in a more distant orbit or making the object less reflective. Figure \ref{fig:noisy_convex_inversions} displays the effect of shrinking a cube in a tumbling attitude profile in the orbit of the GOES 15 satellite over a three hour light curve captured at $10$ second intervals beginning at 2023-03-26 10:00:00 UTC. These inversions were performed with the full convex shape estimation process: beginning with generating the light curve using the same process as Section \ref{sec:case2} and inverting the shape using the same BRDF with Eq \ref{eq:area_opt_convex} with the proposed resampling and merging steps defined by Eqs \ref{eq:cone_sample_n_pole}, \ref{eq:cone_sampling_rv}, and \ref{eq:egi_merge} before optimizing the supports with Eq \ref{eq:little_problem} and recovering the final geometry with the dual transform in Eq \ref{eq:dual_egi_form} and Eq \ref{vertex_recovery} for the final vertices. Taking the convex hull of the vertices yields the face adjacency information, completing the convex inversion process.
-
-\begin{figure}[!htb]
-  \centering
-  \includegraphics[width=\figbig]{sphx_glr_noisy_inversion_pdf_001.png}
-  \caption{Convex shape inversions of a cube from noisy measurements}
-  \label{fig:noisy_convex_inversions}
-\end{figure}
-
-Figure \ref{fig:noisy_convex_inversions} illustrates the degradation in the convex shape estimate as the SNR falls. A few important conclusions can be drawn from this result. First, the complete degradation of 
-
 \clearpage
-\section{Convex Shape Inversion Without Noise}
 
 \subsection{Object Reconstruction Improvements}
 
@@ -37,27 +23,73 @@ The proposed resampling and merging steps in the object reconstruction process p
   \label{fig:egi_reconstructions}
 \end{figure}
 
+\clearpage
+
+\subsection{Convex Inversion Noise Dependence}
+
+The effect of the noise model on the inversion process is most clearly seen when the object signal is lowered while holding the noise distribution constant for the same observation scenario. This can be accomplished by placing the object in a more distant orbit or making the object less reflective. Figure \ref{fig:noisy_convex_inversions} displays the effect of shrinking a cube with a Phong BRDF ($C_d=0.5$, $C_s=0.5$, $n=10$) in a tumbling attitude profile in the orbit of the GOES 15 satellite over a three hour light curve captured at $10$ second intervals beginning at 2023-03-26 10:00:00 UTC. These inversions were performed with the full convex shape estimation process: beginning with generating the light curve using the same process as Section \ref{sec:case2} and inverting the shape using the same BRDF with Eq \ref{eq:area_opt_convex} with the proposed resampling and merging steps defined by Eqs \ref{eq:cone_sample_n_pole}, \ref{eq:cone_sampling_rv}, and \ref{eq:egi_merge} before optimizing the supports with Eq \ref{eq:little_problem} and recovering the final geometry with the dual transform in Eq \ref{eq:dual_egi_form} and Eq \ref{eq:vertex_recovery} for the final vertices. Taking the convex hull of the vertices yields the face adjacency information, completing the convex inversion process.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figbig]{sphx_glr_noisy_inversion_pdf_001.png}
+  \caption{Ten samples of convex shape inversions of a cube from the same set of noisy measurements for each width, with full cube side width and mean observation SNR noted}
+  \label{fig:noisy_convex_inversions}
+\end{figure}
+
+Figure \ref{fig:noisy_convex_inversions} illustrates the degradation in the convex shape estimate as the SNR falls. A few important conclusions can be drawn from this result. First, the errors in the estimates with high SNRs cluster in the corners of the geometry; the first sign of noise adversely effecting inversion results is the existence of small suprious faces between the true faces. This further motivates the existence of the resampling and merging steps of the inversion as they encourage more accurate normal vector locations than a simple coarse initial sampling. Despite these new stages, a low enough SNR will still degrade the shape estimate. Second, it is interesting to notice that the boundary between the mostly-correct shape estimates for a width of $0.05$ meters and the highly noise-corrupted estimates at a width of $0.04$ meters coincides with SNRs slightly above the detection limit of the CCD at $SNR\approx 4$. This makes intuitive sense, as detecting the object in the image and attributing a photon count to its signal are similar processes --- failure to detect the object implies a failure to quantify its signal.
+
+\clearpage
+\section{Convex Shape Inversion Without Noise}
+
+Four representative shapes were selected for the convex inversion results presented in this work. The cube and icosahedron are regular shapes with a low and medium level of detail respectively, testing the inversion's ability to recover accurate flat facet areas and normal vectors. The cylinder tests how the inversion process responds to smooth surfaces, while the gem is both asymmetric about one of its body axes and has a high level of detail. Performing single-shot shape inversions of these geometries using the conditions in Table \ref{tb:cvx_props} yields Figure \ref{fig:res_convex_no_noise}. These inversions were performed with a merge angle $\theta_\mathrm{merge} = \pi / 8$ and $2000$ normal vector candidates for the initial EGI optimization. Nonconvex inversions were performed on top of the convex guess with the line search detailed in Algorithm \ref{alg:concavity_iter} with $3$ iterations of linear subdivision and the vertex selection tolerance $\varepsilon = 0.5$ as needed by Eq \ref{eq:root_free}. The nonconvex guess with the lowest light curve error is plotted.
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{|l|l|}
+  \hline
+  \textbf{Parameter} & \textbf{Value} \\ \hline
+  SATNUM & $36411$ \\ \hline
+  $q_0$ & $\left[ 0, 0, 0, 1 \right]^T$ \\ \hline
+  $w_0$ & $\left[ 0.04082483, 0.08164966, 0.04082483 \right]^T$ $[rad/s]$ \\ \hline
+  $J$ & $\mathrm{diag}\left( 1.0, 2.0, 3.0 \right)$ $\left[ kg \cdot m^2 \right]$ \\ \hline
+  BRDF & Phong \\ \hline
+  $C_d$ & $0.5$ \\ \hline
+  $C_s$ & $0.5$ \\ \hline
+  $n$ & $10$ \\ \hline
+  Initial date & 2023-03-26 05:00:00 UTC \\ \hline
+  $\Delta t$ & $10$ $[s]$ \\ \hline
+  $n_{obs}$ & $1080$ $[s]$ \\ \hline
+  Telescope & Table \ref{tb:pogs_parameters} \\ \hline
+  $\phi_{geod}$ & $32.900^\circ$ \\ \hline
+  $\lambda$ & $-105.533^\circ$ \\ \hline
+  $SNR_{min}$ & $3$ \\ \hline
+  $\theta_{Moon,ex}$ & $30^\circ$ \\ \hline
+  $\theta_{elev,min}$ & $15^\circ$ \\ \hline
+  \end{tabular}
+  \caption{Object and station simulation parameters for shape inversion results}
+  \label{tb:cvx_props}
+\end{table}
+
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_002.png}
-  \caption{Shape inversion results for convex objects without noise in the light curve}
+  \caption{Shape inversion results for convex objects without noise in the light curve, the most accurate shape estimate for each truth object in terms of the residual light curve error is shaded green}
   \label{fig:res_convex_no_noise}
 \end{figure}
 
 \clearpage
 \section{Nonconvex Shape Inversion Without Noise}
 
-Displacing free vertices in the EGI error vector direction by $d_i$ yields accurate concavities for objects whose concave boundaries lie in a plane. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:res_convex_no_noise}.
+Displacing free vertices in the EGI error vector direction by $d_i$ using Eq \ref{eq:flip_depth} for a given internal angle estimate $\psi$ yields concavities with boundaries lying roughly in a plane perpendicular to the EGI error vector. The result of applying this process to a set of representative convex objects is shown in Figure \ref{fig:res_nonconvex_no_noise}.
 
-The collapsed cube and icosahedron in Figure \ref{fig:res_convex_no_noise} are recovered effectively, but the collapsed house and box-wing satellite expose two limitations of the vertex displacement technique. In the case of the house where the concavity boundary is not constrained to a plane, the edges of the created concave feature are incorrect. The box-wing satellite's shadowing geometry leads the convex guess to be a poor approximation of the geometry outside of the concavity while also inheriting the same problem as the house.
+The collapsed cube and icosahedron in Figure \ref{fig:res_nonconvex_no_noise} are recovered effectively, but the collapsed house and box-wing satellite expose two limitations of the vertex displacement technique. In the case of the house where the concavity boundary is not constrained to a plane, the edges of the created concave feature are incorrect. The box-wing satellite's shadowing geometry leads the convex guess to be a poor approximation of the geometry outside of the concavity while also inheriting the same problem as the house.
 
 This vertex displacement scheme will negligibly impact the convex guess if the truth object is also convex. A convex truth object will produce a small $\|\vec{e}_{EGI}\|$, causing the vertex update depth $d_{i}$ to trend towards zero as the estimated internal angle approaches $\psi = 180^\circ$. This is illustrated in Figure \ref{fig:non_convex_recon_of_convex} using the same input convex objects and attitude profiles as in Figure \ref{convex_grid}.
-
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_003.png}
-  \caption{Shape inversion results for nonconvex objects without noise in the light curve}
+  \caption{Shape inversion results for nonconvex objects without noise in the light curve, the most accurate shape estimate for each truth object in terms of the residual light curve error is shaded green}
   \label{fig:res_nonconvex_no_noise}
 \end{figure}
 
@@ -69,7 +101,7 @@ Figure \ref{fig:non_convex_recon_of_convex} clearly displays the compatibility o
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_004.png}
-  \caption{Shape inversion results for convex objects with noise in the light curve}
+  \caption{Shape inversion results for convex objects with noise in the light curve, the most accurate shape estimate for each truth object in terms of the residual light curve error is shaded green}
   \label{fig:res_convex_with_noise}
 \end{figure}
 
@@ -81,7 +113,7 @@ TODO: this
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figbig]{sphx_glr_aas_non_convex_inversion_005.png}
-  \caption{Shape inversion results for nonconvex objects with noise in the light curve}
+  \caption{Shape inversion results for nonconvex objects with noise in the light curve, the most accurate shape estimate for each truth object in terms of the residual light curve error is shaded green}
   \label{fig:res_nonconvex_with_noise}
 \end{figure}
 
