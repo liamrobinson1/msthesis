@@ -158,3 +158,5 @@ The final estimated geometry in Figure \ref{fig:multi_hyp_final_cvx} is closer t
 \caption{Final shape guess merged from candidates in Figure \ref{fig:multi_hyp_candidates_cvx}}
 \label{fig:multi_hyp_final_ncvx}
 \end{figure}
+
+Figures \ref{fig:multi_hyp_candidates_ncvx} and \ref{fig:multi_hyp_final_ncvx} display a multiple hypothesis inversion for a collapsed cube. Notably, none of the nonconvex guesses for the geometry are very close to the truth. As a result, the final estimate in Figure \ref{fig:multi_hyp_final_ncvx} is also significantly inaccurate. This indicates that the real bottleneck in this procedure is not the multiple hypothesis framework itself, but the quality of the individual nonconvex shape guesses. Any significant improvements to the nonconvex inversion scheme presented in this work will lead to similar improvements in the multiple hypothesis results.
