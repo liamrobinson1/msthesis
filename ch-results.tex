@@ -96,6 +96,8 @@ The nonconvex guesses for each object introduce a small concavity in the directi
 \clearpage
 \section{Inversion of Convex Shapes With Noise}
 
+Figure \ref{fig:res_convex_with_noise} displays shape inversions for convex objects under the same geometry, attitude profile, BRDF, and observation geometry of listed in Table \ref{tb:cvx_props}.
+
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\textwidth]{sphx_glr_aas_non_convex_inversion_004.png}
@@ -103,10 +105,12 @@ The nonconvex guesses for each object introduce a small concavity in the directi
   \label{fig:res_convex_with_noise}
 \end{figure}
 
-With the addition of noise, 
+With the addition of noise, the resulting light curves used to invert the shapes in Figure \ref{fig:res_convex_with_noise} have SNRs between $7$ and $16$. A seen in Figure \ref{fig:noisy_convex_inversions}, lowering the SNR first begins to impact the inverted geometry at the edges and corners, where small faces are introduced to fit the noisy measurements. That said, the global geometry is qualitatively maintained even at $SNR=7$ for the gem, and the convex guesses still perform better than the nonconvex estimates in terms of the residual light curve error.
 
 \clearpage
 \section{Inversion of Nonconvex Shapes With Noise}
+
+Figure \ref{fig:res_nonconvex_with_noise} displays shape inversions for the same nonconvex convex objects as in Figure \ref{fig:res_nonconvex_no_noise} with the same attitude profile, BRDF, and observation geometry of listed in Table \ref{tb:cvx_props}.
 
 \begin{figure}[!htb]
   \centering
@@ -115,7 +119,7 @@ With the addition of noise,
   \label{fig:res_nonconvex_with_noise}
 \end{figure}
 
-TODO: this
+Comparing the results in Figure \ref{fig:res_nonconvex_with_noise} to Figure \ref{fig:res_nonconvex_no_noise}, it is clear that the introduction of noise, even at relatively high SNRs, impacts the ability of the nonconvex optimization procedure to locate and size the concavity effectively. As opposed to Figure \ref{fig:res_nonconvex_no_noise}, the concavity directions for the noisy light curves are often incorrect as seen in the cylinder most prominently. This indicates that this procedure is not sufficient for recovering good nonconvex guesses for objects with particularly noisy measurements.
 
 \section{Multiple Hypothesis Inversion}
 
