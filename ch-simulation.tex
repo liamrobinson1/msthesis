@@ -1552,6 +1552,7 @@ Next, the BRDF is used to compute the reflection matrix for the cube with Eq \re
   \label{fig:case1_lc}
 \end{figure}
 
+Figure \ref{fig:case1_lc} has a few important features to recognize. Some sections of the light curve are flat, indicating that all illuminated faces are orthogonal to eachother and reflecting diffusely. When one of the face normal vectors approaches the halfway vector $H$, a specular glint occurs, leading to a temporary sharp increase in the light curve value. Overall, this is exactly the behavior expected given the observation conditions.
 
 \subsection{Accurate Satellite Models}
 
@@ -1626,3 +1627,5 @@ The mean value of the total photoelectron counts due to the object signal is com
   \caption{Light curve for case 2, produced with an object scale factor of $1/10$ to exaggerate noise}
   \label{fig:case2_lc}
 \end{figure}
+
+Figure \ref{fig:case2_lc} possesses a few important characteristics to note when compared to the results from case 1 in Figure \ref{fig:case1_lc}. The light curve for case 2 is much more complex, with higher frequency variation in the mean due to the many small geometric features making up the satellite model. As in the cube light curve, specular peaks are still evident around $260$ and $1050$ seconds after the simulation epoch. The noise is clearly seen in the regions shaded by standard deviation. As a result of this noise, the lower magnitude signals regions --- where little specular reflection is occuring --- are much more corrupted by the noise as its standard deviation represents a larger fraction of the signal magnitude. Importantly, these regions possess high-frequency oscillations in the mean that are highly obscured in any one sampling due to the additive noise. This highlights the importance of specular reflection for extracting reliable accurate features by pinpointing the normal vectors of certain faces by reaching above the noise. It must be noted that Figure \ref{fig:case2_lc} was produced with a scale factor of $1/10$ applied to the vertices of the GOES 17 3D model to make the effect of the noise more clear. In reality, large GEO objects like GOES should produce light curves with much less noise on the signal, as prediced by the simulator developed in this work. 
