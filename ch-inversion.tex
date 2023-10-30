@@ -1,8 +1,8 @@
 \ProvidesFile{ch-light-curve-inversion.tex}[Light Curve Shape Inversion]
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
-\section{Light Curve Shape Inversion}
+\chapter{Light Curve Shape Inversion}
 
-\subsection{Direct Convex Shape Inversion}
+\section{Direct Convex Shape Inversion}
 
 Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to optimize normal vectors and areas to match the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis, kaasalainen2000, kaas2001shape, cabrera2021}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}. The full convex inversion process presented in this work is outlined:
 
@@ -19,7 +19,7 @@ Traditionally, direct light curve inversion involves two distinct optimization p
     \2 Convex hull yielding final face adjacency relationships
 \end{outline}
 
-\subsubsection{The Extended Gaussian Image} \label{sec:egi_definition}
+\subsection{The Extended Gaussian Image} \label{sec:egi_definition}
 
 In the continuous case, the Gaussian Image associates each point on the surface of a shape with a outward-pointing normal vector direction on the unit sphere $\mathbb{S}^2$ \cite{horn1984}. The determinant of the Jacobian of this forward mapping yields the Gaussian curvature $\kappa(u,v)$ of the surface at each surface point --- expressing how rapidly local normal vectors change direction \cite{horn1984}. The continuous \textit{Extended} Gaussian Image (EGI) $E(\theta, \phi)$ is a function on the unit sphere parameterized by an azimuth $\theta$ and elevation $\phi$ which sums the inverse Gaussian curvature for all points $(u_i, v_i)$ on the surface of the object with a normal pointing towards $(\theta, \phi)$ \cite{horn1984}:
 
@@ -50,7 +50,7 @@ Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polyt
   \label{fig:egi_family}
 \end{figure}
 
-\subsubsection{EGI Optimization}
+\subsection{EGI Optimization}
 
 The EGI fulfills two important criteria for the shape inversion problem: it can be estimated directly from the light curve, attitude profile, and material properties, and uniquely represents a convex object \cite{kaasalainen2001}. Further, the EGI can be transformed into a unique convex object and vice versa through the dual transform and Minkowski problem \cite{little1985, minkowski1909}. 
 
@@ -85,13 +85,13 @@ The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation
   \label{fig:initial_egi_sampling}
 \end{figure}
 
-\subsubsection{EGI Optimization Observability}
+\subsection{EGI Optimization Observability}
 
 Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, the gradient of the light curve error with respect to that normal vector of the EGI is zero, and that face's area cannot be recovered. For a given set of candidate normal vectors, the ability to recover a reliable solution from the area optimization problem is known as its observability. As studied by Friedman, the EGI optimization is observable if the Gramian matrix --- $G^T G$ in this case --- is full rank \cite{friedman2020}.
 
 This conclusion follows from an unconstrained least squares estimation of the EGI, and is generally equivalent to the statement that the areas of $n$ normal vectors can be estimated if $m>=n$ measurements are taken with at least one nonzero entry in each column of the reflection matrix $G$. As noted by Cabrera et al.\, the nonnegative constraint placed on the face areas $a_j$ mean that the constrained EGI optimization is often estimatable even when the unconstrained form is unobservable \cite{cabrera2021}. As a result, the unconstrained least squares observability condition is a very conservative lower bound, but is still useful for quantifying the shape information content of the light curve through the rank of $G^T G$. All inversions results presented in this work are performed with observable measurement geometry. 
 
-\subsubsection{EGI Resampling}
+\subsection{EGI Resampling}
 
 A normal vector resampling step is presented in this work to promote a more accurate and sparse EGI. The normal vectors used in Fig \ref{fig:initial_egi_sampling} are generally correct, with each group clustering around a normal vector of the truth geometry. This clustering behavior occurs when none of the candidate normal vectors are sufficiently close to the truth. Resampling in a cone centered on each initial EGI normal vector provides more accurate candidates for EGI estimation. This process mimics a single optimization step with a much larger $m$, where the coarse EGI is used to exclude areas on the sphere with little or no normal area.
 
@@ -123,7 +123,7 @@ Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedm
   \label{fig:resampled_egi}
 \end{figure}
 
-\subsubsection{EGI Merging}
+\subsection{EGI Merging}
 
 After resampling and reoptimizing with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
 
@@ -146,7 +146,7 @@ Merging the resampled EGI shown in Figure \ref{fig:resampled_egi} produces a fin
   \label{fig:merged_egi}
 \end{figure}
 
-\subsubsection{Geometry Recovery from the EGI}
+\subsection{Geometry Recovery from the EGI}
 
 At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
 
@@ -186,7 +186,7 @@ The object's vertices $\vec{v}_{ref}$ are found by solving a linear system of eq
 
 Convex face adjacency information is found by triangulating the convex hull of all reference vertices. The accuracy of the recovered geometry is entirely dependent on the correctness of the support vector $\vec{h}$ used to produce the dual set. Finding the true support vector is the challenge of the final optimization in convex shape inversion.
 
-\subsubsection{Support Vector Optimization}
+\subsection{Support Vector Optimization}
 
 This work adopts the same objective function proposed by Little for the support vector optimization as used by Fan \cite{little1983, fan2020thesis}. Little's objective function leverages work of Minkowski, who proved that any closed EGI is a unique representation of a convex object, up to a translation \cite{little1983}. In the literature, these convex shapes in $\mathbb{R}^3$ are known as polytopes. In particular, that unique polytope is merely a scaling and translation from the polytope with volume $1$ that minimizes $\vec{h} \cdot \| \vec{E} \|$ \cite{little1985}. This formulates the support vector optimization problem:
 
@@ -199,9 +199,9 @@ Notice that there is a difference between $ \| \vec{E} \| $, the areas of the fa
 
 Depending on the optimizer, additional function evaluations will be needed to evaluate support gradient as well as the Jacobian of the constraints. Many optimizers struggle with this optimization problem, either due to an inability to meet the constraint or instability that leads to unbounded supports. Little implemented a constrained gradient descent scheme from scratch, showing good results for reconstructing simple objects \cite{little1983}. Gardner solved an equivalent optimization problem using an unspecified solver in MATLAB \cite{gardner2003}. In this work, trust-region methods \cite{conn2000} were found to be robust at solving this optimization.
 
-\subsection{Direct Nonconvex Shape Inversion}
+\section{Direct Nonconvex Shape Inversion}
 
-\subsubsection{Nonconvex Feature Detection and Location}
+\subsection{Nonconvex Feature Detection and Location}
 
 Many human-made space objects are, as highlighted in Figure \ref{fig:hst_bennu_shadows}, highly nonconvex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{eq:little_problem} cannot recover nonconvex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
 
@@ -217,13 +217,13 @@ The EGI closure error vector in Eq \ref{eq:closure_error} represents the missing
 
 Under the strong assumption that the concavities present are major and unilateral, this EGI error vector points along the mean axis of the concavity. This is because self-shadowing in that region causes brightness measurements to be smaller than expected for the true area present, leading to an optimized EGI that attributes less area to that section of the object. As a result, summing the EGI entries produces a vector that points away from the concavity, requiring the negation seen in Eq \ref{eq:closure_error} to point towards it.
 
-\subsubsection{Concavity Creation}
+\subsection{Concavity Creation}
 
 Given the direction of a supposed concavity in the body frame of the object, the next challenge is introducing that concavity. This work approximates unknown concave features as valleys with sharp floors, adopting the interior angle $\psi$ between the valley walls as the measure of the feature depth. An interior angle of $\psi=180^\circ$ implies no concavity, whereas $\psi \rightarrow 0^\circ$ will push the concavity through the object entirely.
 
 The proposed process for creating an accurate concavity in the reconstructed convex guess proceeds in four major steps. The model is first subdivided to add more faces and vertices. Subdivided vertices are then classified by their proximity to the EGI error vector, indicating whether their positions should be updated. Boundary vertices are identified, and vertex positions are updated based on an internal angle. The light curve error of that nonconvex guess is computed, and the internal angle is iterated until a suitable minimum error case is identified.
 
-\subsubsection{Model Subdivision}
+\subsection{Model Subdivision}
 
 Subdividing the initial convex object guess is essential for retaining object detail during concavity creation. A combination of linear subdivision, Loop subdivision, and remeshing algorithms are used to accomplish this. Linear subdivision is advantageous when object faces are equally sized and boundary edges must be maintained. Loop subdivision is preferable when there are numerous vertices so that subdivisions do not drastically diverge from the initial boundary surface. Loop subdivision softens sharp edges as it relies on B-splines to interpolate new vertex positions \cite{loop1987}. The specific type and resolution of subdivision used depends on the level of detail the user needs to maintain in the introduced concavity, although linear subdivision followed by Loop subdivision is a useful baseline. Varying combinations of subdivision are shown in Figure \ref{fig:subd_grid} to illustrate the available configurations.
 
@@ -235,7 +235,7 @@ Subdividing the initial convex object guess is essential for retaining object de
   \label{fig:subd_grid}
 \end{figure}
 
-\subsubsection{Vertex Classification}
+\subsection{Vertex Classification}
 
 When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2 - \varepsilon$ to the error vector must be updated, where $\varepsilon$ is a bias angle that controls the conservativeness of the classification. Choosing $\varepsilon=0$ selects all faces above the horizon from the EGI error vector and may lead to concavities that encompass too much of the object. Generally, $\varepsilon \in [0.3, 0.7]$ rad is effective. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Eq. \ref{eq:area_opt_convex} and EGI correction step Eq \ref{eq:egi_validation}. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces. Explicitly, each face $F_i$ is classified $C(F_i)$ via:
 
@@ -264,7 +264,7 @@ In Eq \ref{eq:root_free_verts}, $\mathcal{N}(\vec{v}_i)$ is the set of face indi
   \label{fig:root_and_free}
 \end{figure}
 
-\subsubsection{Vertex Displacement}
+\subsection{Vertex Displacement}
 
 Given the estimated internal angle $\psi_{est}$ and the error vector $\hat{e}_{EGI}$, each $i$th free vertex is displaced to introduce a geometrically accurate concavity by moving each a distance $d_i$ in the direction of $-\hat{e}_{EGI}$:
 
@@ -274,7 +274,7 @@ Given the estimated internal angle $\psi_{est}$ and the error vector $\hat{e}_{E
 
 where $p_i$ is the distance from each $i$th free vertex to the nearest root-adjacent vertex.
 
-\subsubsection{Internal Angle Iteration}
+\subsection{Internal Angle Iteration}
 
 Prior work by the author indicated an analytical relationship between this interior angle and the norm of the EGI error vector, summarized in Figure \ref{fig:misleading_egi_error} \cite{robinson2022}.
 
@@ -312,13 +312,13 @@ where $\hat{I}$ is the observed normalized light curve and $\hat{I}(\psi)$ is th
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{Shape Inversion With Noisy Measurements}
+\section{Shape Inversion With Noisy Measurements}
 
 When the light curve measurements are subject to environmental noise, the shape inversion result --- convex or nonconvex --- may vary significantly from the noiseless shape estimate. Fan addressed this problem most recently with a multiple hypothesis scheme \cite{fan2020thesis}. Given a number of noisy light curves, Fan produced a convex shape estimate from each and ranked each by its error when simulated against a new set of observations \cite{fan2020thesis}. Fan and Frueh later adapted this scheme with a sequential Monte Carlo method, which began identically by producing a collection of convex guesses from samples of the same noisy light curve \cite{fan20201}. The error in each guess was measured against a new noisy light curve, enabling a weighted merge of the estimated EGIs, which was then perturbed to produce a new set of estimated shapes \cite{fan2021}. Throughout these methods, Fan assumed that the noise on the light curve was Gaussian and of constant magnitude, although it was noted that the real character of the noise is dependent on both the geometry of the observation and the magnitude of the signal itself \cite{fan2020thesis}. 
 
 This work presents a method for multiple hypothesis shape inversion that builds on Fan's work by relaxing the constant, Gaussian noise assumption and is agnostic to the convexity of the candidate objects. This new method also uses an face-dependent estimate of the uncertainty in each candidate shape's geometry, yielding final object estimates that take only the most accurate features from each candidate object.
 
-\subsubsection{Weighted Shape Interpolation}
+\subsection{Weighted Shape Interpolation}
 
 To develop this multiple hypothesis inversion procedure that works for both convex and nonconvex shape candidates, it is useful to be able to take a weighted average of an arbitrary set of triangle meshes. Given candidate object meshes $M_i$ with scalars $w_i$, this weighted average process should be of the form:
 
@@ -372,7 +372,7 @@ The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by al
 
 To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \forall (x,y,z) \in \mathbb{R}^3$.
 
-\subsubsection{Shape Estimate Uncertainty}
+\subsection{Shape Estimate Uncertainty}
 
 When merging multiple inaccurate shape guesses it is advantageous to measure the uncertainty in each candidate shape and use that uncertainty as a weighting to bias the merging process. The formulation used in this work relies on two face-wise uncertainty terms. First, a face should have high uncertainty if very little light would have reflected off that face to contribute to the light curve. Second, that face should also have high uncertainty if its reflected light has highly contaminated by background noise. As a result, the only faces of an estimated shape with low uncertainty should be those that reflect a large \textit{quantity} of light, increasing the observability of that face, while being uncontaminated by the background to yield a high \textit{quality} signal. These uncertainty terms are computed by first scaling the columns of the reflection matrix defined in Eq \ref{eq:reflection_matrix} by the area of each respective face $a_j$:
 
@@ -451,7 +451,7 @@ Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncert
 
 Figure \ref{fig:face_uncertainties} conveys that $u_{qual}$ and $u_{quant}$ convey independent information about each face depending on the measured light curve and its noise --- higher data quantity does not necessarily imply higher quality.
 
-\subsubsection{Spherical Nearest Neighbor Weights} \label{sec:nearest_sphere}
+\subsection{Spherical Nearest Neighbor Weights} \label{sec:nearest_sphere}
 
 One final challenge remains: translating the uncertainties of the faces of an object to a weighting function that can be applied throughout $\mathbb{R}^3$ to weight the SDF. Simply projecting points onto the unit sphere and performing nearest-neighbor interpolation accomplishes this task well. For a set of reference points $\vctr{r}_{i}$ each with a weight $w_i$, the weight index $i_q$ of query point $\vctr{r}_q \in \mathbb{R}^3$ is the solution to:
 
@@ -476,7 +476,7 @@ The final spherical weighting $w(\vctr{r}_q)$ applied to each object at a given 
 
 where $\hat{I}_{meas}$ is the measured normalized light curve produced by Eq \ref{eq:ihat_meas} and $\hat{I}_{obj}$ is the normalized light curve produced by the shape estimate under the same observation conditions.
 
-\subsubsection{Full Noisy Inversion Procedure} \label{sec:mh_inversion}
+\subsection{Full Noisy Inversion Procedure} \label{sec:mh_inversion}
 
 Given $n$ noisy light curves from an object of unknown shape, the procedure determining a single best estimate of the object's true shape has three stages. 
 
