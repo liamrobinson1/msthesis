@@ -22,7 +22,6 @@ The proposed resampling and merging steps in the object reconstruction process p
   \label{fig:egi_reconstructions}
 \end{figure}
 
-\clearpage
 
 \subsection{Convex Inversion Noise Dependence}
 
@@ -38,9 +37,9 @@ The effect of the noise model on the inversion process is most clearly seen when
 Figure \ref{fig:noisy_convex_inversions} illustrates the degradation in the convex shape estimate as the SNR falls. A few important conclusions can be drawn from this result. First, the errors in the estimates with high SNRs cluster in the corners of the geometry; the first sign of noise adversely effecting inversion results is the existence of small spurious faces between the true faces. This further motivates the existence of the resampling and merging steps of the inversion as they encourage more accurate normal vector locations than a simple coarse initial sampling. Despite these new stages, a low enough SNR will still degrade the shape estimate. Second, it is interesting to notice that the boundary between the mostly-correct shape estimates for a width of $0.05$ meters and the highly noise-corrupted estimates at a width of $0.04$ meters coincides with SNRs slightly above the detection limit of the CCD at $SNR\approx 4$. This makes intuitive sense, as detecting the object in the image and attributing a photon count to its signal are similar processes --- failure to detect the object implies a failure to quantify its signal.
 
 \clearpage
-\section{Convex Shape Inversion Without Noise}
+\section{Inversion of Convex Shapes Without Noise}
 
-Four representative shapes were selected for the convex inversion results presented in this work. The cube and icosahedron are regular shapes with a low and medium level of detail respectively, testing the inversion's ability to recover accurate flat facet areas and normal vectors. The cylinder tests how the inversion process responds to smooth surfaces, while the gem is both asymmetric about one of its body axes and has a high level of detail. Performing single-shot shape inversions of these geometries using the conditions in Table \ref{tb:cvx_props} yields Figure \ref{fig:res_convex_no_noise}. These inversions were performed with a merge angle $\theta_\mathrm{merge} = \pi / 8$ and $2000$ normal vector candidates for the initial EGI optimization. Nonconvex inversions were performed on top of the convex guess with the line search detailed in Algorithm \ref{alg:concavity_iter} with $3$ iterations of linear subdivision and the vertex selection tolerance $\varepsilon = 0.5$ as needed by Eq \ref{eq:root_free}. The nonconvex guess with the lowest light curve error is plotted.
+Four representative shapes were selected for the convex inversion results presented in this work. The cube and icosahedron are regular shapes with a low and medium level of detail respectively, testing the inversion's ability to recover accurate flat facet areas and normal vectors. The cylinder tests how the inversion process responds to smooth surfaces, while the gem is both asymmetric about one of its body axes and has a high level of detail. Performing single-shot shape inversions of these geometries using the conditions in Table \ref{tb:cvx_props} yields Figure \ref{fig:res_convex_no_noise}. These inversions were performed with a merge angle $\theta_\mathrm{merge} = \pi / 8$ and $2000$ normal vector candidates for the initial EGI optimization. Nonconvex inversions were performed on top of the convex guess with the line search detailed in Algorithm \ref{alg:concavity_iter} with $3$ iterations of linear subdivision and the vertex selection tolerance $\varepsilon = 0.5 \: [rad]$ as needed by Eq \ref{eq:root_free}. The nonconvex guess with the lowest light curve error is plotted.
 
 \begin{table}[]
   \centering
@@ -79,9 +78,9 @@ Four representative shapes were selected for the convex inversion results presen
 Figure \ref{fig:res_convex_no_noise} displays convex and nonconvex inversion results for convex truth objects without noise in the light curve. All shapes are reconstructed faithfully, and the concavities introduced in the nonconvex estimates are small, indicating that the concavity optimization correctly identified that there is no self-shadowing taking place in the observations. The normal vector angle merge tolerance $\theta_\mathrm{merge}$ causes the faces of the cylinder to be truncated, although the resulting geometry is still recognizable as a cylinder. Smooth surfaces can also be reintroduced into the final geometry by adding iterations of Loop subdivision in place of an equal number of linear subdivision passes. This discretization loss is also apparent in the upper facets of the gem where some detail is lost. 
 
 \clearpage
-\section{Nonconvex Shape Inversion Without Noise}
+\section{Inversion of Nonconvex Shapes Without Noise}
 
-Figure \ref{fig:res_nonconvex_no_noise} displays shape inversions for nonconvex objects with a variety of concavity geometries. 
+Figure \ref{fig:res_nonconvex_no_noise} displays shape inversions for nonconvex objects with a variety of concavity geometries under the same attitude profile, BRDF, and observation geometry of listed in Table \ref{tb:cvx_props}.
 
 \begin{figure}[!htb]
   \centering
@@ -90,8 +89,12 @@ Figure \ref{fig:res_nonconvex_no_noise} displays shape inversions for nonconvex 
   \label{fig:res_nonconvex_no_noise}
 \end{figure}
 
+The reconstructed convex objects in Figure \ref{fig:res_nonconvex_no_noise} display the behavior of the standard inversion pipeline when self-shadowing occurs in the light curve. The optimized EGIs for these objects are quite similar to the true EGI of the nonconvex object, but each face area above the horizon of the concavity is too small in the shape guess. This is because the constrained least squares solution attempts to minimize the error between all measurements involving a face, including those where that face is self-shadowed. As a result, the optimal face area that minimizes the residual brightness is necessarily smaller than the true area as NNLS cannot simulate the self-shadowing analytically. 
+
+The nonconvex guesses for each object introduce a small concavity in the direction of the EGI error vector --- the approximate direction of the concavity in the body frame --- but the magnitude of these concavities is too small. The converged line search detailed in Algorithm \ref{alg:concavity_iter} finds that the concavity angle $\psi_{opt}$ that minimizes the light curve error is quite close to the convex guess. This is another artifact of the NNLS EGI optimization. The optimal EGI is effected globally by the presence of self-shadowing in one area, leading to a shape which is in some sense at a local minimum of brightness error with respect to any small part of its geometry --- no small tweaks to its geometry are likely to improve the error. As a result, introducing a large concavity which is closer to the truth may reduce the error in some measurements where self-shadowing is occuring, but ruins other measurements where it is not. As a result, the convex guesses have lower light curve error in all cases, even though a small concavity was introduced in the correct direction.
+
 \clearpage
-\section{Convex Shape Inversion With Noise}
+\section{Inversion of Convex Shapes With Noise}
 
 \begin{figure}[!htb]
   \centering
@@ -100,10 +103,10 @@ Figure \ref{fig:res_nonconvex_no_noise} displays shape inversions for nonconvex 
   \label{fig:res_convex_with_noise}
 \end{figure}
 
-TODO: this
+With the addition of noise, 
 
 \clearpage
-\section{Nonconvex Shape Inversion With Noise}
+\section{Inversion of Nonconvex Shapes With Noise}
 
 \begin{figure}[!htb]
   \centering
