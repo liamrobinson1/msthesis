@@ -1,0 +1,21 @@
+\ProvidesFile{ch-conclusion.tex}[Conclusion]
+
+\chapter{Conclusion}
+
+This work presents improved methods for light curve simulation and direct shape inversion. A light curve simulation framework was developed that efficiently accounts for self-shadowing, non-uniform reflections, as well as sensor and environmental noise to produce light curves that model far more of the physics of a real observation than in any one piece of prior literature. These realistic noisy light curves were used to validate alterations to the direct convex inversion procedure with the addition of resampling and merging stages. These stages promote sparsity in the final object and dramatically speed up the support optimization process. 
+
+A new method for non-convex shape inversion was developed that leverages the optimized EGI to determine the location and magnitude of any large unilateral concavities. This procedure was shown to work well for some nonconvex objects, but tends to underestimate the size of the real concavities. That said, it is conservative enough to be applied on the end of the standard convex inversion process without the worry of introducing spurious concavities where they do not belong.
+
+A new method for combining multiple shape estimates was developed that estimates the uncertainty in each face of the estimated geometry. These uncertainty weights are used to produce a weighted combination of the 
+
+\chapter{Recommendations}
+
+TODO
+
+\chapter{Future Work}
+
+The next step with this work would be to extensively validate the CCD performance model against real observations taken by the Purdue Optical Ground Station. This would involve quantifying the sensor noise sources through zero second exposures and closed shutter exposures to isolate the effects of the dark noise and readout noise. Next, the background model would be fit to an array of observations at different times of the night, zenith angles, and lunar phases. Once both the background and sensor effects are well calibrated, the overall CCD model can be tested against the observed signal counts and light curve SNR of known objects.
+
+More work must also be done to perform light curve inversion on actively-controlled box-wing satellites. This would involve a simple adaptation of the EGI inversion method where some normal vectors are allowed to move in the body frame, enabling solar panels to track the Sun. Such a parametric approach could be used to check whether the light curve of an unknown object --- in an unknown attitude profile --- fits the expected light curve of a box-wing satellite with Sun tracking solar panels. 
+
+Finally, investigating shape inversion with multispectral measurements may open new avenues for simultaneously estimating attitude or material properties in addition to a convex shape. This might be accomplished operationally by switching filters between images, or by using a dedicated multispectral sensor. In either case, adding a second axis to the available data would enable far more robust characterization of space objects with fewer assumptions.

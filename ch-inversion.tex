@@ -4,19 +4,19 @@
 
 \subsection{Direct Convex Shape Inversion}
 
-Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to optimize normal vectors and areas to match the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis, kaasalainen2000, kaas2001shape, cabrera2021}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}. The full convex inversion process is outlined:
+Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to optimize normal vectors and areas to match the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis, kaasalainen2000, kaas2001shape, cabrera2021}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}. The full convex inversion process presented in this work is outlined:
 
 \begin{outline}[enumerate]
   \1 Area and normal vector optimization
     \2 Initial normal vector sampling
     \2 Initial face area optimization
-    \2 Normal vector resampling TODO: should I note which steps are new contributions?
+    \2 Normal vector resampling
     \2 Face area reoptimization
     \2 Face merging
   \1 Object reconstruction
     \2 Face support optimization
     \2 Dual transform yielding final vertex locations
-    \2 Convex hull yielding final face adjacecies
+    \2 Convex hull yielding final face adjacency relationships
 \end{outline}
 
 \subsubsection{The Extended Gaussian Image} \label{sec:egi_definition}
@@ -89,7 +89,7 @@ The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation
 
 Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, the gradient of the light curve error with respect to that normal vector of the EGI is zero, and that face's area cannot be recovered. For a given set of candidate normal vectors, the ability to recover a reliable solution from the area optimization problem is known as its observability. As studied by Friedman, the EGI optimization is observable if the Gramian matrix --- $G^T G$ in this case --- is full rank \cite{friedman2020}.
 
-This conclusion follows from an unconstrained least squares estimation of the EGI, and is generally equivalent to the statement that the areas of $n$ normal vectors can be estimated if $m>=n$ measurements are taken with at least one nonzero entry in each column of the reflection matrix $G$. As noted by Cabrera et al.\, the nonnegative constraint placed on the face areas $a_j$ mean that the constrained EGI optimization is often estimatable even when the unconstrained form is unobservable \cite{cabrera2021}. As a result, the unconstrained least squares observability condition in is a very conservative lower bound, but is still useful for quantifying the shape information content of the light curve through the rank of $G^T G$. All inversions results presented in this work are performed with observable measurement geometry. 
+This conclusion follows from an unconstrained least squares estimation of the EGI, and is generally equivalent to the statement that the areas of $n$ normal vectors can be estimated if $m>=n$ measurements are taken with at least one nonzero entry in each column of the reflection matrix $G$. As noted by Cabrera et al.\, the nonnegative constraint placed on the face areas $a_j$ mean that the constrained EGI optimization is often estimatable even when the unconstrained form is unobservable \cite{cabrera2021}. As a result, the unconstrained least squares observability condition is a very conservative lower bound, but is still useful for quantifying the shape information content of the light curve through the rank of $G^T G$. All inversions results presented in this work are performed with observable measurement geometry. 
 
 \subsubsection{EGI Resampling}
 
@@ -195,7 +195,7 @@ This work adopts the same objective function proposed by Little for the support 
   & \textrm{such that } \frac{1}{3}\left(\vec{h} \cdot \vec{a} \right) = 1
 \end{align*} 
 
-Notice that there is a difference between $ \| \vec{E} \| $, the areas of the faces on the desired polytope, and $\vec{a}$, the areas of the polytope recovered by constructing a convex object with the dual transform using Eqs \ref{eq:dual_egi_form} and \ref{eq:vertex_recovery}. This means that a convex object must be fully constructed at each step of the optimization to compute the objective function value. This optimization is highly nonlinear, as adjusting the support of one face may dramatically change the both the areas of surrounding faces as well as the volume of the resulting polytope. Due to the convexity of the problem, an initial guess of $\vec{h} = \mathbf{1}$ is sufficient.
+Notice that there is a difference between $ \| \vec{E} \| $, the areas of the faces on the desired polytope, and $\vec{a}$, the areas of the polytope recovered by constructing a convex object with the dual transform using Eqs \ref{eq:dual_egi_form} and \ref{eq:vertex_recovery}. This means that a convex object must be fully constructed at each step of the optimization to compute the objective function value. This optimization is highly nonlinear, as adjusting the support of one face may dramatically change both the areas of surrounding faces as well as the volume of the resulting polytope. Due to the convexity of the problem, an initial guess of $\vec{h} = \mathbf{1}$ is sufficient.
 
 Depending on the optimizer, additional function evaluations will be needed to evaluate support gradient as well as the Jacobian of the constraints. Many optimizers struggle with this optimization problem, either due to an inability to meet the constraint or instability that leads to unbounded supports. Little implemented a constrained gradient descent scheme from scratch, showing good results for reconstructing simple objects \cite{little1983}. Gardner solved an equivalent optimization problem using an unspecified solver in MATLAB \cite{gardner2003}. In this work, trust-region methods \cite{conn2000} were found to be robust at solving this optimization.
 
@@ -213,7 +213,7 @@ The mean axis of prominent concave features is determined by measuring the diver
   \vec{e}_{EGI} = -\sum_{i=1}^{m} a_i \hat{n}_i.
 \end{equation}
 
-The EGI closure error vector in Eq \ref{eq:closure_error} represents the missing area on each body axis that could be added to close the object. The addition of the minus sign transforms the vector from expressing the presence of excess area to the absence of missing area. The closure error will be negligible if there are no concavities present. The closure error may also be negligible if there is no self-shadowing is present over the sampled attitude profile, therefore the closure error merely quantifies the self-shadowing present in the measurements, not whether there may be self-shadowing in other orientations.
+The EGI closure error vector in Eq \ref{eq:closure_error} represents the missing area on each body axis that could be added to close the object. The addition of the minus sign transforms the vector from expressing the presence of excess area to the absence of missing area. The closure error will be negligible if there are no concavities present. The closure error may also be negligible if there is no self-shadowing present over the sampled attitude profile, therefore the closure error merely quantifies the self-shadowing present in the measurements, not whether there may be self-shadowing in other orientations.
 
 Under the strong assumption that the concavities present are major and unilateral, this EGI error vector points along the mean axis of the concavity. This is because self-shadowing in that region causes brightness measurements to be smaller than expected for the true area present, leading to an optimized EGI that attributes less area to that section of the object. As a result, summing the EGI entries produces a vector that points away from the concavity, requiring the negation seen in Eq \ref{eq:closure_error} to point towards it.
 
@@ -342,7 +342,7 @@ Computing the SDF of a triangulated mesh breaks down into computing distances fr
   \label{fig:sdf_slice}
 \end{figure}
 
-Interpolating three-dimensional meshes using signed distance fields is not a novel concept of this work. Cohen-Or et al.\ used distance fields with anchor points to find warping functions between two geometries \cite{cohen_or1998}. A simple interpolation strategy between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
+Interpolating three-dimensional meshes using signed distance fields is not a novel concept proposed by this work. Cohen-Or et al.\ used distance fields with anchor points to find warping functions between two geometries \cite{cohen_or1998}. A simple interpolation strategy between two shapes can be accomplished through a weighted average of the respective SDFs. If both objects are weighted at $50\%$, the weighted sum of their SDFs produces a surface that lies halfway in between the two original shapes, measured perpendicular to the input objects' surfaces. This interpolated zero level set surface can be extracted through any three-dimensional isocontouring algorithm such as marching cubes \cite{lorensen1987} or flying edges \cite{schroeder2015}. For example, interpolating between a torus and an icosahedron using this method yields Figure \ref{fig:interpolating_torus_ico}. 
 
 \begin{figure}[!htb]
   \centering
@@ -416,7 +416,7 @@ yielding a weighting for the data quality attributed to each face of the convex 
   u_{qual,j} = \frac{\delta \hat{I}_{tot,j} - \min_{j}{\delta \hat{I}_{tot,j}}}{\max_{j}{\delta \hat{I}_{tot,j}} - \min_{j}{\delta \hat{I}_{tot,j}}}.
 \end{equation}
 
-Eq \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Eq \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, noisier measurements with higher variance will produce a larger residual $\delta \hat{I}_{tot,j}$ regardless of the signal magnitude. 
+Eq \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Eq \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, higher environmental noise will produce a larger residual $\delta \hat{I}_{tot,j}$ at a given signal magnitude. As a result, the term $u_{quant,j}$ can be seen as accounting for the variance of the object signal --- which becomes less impactful as the object signal grows --- while the term $u_{qual,j}$ acocunts for the variance of the environmental noise --- which acts to degrade the light curve signal regardless of the object signal magnitude.
 
 These two uncertainty weightings are combined at each face for a global uncertainty estimate:
 
@@ -424,7 +424,7 @@ These two uncertainty weightings are combined at each face for a global uncertai
   u_{j} = \frac{u_{qual,j}}{2} + \frac{u_{quant,j}}{2}.
 \end{equation}
 
-Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. This method conservatively discounts low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
+Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. A face with the lowest quality and quantity will be assigned $u_{j} = 1$ while simply having bad quality or quantity alone yields $u_j = 0.5$, thereby discounting low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
 
 \begin{figure}
   \centering
@@ -451,24 +451,32 @@ Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncert
 
 Figure \ref{fig:face_uncertainties} conveys that $u_{qual}$ and $u_{quant}$ convey independent information about each face depending on the measured light curve and its noise --- higher data quantity does not necessarily imply higher quality.
 
-\subsubsection{Spherical Nearest Neighbor Weights}
+\subsubsection{Spherical Nearest Neighbor Weights} \label{sec:nearest_sphere}
 
-One final challenge remains: translating the uncertainties of the faces of an object to a weighting function that can be applied throughout $\mathbb{R}^3$ to weight the SDF. Simply projecting points onto the unit sphere and performing nearest-neighbor interpolation accomplishes this task well. For a set of reference points $\vctr{r}_{i}$ each with a weight $w_i$, the weight $w_q$ of query point $\vctr{r}_q \in \mathbb{R}^3$ is the solution to:
+One final challenge remains: translating the uncertainties of the faces of an object to a weighting function that can be applied throughout $\mathbb{R}^3$ to weight the SDF. Simply projecting points onto the unit sphere and performing nearest-neighbor interpolation accomplishes this task well. For a set of reference points $\vctr{r}_{i}$ each with a weight $w_i$, the weight index $i_q$ of query point $\vctr{r}_q \in \mathbb{R}^3$ is the solution to:
 
 \begin{equation}
-  w_q = \min_{i}\left( \| \vctr{r}_q - \vctr{r}_i \| \right).
+  i_{q} = \min_{i}\left( \| \vctr{r}_q - \vctr{r}_i \| \right).
 \end{equation}
 
-In practice, this optimization problem is solved with a Balltree, a spatial search data structure designed to efficiently find nearest neighbors in $n$-dimensional space bounded by the $n-1$-dimensional sphere \cite{omohundro1989}. The results of this nearest neighbor interpolation for a number of query points is shown in Figure \ref{fig:ball_tree_nn_interp}.
+In practice, this is solved with a Balltree, a spatial search data structure designed to efficiently find nearest neighbors in $n$-dimensional space bounded by the $n-1$-dimensional sphere \cite{omohundro1989}. The result of this nearest neighbor interpolation for a number of query points is shown in Figure \ref{fig:ball_tree_nn_interp}.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_spherical_voronoi_interp_001.png}
-  \caption{Nearest neighbor interpolation between reference poitns (red) with uniformly distributed weights on $[0,1]$.}
+  \caption{Nearest neighbor interpolation between reference points (red) with uniformly distributed weights on $[0,1]$.}
   \label{fig:ball_tree_nn_interp}
 \end{figure}
 
-\subsubsection{Full Noisy Inversion Procedure}
+The final spherical weighting $w(\vctr{r}_q)$ applied to each object at a given query point location $\vctr{r}_q \in \mathbb{R}^3$ is the certainty of the nearest face $1-u_j(\vctr{r}_q)$ scaled by the light curve error of that object:
+
+\begin{equation}
+  w(\vctr{r}_q) = \left( 1-u_j(\vctr{r}_q) \right) \left( \hat{I}_{meas} - \hat{I}_{obj} \right),
+\end{equation}
+
+where $\hat{I}_{meas}$ is the measured normalized light curve produced by Eq \ref{eq:ihat_meas} and $\hat{I}_{obj}$ is the normalized light curve produced by the shape estimate under the same observation conditions.
+
+\subsubsection{Full Noisy Inversion Procedure} \label{sec:mh_inversion}
 
 Given $n$ noisy light curves from an object of unknown shape, the procedure determining a single best estimate of the object's true shape has three stages. 
 
@@ -476,7 +484,7 @@ Given $n$ noisy light curves from an object of unknown shape, the procedure dete
   \item Convex shape guesses are computed for each noisy light curve.
   \item Each shape is checked for potential nonconvex features by introducing singular concavities in the direction of the EGI error vector following Algorithm \ref{alg:concavity_iter}. Each nonconvex guess along with the convex guess is simulated in the same observation conditions to compute an error with respect to to the original light curve. The guess --- convex or nonconvex --- with the lowest error is selected moving forward.
   \item Now with $n$ convex or nonconvex shape estimates, one for each original light curve, the uncertainty in each face of each object is computed with Eq \ref{eq:u_total}.
-  \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$.
+  \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$ via Eq \ref{eq:merge_weighting}.
   \item The objects are merged together via their weights using the SDF procedure outlined by Algorithm \ref{alg:sdf_interp}, yielding a final shape estimate.
 \end{enumerate}
 

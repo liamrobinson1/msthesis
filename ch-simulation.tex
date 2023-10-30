@@ -450,7 +450,7 @@ In computer graphics, a camera is defined by its position $R_{cam}$, target $T_{
   \label{fig:ortho_perspective_cameras}
 \end{figure}
 
-While the perspective projection is shown in Figure \ref{fig:ortho_perspective_cameras}, only orthographic projection is relevant for future simulation tasks as both the observer and sun are assumed to be very far from the object. In the limit, the true perspective nature of the camera behaves as an orthographic projection as negligible foreshortening occurs for objects as they retreat from the camera. 
+While the perspective projection is shown in Figure \ref{fig:ortho_perspective_cameras}, only orthographic projection is relevant for future simulation tasks as both the observer and Sun are assumed to be very far from the object. In the limit, the true perspective nature of the camera behaves as an orthographic projection as negligible foreshortening occurs for objects as they retreat from the camera. 
 
 \subsubsection{Transformations} \label{sec:graphics_trans}
 
@@ -830,7 +830,7 @@ counterclockwise direction. Often, this reference axis and direction may be chan
 reference frame being used. For example, ground station observations may be referenced to local
 North ---  the second axis of the ENU system ---  proceeding clockwise. This would require the
 substitution $Az' = \frac{\pi}{2} - Az$. Notice that this substitution leads to $Az'$ leaking
-outside the domain of $[0, 2\pi)$. This is not an issue for later coordinate transformations, but
+outside the domain of $[0, 2\pi)$. This is not an issue for later coordinate transformations but
 may be undesirable for plots. Wrapping the result back to the standard azimuth range via
 $Az_{wrapped} = \textrm{mod}(Az, 2\pi)$ is a sufficient fix.
 
@@ -840,7 +840,7 @@ With these transformations, any topocentric observation directions in RA/Dec or 
 
 \subsection{Planetary Ephemerides} \label{sec:planet_ephem}
 
-The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
+The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and Moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{Moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
 
 \section{The Charge Coupled Device (CCD)} \label{sec:ccd_performance}
 
@@ -906,7 +906,7 @@ The full Gaussian approximation at an angular distance $\theta$ from the source 
   C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
 \end{equation}
 
-In pratice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
+In practice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
 
 \begin{equation} \label{eq:pix_values_gauss}
   C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_{Gauss}(\theta(x, y))} \: dy \: dy.
@@ -1271,7 +1271,7 @@ Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^
   F_{mt} = f(\theta) \left[ F_{rs}(\lambda) + F_{ms}(\lambda) \right].
 \end{equation}
 
-in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness is reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
+in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
 
 \begin{equation} \label{eq:krag_f_corr}
   f_{corr} = \frac{I_s}{SUN(550 \: \left[\textrm{nm}\right])}.
@@ -1349,7 +1349,7 @@ Accurately simulating light curves requires realistic constraints on the observi
 
 \subsubsection{Earth Penumbra}
 
-The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ computed following Section \ref{sec:planet_ephem} and object in J2000, the local irradiance fraction a function of the angles \cite{krag2003}:
+The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ computed following Section \ref{sec:planet_ephem} and object in J2000, the local irradiance fraction is expressed \cite{krag2003}:
 
 \begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
   \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_{obj} \\
@@ -1490,7 +1490,7 @@ or to apparent magnitude by applying Eq \ref{eq:mag_to_irradiance}:
 
 or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
 
-\begin{equation}
+\begin{equation} \label{eq:ihat_meas}
   \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_s} I_{obj,meas}.
 \end{equation}
 
@@ -1556,7 +1556,7 @@ Figure \ref{fig:case1_lc} has a few important features to recognize. Some sectio
 
 \subsection{Accurate Satellite Models}
 
-To produce accurate light curves for real space objects, 3D models files were collected and tuned for use with the light curve simulator. These models are shown in Figure \ref{fig:satellite_lineup}. Each model is correctly scaled, with accurate material properties applied to their faces. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
+To produce accurate light curves for real space objects, 3D model files were collected and tuned for use with the light curve simulator. These models are shown in Figure \ref{fig:satellite_lineup}. Each model is correctly scaled, with accurate material properties applied to their faces. Figure \ref{fig:satellite_lineup} highlights the size of the GEO communications satellites (TELSTAR, HYLAS, Hispasat, and ASTRA). In contrast, the LEO satellites (Starlink and Landsat) are dwarfed at the left end of the lineup.
 
 \begin{figure}[ht]
     \centering

@@ -14,7 +14,7 @@
 
 \subsection{Object Reconstruction Improvements}
 
-The proposed resampling and merging steps in the object reconstruction process produce sparser results, in less computation time, with fewer convergence issues. Figure \ref{fig:egi_reconstructions} shows object reconstructions with each available EGI. The resampled EGIs does not converge in the maximum number of iterations evaluations ($100$) due to the density of faces with nearby normal vectors, causing large linearization errors the gradient estimation that lead to inefficient optimizer steps. It is clear that the final merged EGI produces the most accurate reconstruction of the truth object.
+The proposed resampling and merging steps in the object reconstruction process produce sparser results, in less computation time, with fewer convergence issues. Figure \ref{fig:egi_reconstructions} shows object reconstructions with each available EGI. The resampled EGIs do not converge in the maximum number of iterations evaluations ($100$) due to the density of faces with nearby normal vectors, causing large linearization errors the gradient estimation that lead to inefficient optimizer steps. It is clear that the final merged EGI produces the most accurate reconstruction of the truth object.
 
 \begin{figure}[!htb]
   \centering
@@ -117,9 +117,22 @@ TODO: this
 
 \section{Multiple Hypothesis Inversion}
 
+\subsection{Case 1: Convex Truth}
+
+Figure \ref{fig:multi_hyp_candidates_cvx} shows 16 inversion candidates for a convex cylinder produced with independent noisy light curves. Some of the individual estimates are clearly quite far from the true geometry shown in black wireframe. These individual estimates are then merged into a single final shape guess using the procedure laid out in Section \ref{sec:mh_inversion}, producing the shape in Figure \ref{fig:multi_hyp_final_cvx}.
+
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=\textwidth]{sphx_glr_convex_inversion_with_uncertainty_001.png}
-    \caption{Multiple hypothesis candidates from 16 nights of noisy observations of a $1$-meter cylinder in the orbit of GOES 15. The object is simulated with inverted with a Phong BRDF using $C_d=0.5$, $C_s=0.5$, $n=10$. Nightly light curves are each $3$ hours long with data collected every $10$ seconds, beginning January 1, 2023, 05:00 UTC.}
-    \label{fig:multi_hyp_candidates}
+    \includegraphics[width=\textwidth]{sphx_glr_multi_hypothesis_inversion_001.png}
+    \caption{Multiple hypothesis candidates from 16 nights of noisy observations of a $1$-meter cylinder in the orbit of GOES 15. The object is simulated with inverted with a Phong BRDF using $C_d=0.5$, $C_s=0.5$, $n=5$. Nightly light curves are each $3$ hours long with data collected every $10$ seconds, beginning January 1, 2023, 05:00 UTC.}
+    \label{fig:multi_hyp_candidates_cvx}
 \end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{sphx_glr_multi_hypothesis_inversion_002.png}
+  \caption{Final shape guess merged from candidates in Figure \ref{fig:multi_hyp_candidates_cvx}}
+  \label{fig:multi_hyp_final_cvx}
+\end{figure}
+
+The final estimated geometry in Figure \ref{fig:multi_hyp_final_cvx} is closer to the truth when compared to some of the candidate objects, but is still imperfect. Notably, the sharp weight boundaries introduced by the spherical nearest neighbor interpolation scheme introduced in Section \ref{sec:nearest_sphere} produce small, sharp boundaries in the final geometry. This could be avoided by applying a smoothing factor to the interpolation at the boundaries. Additionally, the final result in Figure \ref{fig:multi_hyp_final_cvx} correctly rejects hypotheses with large geometric errors, weighting the more accurate objects more highly when constructing the final estimate.
