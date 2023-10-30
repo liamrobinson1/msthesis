@@ -4,13 +4,15 @@
 
 This work presents improved methods for light curve simulation and direct shape inversion. A light curve simulation framework was developed that efficiently accounts for self-shadowing, non-uniform reflections, as well as sensor and environmental noise to produce light curves that model far more of the physics of a real observation than in any one piece of prior literature. These realistic noisy light curves were used to validate alterations to the direct convex inversion procedure with the addition of resampling and merging stages. These stages promote sparsity in the final object and dramatically speed up the support optimization process. 
 
-A new method for non-convex shape inversion was developed that leverages the optimized EGI to determine the location and magnitude of any large unilateral concavities. This procedure was shown to work well for some nonconvex objects, but tends to underestimate the size of the real concavities. That said, it is conservative enough to be applied on the end of the standard convex inversion process without the worry of introducing spurious concavities where they do not belong.
+A new method for non-convex shape inversion was developed that leverages the optimized EGI to determine the location and magnitude of any large unilateral concavities. This procedure was shown to work well for some nonconvex objects but tends to underestimate the size of the real concavities. That said, it is conservative enough to be applied on the end of the standard convex inversion process without the worry of introducing spurious concavities where they do not belong.
 
-A new method for combining multiple shape estimates was developed that estimates the uncertainty in each face of the estimated geometry. These uncertainty weights are used to produce a weighted combination of the 
+A new method for combining multiple shape estimates was developed that estimates the uncertainty in each face of the estimated geometry. These uncertainty weights are used to produce a weighted combination of the candidates shapes, resulting in a shape that may be closer to the true geometry driving the measurements if the attitude profile and material properties are well-known. 
 
-\chapter{Recommendations}
+Due to the strong assumptions of a known attitude profile and material properties, many of these techniques are limited in their utility. Ideally, the inversion investigation presented in this work is a stepping stone towards a more robust method for simultaneously estimating attitude, shape, and material properties. Such an algorithm would likely require multispectral or hypertemporal observations to extract enough information to solve such a large inverse problem.
 
-TODO
+% \chapter{Recommendations}
+
+% If the attitude profile and attitude motion of a space object are known, 
 
 \chapter{Future Work}
 

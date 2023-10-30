@@ -36,7 +36,7 @@ The effect of the noise model on the inversion process is most clearly seen when
   \label{fig:noisy_convex_inversions}
 \end{figure}
 
-Figure \ref{fig:noisy_convex_inversions} illustrates the degradation in the convex shape estimate as the SNR falls. A few important conclusions can be drawn from this result. First, the errors in the estimates with high SNRs cluster in the corners of the geometry; the first sign of noise adversely effecting inversion results is the existence of small suprious faces between the true faces. This further motivates the existence of the resampling and merging steps of the inversion as they encourage more accurate normal vector locations than a simple coarse initial sampling. Despite these new stages, a low enough SNR will still degrade the shape estimate. Second, it is interesting to notice that the boundary between the mostly-correct shape estimates for a width of $0.05$ meters and the highly noise-corrupted estimates at a width of $0.04$ meters coincides with SNRs slightly above the detection limit of the CCD at $SNR\approx 4$. This makes intuitive sense, as detecting the object in the image and attributing a photon count to its signal are similar processes --- failure to detect the object implies a failure to quantify its signal.
+Figure \ref{fig:noisy_convex_inversions} illustrates the degradation in the convex shape estimate as the SNR falls. A few important conclusions can be drawn from this result. First, the errors in the estimates with high SNRs cluster in the corners of the geometry; the first sign of noise adversely effecting inversion results is the existence of small spurious faces between the true faces. This further motivates the existence of the resampling and merging steps of the inversion as they encourage more accurate normal vector locations than a simple coarse initial sampling. Despite these new stages, a low enough SNR will still degrade the shape estimate. Second, it is interesting to notice that the boundary between the mostly-correct shape estimates for a width of $0.05$ meters and the highly noise-corrupted estimates at a width of $0.04$ meters coincides with SNRs slightly above the detection limit of the CCD at $SNR\approx 4$. This makes intuitive sense, as detecting the object in the image and attributing a photon count to its signal are similar processes --- failure to detect the object implies a failure to quantify its signal.
 
 \clearpage
 \section{Convex Shape Inversion Without Noise}
@@ -124,15 +124,31 @@ Figure \ref{fig:multi_hyp_candidates_cvx} shows 16 inversion candidates for a co
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{sphx_glr_multi_hypothesis_inversion_001.png}
-    \caption{Multiple hypothesis candidates from 16 nights of noisy observations of a $1$-meter cylinder in the orbit of GOES 15. The object is simulated with inverted with a Phong BRDF using $C_d=0.5$, $C_s=0.5$, $n=5$. Nightly light curves are each $3$ hours long with data collected every $10$ seconds, beginning January 1, 2023, 05:00 UTC.}
+    \caption{Multiple hypothesis candidates from 16 nights of noisy observations of a $2$-meter cube in the orbit of GOES 15. The object is simulated with inverted with a Phong BRDF using $C_d=0.5$, $C_s=0.5$, $n=5$. Nightly light curves are each $3$ hours long with data collected every $10$ seconds, beginning January 1, 2023, 05:00 UTC.}
     \label{fig:multi_hyp_candidates_cvx}
 \end{figure}
 
 \begin{figure}[!htb]
   \centering
-  \includegraphics[width=\textwidth]{sphx_glr_multi_hypothesis_inversion_002.png}
+  \includegraphics[width=\figmed]{sphx_glr_multi_hypothesis_inversion_002.png}
   \caption{Final shape guess merged from candidates in Figure \ref{fig:multi_hyp_candidates_cvx}}
   \label{fig:multi_hyp_final_cvx}
 \end{figure}
 
 The final estimated geometry in Figure \ref{fig:multi_hyp_final_cvx} is closer to the truth when compared to some of the candidate objects, but is still imperfect. Notably, the sharp weight boundaries introduced by the spherical nearest neighbor interpolation scheme introduced in Section \ref{sec:nearest_sphere} produce small, sharp boundaries in the final geometry. This could be avoided by applying a smoothing factor to the interpolation at the boundaries. Additionally, the final result in Figure \ref{fig:multi_hyp_final_cvx} correctly rejects hypotheses with large geometric errors, weighting the more accurate objects more highly when constructing the final estimate.
+
+\subsection{Case 2: Non-Convex Truth}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\textwidth]{sphx_glr_multi_hypothesis_inversion_003.png}
+  \caption{Multiple hypothesis candidates from 16 nights of noisy observations of a $2$-meter collapsed cube in the orbit of GOES 15. The object is simulated with inverted with a Phong BRDF using $C_d=0.5$, $C_s=0.5$, $n=5$. Nightly light curves are each $3$ hours long with data collected every $10$ seconds, beginning January 1, 2023, 05:00 UTC.}
+  \label{fig:multi_hyp_candidates_ncvx}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\figmed]{sphx_glr_multi_hypothesis_inversion_004.png}
+\caption{Final shape guess merged from candidates in Figure \ref{fig:multi_hyp_candidates_cvx}}
+\label{fig:multi_hyp_final_ncvx}
+\end{figure}
