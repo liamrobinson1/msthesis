@@ -392,7 +392,13 @@ Computing $\hat{I}_{j}$ is useful as it represents the total quantity of signal 
   u_{quant,j} = 1 - \frac{\hat{I}_{j} - \min_{j}{\hat{I}_{j}}}{\max_{j}{\hat{I}_{j}} - \min_{j}{\hat{I}_{j}}}.
 \end{equation}
 
-Via Eq \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. As discussed, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the light curve error:
+Interpreting Eq \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_{lc}$ is:
+
+\begin{equation}
+  \lambda_{lc} = \sum_{i} C_{obj,meas,i},
+\end{equation}
+
+implying that as the sum of the signal magnitudes grow linearly, their standard deviation $\sqrt{\lambda_{lc}}$ grows sublinearly. As a result, a higher quantity of available data for a face will will always exponentially lower the SNR. That said, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the light curve error:
 
 \begin{equation}
   \mathrm{Var}\left(\delta \hat{I}\right) = \mathrm{Var}\left(Ga - \hat{I}_{meas}\right)
@@ -406,9 +412,11 @@ generally matches the true signal and noise variance. This means that scaling th
 
 yielding a weighting for the data quality attributed to each face of the convex guess:
 
-\begin{equation}
+\begin{equation} \label{eq:u_qual}
   u_{qual,j} = \frac{\delta \hat{I}_{tot,j} - \min_{j}{\delta \hat{I}_{tot,j}}}{\max_{j}{\delta \hat{I}_{tot,j}} - \min_{j}{\delta \hat{I}_{tot,j}}}.
 \end{equation}
+
+Eq \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Eq \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, noisier measurements with higher variance will produce a larger residual $\delta \hat{I}_{tot,j}$ regardless of the signal magnitude. 
 
 These two uncertainty weightings are combined at each face for a global uncertainty estimate:
 
