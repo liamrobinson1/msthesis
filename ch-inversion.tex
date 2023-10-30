@@ -154,7 +154,7 @@ At this stage, the resampled and merged EGI encodes a convex approximation of th
   \vec{E}_{\textrm{closed}} = \vec{E}_{\textrm{open}} - \sum_{i=1}^m a_i \hat{n}_i .
 \end{equation}
 
-The concept of a closure step is not a novel contribution. Fan's method solved an optimization problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is inproved with a simpler analytical correction. In practice this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
+The concept of a closure step is not a novel contribution. Fan's method solved an optimization problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is improved with a simpler analytical correction. In practice this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
 
 The unique convex object encoded by each closed EGI is reconstructed by solving for the polytope's set of vertices $\mathcal{V}$ and faces $\mathcal{F}$ encoding the adjacency relations between vertices. This is accomplished following the procedure introduced by Little through the dual transformation \cite{little1983}. The dual set $\mathcal{D}$ are vertices in $(A, B, C) \in \mathbb{R}^3$ that satisfy the following plane condition for a point $(x, y, z)$ on each face of the object:
 
