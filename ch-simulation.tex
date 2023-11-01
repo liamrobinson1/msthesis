@@ -128,9 +128,9 @@ In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
 Quaternion kinematic differential equations are chosen for simulating object attitude profiles as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\vctr{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:quat_kde}
-    \left[\begin{matrix}\dot{\epsilon_1}\\\dot{\epsilon_2}\\\dot{\epsilon_3}\\\dot{\epsilon_4}\\\end{matrix}\right]
+    \left[\begin{matrix}\dot{q_1}\\\dot{q_2}\\\dot{q_3}\\\dot{q_4}\\\end{matrix}\right]
     =
-    \frac{1}{2}\left[\begin{matrix}\epsilon_4&-\epsilon_3&\epsilon_2&\epsilon_1\\\epsilon_3&\epsilon_4&-\epsilon_1&\epsilon_2\\-\epsilon_2&\epsilon_1&\epsilon_4&\epsilon_3\\-\epsilon_1&-\epsilon_2&-\epsilon_3&\epsilon_4\\\end{matrix}\right]
+    \frac{1}{2}\left[\begin{matrix}q_4&-q_3&q_2&q_1\\q_3&q_4&-q_1&q_2\\-q_2&q_1&q_4&q_3\\-q_1&-q_2&-q_3&q_4\\\end{matrix}\right]
     \left[\begin{matrix}\omega_1\\\omega_2\\\omega_3\\0\\\end{matrix}\right].
 \end{equation} 
 
