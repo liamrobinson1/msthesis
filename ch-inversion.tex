@@ -108,7 +108,7 @@ Uniformly sampling a cone of half-angle $\phi$ is accomplished by strategically 
 In Eq \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\hat{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Eq \ref{eq:cone_sampling_rv} which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
 
 \begin{align*} \label{eq:cone_sampling_rv} \numberthis
-  \theta &= \cos^{-1}\left( \hat{n}_{cone,z} \right) \\
+  \theta &= 2 \cos^{-1}\left( \hat{n}_{cone,z} \right) \\
   \lambda &= \hat{n}_{cone} \times [0, 0, 1]^T
 \end{align*}
 

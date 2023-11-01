@@ -15,3 +15,8 @@
 *.bbl
 *.blg
 _minted*
+pres/imgs
+pres/bin
+pres/lib
+pres/include
+*.cfg

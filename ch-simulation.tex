@@ -142,9 +142,9 @@ Rigid body dynamics can be easily expressed in the body principal axes for an ob
     \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
     =
     \left[\begin{matrix}
-        \left(M_1+I_2\omega_2\omega_3-I_3\omega_2\omega_3\right) / J_1 \\
-        \left(M_2-I_1\omega_1\omega_3+I_3\omega_1\omega_3\right) / J_2 \\
-        \left(M_3+I_1\omega_1\omega_2-I_2\omega_1\omega_2\right) / J_3 \\
+        \left(M_1+J_2\omega_2\omega_3-J_3\omega_2\omega_3\right) / J_1 \\
+        \left(M_2-J_1\omega_1\omega_3+J_3\omega_1\omega_3\right) / J_2 \\
+        \left(M_3+J_1\omega_1\omega_2-J_2\omega_1\omega_2\right) / J_3 \\
     \end{matrix}\right].
 \end{equation}
 
@@ -201,7 +201,7 @@ At the microscopic scale, the surface of an object is composed of facets ---  sm
 This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_def}
-    f_r(\vctr{x}, L, O) = \frac{d\mathcal{R}\left(\vctr{x} \rightarrow O\right)}{d\mathcal{I}\left(L, \vctr{x}\right)}.
+    f_r(\vctr{x}, L, O) = \frac{d\mathcal{R}\left(\vctr{x}, O\right)}{d\mathcal{I}\left(L, \vctr{x}\right)}.
 \end{equation}
 
 In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L, O)$ and $f_r(L, O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this should feel natural. Explicitly, energy conservation is expressed with \cite{montes2012}:
@@ -213,7 +213,7 @@ In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object'
 Eq \ref{eq:brdf_energy_cons} states that for all possible illumination directions $L$, integrating all possible outgoing observer directions $O$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
 
 \begin{equation} \label{eq:brdf_reciprocity}
-  \forall L, O \in \mathbb{S}^2 : \:\: f_r(L, O) = f_r(O \rightarrow L).
+  \forall L, O \in \mathbb{S}^2 : \:\: f_r(L, O) = f_r(O, L).
 \end{equation}
 
 Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. Real-world materials are modeled with these BRDFs by fitting the free parameters of a given BRDF to measured reflectance data \cite{matusik2003}. If a BRDF can be fit to the data with low error, that reflection function can be considered to be a faithful model for the true physics. 
@@ -424,10 +424,10 @@ normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance f
 the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
 
 \begin{equation} \label{eq:lc_func_normalized}
-  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(L_j \rightarrow O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
+  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(L_j, O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
 \end{equation}
 
-In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(L_j \rightarrow O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
+In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(L_j, O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
   I_{j} = \frac{I_s \hat{I}_j}{r_j^2}.
@@ -1190,13 +1190,14 @@ Computing the mean CCD signal in ADU per pixel due to the twilight brightness pr
   \bar{S}_{twilight} = B_{twi,z} \cdot SINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
 \end{equation}
 
+The mean twilight signal on the local observer hemisphere is displayed in Figure \ref{fig:twilight_hemi}.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_background_signals_006.png}
   \caption{Mean twilight signal on the local observer hemisphere. The observer is in New Mexico, USA at
   \pogslla}
-  \label{fig:pollution_hemi}
+  \label{fig:twilight_hemi}
 \end{figure}
 
 \subsubsection{Integrated Starlight}

@@ -1,6 +1,6 @@
 .PHONY: all clean clean_after thesis open clc commit
 
-all: clc clean thesis clean_after open commit
+all: clc clean thesis open commit
 
 clc:
 	clear
@@ -10,6 +10,7 @@ thesis:
 	biber thesis
 	lualatex -shell-escape thesis
 	lualatex -shell-escape thesis
+	mv *.aux ./pres
 
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.idx *.lot *.lof *.fls *.fdb* *.bcf *.lol *.run.xml *.snm *.nav
