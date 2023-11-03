@@ -162,10 +162,10 @@ The unique convex object encoded by each closed EGI is reconstructed by solving 
   Ax + By + Cz + 1 = 0
 \end{equation}
 
-If $(x, y, z)$ are chosen to be the closest points in the object's planes to the origin, the dual set $\mathcal{D}$ can be expressed in terms of the EGI and a support vector $\vec{h} \in \mathbb{R}^{\|F\| \times 1}$, where the support vector is the vector of perpendicular distances of each face of the object to the origin. The dual is expressed in terms of the EGI and the supports as:
+If $(x, y, z)$ are chosen to be the closest points in the object's planes to the origin, the dual set $\mathcal{D}$ can be expressed in terms of the EGI and a support vector $\vec{h} \in \mathbb{R}^{\|F\| \times 1}$, where the support vector is the vector of perpendicular distances of each face of the object to the origin. The points of the dual $\mathcal{D}_i \in \mathbb{R}^3$ is expressed in terms of the EGI and the supports as:
 
 \begin{equation} \label{eq:dual_egi_form}
-  \mathcal{D} = \frac{\vec{E}}{ \| \vec{E} \| \vec{h}}.
+  \mathcal{D}_i = \frac{\vec{E}_i}{ \| \vec{E}_i \| \vec{h}_i}.
 \end{equation}
 
 The object's vertices $\vec{v}_{ref}$ are found by solving a linear system of equations for each face on the convex hull of dual set vertices. Triplets of vertices on the resulting faces are used to find a single real vertex by intersecting the three planes defining the dual set vertices.

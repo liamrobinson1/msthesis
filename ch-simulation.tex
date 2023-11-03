@@ -52,30 +52,28 @@ The orientation --- or attitude --- of a rigid body in three dimensions is impli
 
 \subsubsection{The Direction Cosine Matrix}
 
-The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the initial frame onto each basis vector of the final frame; the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$ \cite{shuster1993}:
+The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, expressing the three basis vectors of one frame in another. This amounts to projecting each basis vector in the first frame onto each basis vector of the seclnd frame --- the cosine of the angle between the compared vectors. It is notated with two capital letters, the rightmost indicating the reference frame of the input vectors and the leftmost indicating the transformed frame. Alternatively, the DCM is sometimes expressed as $C$ when the frames involved are arbitrary or do not need to be denoted. For example, the DCM $\dcm{bn}$ takes a vector $\vrf{n}{r}$ in the $\rf{n}$ frame to the $\rf{b}$ frame as $\vrf{b}{r}$ \cite{shuster1993}:
 
 \begin{equation}
     \vrf{b}{r} = \dcm{bn} \vrf{n}{r}.
 \end{equation}
 
-The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$ \cite{markley2016}. 
+The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$ \cite{shuster1993}. 
 
 \subsubsection{Principal Rotation Parameters}
 
 Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\hat{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\hat{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with \cite{shuster1993}:
 
-\begin{align*} \numberthis \labelAndRemember{eq:dcm_to_prp}
-    {
-    \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{1,1} + C_{2,2} + C_{3,3} - 1 \right] \right), \\
+\begin{align*} \numberthis \label{eq:dcm_to_prp}
+    \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{11} + C_{22} + C_{33} - 1 \right] \right), \\
     \hat{\lambda} &= \frac{1}{2\sin{\theta}} 
-    \begin{bmatrix} C_{2,3} - C_{3,2} \\ C_{3,1}-C_{1,3} \\ C_{1,2} - C_{2,1}\end{bmatrix},
-    }
+    \begin{bmatrix} C_{23} - C_{32} \\ C_{31}-C_{13} \\ C_{12} - C_{21}\end{bmatrix},
 \end{align*}
 
 where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward \cite{shuster1993}:
 
-\begin{equation} \labelAndRemember{eq:prp2dcm}
-    {C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2,}
+\begin{equation} \label{eq:prp2dcm}
+    C = I_3 + \sin\theta\matcp{\hat{\lambda}} + (1-\cos\theta)\matcp{\hat{\lambda}}^2,
 \end{equation}
 
 were $\matcp{v}$ is the matrix cross product operator, defined on $\vctr{v} \in \mathbb{R}^3$ as \cite{shuster1993}:
@@ -94,33 +92,21 @@ This operator is useful as it rephrases the cross product as matrix multiplicati
 
 The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by \cite{crassidis1ed}:
 
-\begin{equation} \labelAndRemember{eq:prp2quat}
-    {
-    \vctr{q} = \begin{bmatrix} \hat{\lambda} \sin\left( \theta \right) \\ \cos(\theta) \end{bmatrix}.
-    }
+\begin{equation} \label{eq:prp2quat}
+    \vctr{q} = \begin{bmatrix} \hat{\lambda} \sin\left( \frac{\theta}{2} \right) \\ \cos\left(\frac{\theta}{2}\right) \end{bmatrix}.
 \end{equation}
 
 The first three entries of the quaternion are often called the vector component, with the final entry being the scalar component. Some authors reorder the quaternion, placing the scalar term first. Often the entries of a single quaternion are referenced by index such that $\vctr{q} = \left[ q_1, q_2, q_3, q_4 \right]$. Similarly, the vector portion of the quaternion is referenced with $\vctr{q}_{1:3}$. The quaternion can be mapped back to the PRP \cite{crassidis1ed} via:
 
-\begin{align*} \numberthis \labelAndRemember{eq:quat2prp_theta} 
-    {
-    \theta &= \cos^{-1}\left(q_4 \right) \\
-    \lambda &= \frac{\vctr{q}_{1:3}}{\sin{\theta}}.
-    }
+\begin{align*} \numberthis \label{eq:quat2prp_theta} 
+    \theta &= 2 \cos^{-1}\left( q_4 \right) \\
+    \lambda &= \frac{\vctr{q}_{1:3}}{\sin{\frac{\theta}{2}}}.
 \end{align*}
 
-The quaternion maps to the DCM \cite{crassidis1ed} via :
+The quaternion maps to the DCM \cite{crassidis1ed} via:
 
-\begin{equation} \labelAndRemember{eq:quat2dcm}
-    {
-        C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]=\Xi\left(q\right)^T\Psi\left(q\right).
-    }
-\end{equation}
-
-In Eq \ref{eq:quat2dcm}, $\Psi$ is defined to be \cite{crassidis1ed}
-
-\begin{equation} \label{eq:quat_psi}
-    \Psi = \left[\begin{matrix}q_4&q_3&-q_2\\{-q}_3&q_4&q_1\\q_2&-q_1&q_4\\-q_1&-q_2&-q_3\\\end{matrix}\right].
+\begin{equation} \label{eq:quat2dcm}
+        C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]
 \end{equation}
 
 \subsection{Attitude Kinematics}
@@ -204,7 +190,7 @@ This discussion raises an important question; how should the macroscopic outcome
     f_r(\vctr{x}, L, O) = \frac{d\mathcal{R}\left(\vctr{x}, O\right)}{d\mathcal{I}\left(L, \vctr{x}\right)}.
 \end{equation}
 
-In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L, O)$ and $f_r(L, O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this should feel natural. Explicitly, energy conservation is expressed with \cite{montes2012}:
+In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L, O)$ and $f_r(L, O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
 
 \begin{equation} \label{eq:brdf_energy_cons}
   \forall L \in \mathbb{S}^2 : \:\: \int_{O \in \mathbb{S}^2} f_r(L, O) \: d\mathbb{S}^2 \leq 1.
@@ -929,7 +915,7 @@ Because the unresolved object signals are always superimposed on the background 
 Explicitly, the SNR can be expanded in terms of the signal means and variances, assuming that their respective probability density functions are independent \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:ccd_snr_expanded}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}}.
+  SNR = \frac{S_{obj}}{\sqrt{S_{obj} + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}.
 \end{equation}
 
 It should be noted that the SNR computed in Eq \ref{eq:ccd_snr_expanded} is idealized. In reality, the discrete sampling of each random variable in each object pixel --- as well as the Poisson sampling of the object signal --- results in a slightly different value. As the number of object pixels approaches infinity, the SNR computed from the image would approach the theoretical value. Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
@@ -1467,7 +1453,7 @@ In Eq \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coor
   C_{noise} = N_{background} + N_{dark} + N_{trunc} + N_{read}.
 \end{equation}
 
-In Eq \ref{eq:noise_signal_grid}, $N_{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_{dark})$, $N_{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_{read}$ is drawn from $\mathrm{Normal}(0, \sigma_{read}^2)$. 
+In Eq \ref{eq:noise_signal_grid}, $N_{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_{dark})$, $N_{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_{read}$ is drawn from $\mathrm{N}(0, \sigma_{read}^2)$. 
 
 Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_{obj}, y_{obj}\}$ is given by:
 
