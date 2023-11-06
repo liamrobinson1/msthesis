@@ -226,7 +226,7 @@ In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed vi
 
 \subsubsection{Blinn-Phong}
 
-The Blinn-Phong BRDF is similar to to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
 
 \begin{equation} \label{eq:brdf_blinn_phong}
   f_r(L, O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}

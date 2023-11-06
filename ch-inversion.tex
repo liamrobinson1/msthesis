@@ -482,7 +482,7 @@ Given $n$ noisy light curves from an object of unknown shape, the procedure dete
 
 \begin{enumerate}
   \item Convex shape guesses are computed for each noisy light curve.
-  \item Each shape is checked for potential nonconvex features by introducing singular concavities in the direction of the EGI error vector following Algorithm \ref{alg:concavity_iter}. Each nonconvex guess along with the convex guess is simulated in the same observation conditions to compute an error with respect to to the original light curve. The guess --- convex or nonconvex --- with the lowest error is selected moving forward.
+  \item Each shape is checked for potential nonconvex features by introducing singular concavities in the direction of the EGI error vector following Algorithm \ref{alg:concavity_iter}. Each nonconvex guess along with the convex guess is simulated in the same observation conditions to compute an error with respect to the original light curve. The guess --- convex or nonconvex --- with the lowest error is selected moving forward.
   \item Now with $n$ convex or nonconvex shape estimates, one for each original light curve, the uncertainty in each face of each object is computed with Eq \ref{eq:u_total}.
   \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$ via Eq \ref{eq:merge_weighting}.
   \item The objects are merged together via their weights using the SDF procedure outlined by Algorithm \ref{alg:sdf_interp}, yielding a final shape estimate.
