@@ -826,7 +826,7 @@ With these transformations, any topocentric observation directions in RA/Dec or 
 
 \subsection{Planetary Ephemerides} \label{sec:planet_ephem}
 
-The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and Moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_{Moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
+The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and Moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_\mathrm{Moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
 
 \section{The Charge Coupled Device (CCD)} \label{sec:ccd_performance}
 
@@ -1137,10 +1137,10 @@ $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith
   \label{fig:pollution_data}
 \end{figure}
 
-The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{poll,z}$ in MPSAS, linearly interpolated from the World Atlas dataset, is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via:
+The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{\mathrm{poll},z}$ in MPSAS, linearly interpolated from the World Atlas dataset, is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via:
  
 \begin{equation} \label{eq:pollution_adu}
-  \bar{S}_{pollution} = B_{poll,z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
+  \bar{S}_{pollution} = B_{\mathrm{poll},z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
 \end{equation}
 
 Note that Krag does not implement a specific light pollution model, but instead takes the dark sky site zenith brightness of $22$ MPSAS as input to an atmospherically scattered light model \cite{krag2003}. The formulation of the light pollution model in Eq \ref{eq:pollution_adu} is simply an adaptation of Krag's model with a variable zenith brightness driven by a light pollution dataset.
@@ -1246,7 +1246,7 @@ In Eq \ref{eq:starlight_adu}, $b_{is}$ is the integrated starlight brightness in
 
 \subsubsection{Scattered Moonlight}
 
-Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_{obs}$, the angle from the Moon to zenith $z_{moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
+Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_{obs}$, the angle from the Moon to zenith $z_\mathrm{Moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
 
 \begin{equation} \label{eq:mie_scattering_moon}
   F_{ms}(\lambda) = a_1 \left[ e^{-\left(\frac{\Psi}{\Psi_1}\right)} + a_2 e^{-\left(\frac{\pi - \Psi}{\Psi_2}\right)} \right] F_{rs}(\lambda).
@@ -1261,13 +1261,13 @@ Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^
 in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
 
 \begin{equation} \label{eq:krag_f_corr}
-  f_{corr} = \frac{I_s}{SUN(550 \: \left[\textrm{nm}\right])}.
+  f_{corr} = \frac{I_s}{\textrm{SUN}(550 \: \left[\textrm{nm}\right])}.
 \end{equation}
 
 With all these pieces, the mean scattered moonlight signal in ADU per pixel is \cite{krag2003}:
 
 \begin{equation} \label{eq:moonlight_adu}
-  \bar{S}_{moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_{corr}.
+  \bar{S}_\mathrm{Moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_{corr}.
 \end{equation}
 
 \begin{figure}[ht]
@@ -1280,10 +1280,10 @@ With all these pieces, the mean scattered moonlight signal in ADU per pixel is \
 
 \subsubsection{Zodiacal Light}
 
-Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via:
+Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light $B_\mathrm{zod}(\alpha, \delta)$ in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via:
 
 \begin{equation} \label{eq:zodiacal_adu}
-  \bar{S}_{zod} = \mathcal{Z} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot ZOD \cdot 10^{-4}.
+  \bar{S}_{zod} = \mathcal{Z} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot B_\mathrm{zod}(\alpha, \delta) \cdot 10^{-4}.
 \end{equation}
 
 As in the integrated starlight signal, the $10^{-4}$ factor reconciles the $S_{10}$ surface brightness with the 0th magnitude source in $\mathcal{Z}$. 
@@ -1307,7 +1307,7 @@ The background signals are only defined in terms of their means, as each signal 
 This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. The background sources modeled in this work are reasonably assumed to be independent as they each originate from distinct physical processes.
 
 \begin{equation} \label{eq:background_poisson}
-  \lambda_{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_{moon} + \bar{S}_{zod}
+  \lambda_{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_\mathrm{Moon} + \bar{S}_{zod}
 \end{equation}
 
 Drawing samples from the Poisson distribution defined by $\lambda_{background}$ computes the background of the CCD image. 
@@ -1341,7 +1341,7 @@ The Earth casts a conical shadow into space. Outside this shadow, the fraction o
 \begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
   \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_{obj} \\
   \epsilon_s &= \sin^{-1}\left( \frac{R_{Sun}}{\| \vctr{r}_{obj2Sun} \|} \right) \\
-  \epsilon_e &= \sin^{-1}\left( \frac{R_{Earth}(\phi_{obj})}{\| \vctr{r}_{obj} \|} \right) \\
+  \epsilon_e &= \sin^{-1}\left( \frac{R_\mathrm{Earth}(\phi_{obj})}{\| \vctr{r}_{obj} \|} \right) \\
   \epsilon &= \cos^{-1} \left( -\hat{r}_{obj2Sun} \cdot \hat{r}_{obj} \right) \\
   \epsilon_1 &= \frac{\epsilon^2 - \epsilon_e^2 + \epsilon_s^2}{2 \epsilon} \\
   \epsilon_2 &= \frac{\epsilon^2 + \epsilon_e^2 - \epsilon_s^2}{2 \epsilon}. \\
@@ -1403,13 +1403,13 @@ In Eq \ref{eq:snr_exclusion}, $\nu_{\mathrm{SNR}} = 1$ implies that the observat
 Focusing the irradiance of the Moon onto the sensor grid will seriously damage the CCD. For the Purdue Optical Ground Station, stray light from the Moon begins leaking into the optics around $30^\circ$ from the center of the Moon disk. This observation constraint is imposed for an arbitrary exclusion angle $\theta_{Moon,ex}$ via:
 
 \begin{equation} \label{eq:moon_exclusion}
-  \nu_{Moon} = \begin{cases}
-    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_{Moon} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)}{\| \vctr{r}_{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obj} - \vctr{r}_{obs} \|} \right) > \theta_{Moon,ex}\\
+  \nu_\mathrm{Moon} = \begin{cases}
+    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{Moon} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obj} - \vctr{r}_{obs} \|} \right) > \theta_{Moon,ex}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
 
-In Eq \ref{eq:moon_exclusion}, $\nu_{Moon} = 1$ implies that the observation is valid, with $\nu_{Moon} = 0$ implying that the observation is too close to the Moon. $\vctr{r}_{Moon}$ should be computed with SPICE following Section \ref{sec:planet_ephem}.
+In Eq \ref{eq:moon_exclusion}, $\nu_\mathrm{Moon} = 1$ implies that the observation is valid, with $\nu_\mathrm{Moon} = 0$ implying that the observation is too close to the Moon. $\vctr{r}_\mathrm{Moon}$ should be computed with SPICE following Section \ref{sec:planet_ephem}.
 
 \subsubsection{Minimum Elevation}
 
@@ -1418,7 +1418,7 @@ Due to the local topology at the observer location, an operator may assign a min
 
 \begin{equation} \label{eq:elevation_exclusion}
   \nu_{elevation} = \begin{cases}
-    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obs} \right)}{\| \vctr{r}_{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obs} \|} \right) > \theta_{elev,min}\\
+    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obs} \|} \right) > \theta_{elev,min}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
