@@ -17,11 +17,11 @@
     \State $(x, y) \in \mathbb{Z}^2$ \Comment{Integer pixel coordinates from the observer camera}
     \State $R_{pix,obs} \in \mathbb{R}^3$ \Comment{World coordinates of the pixel; provided by OpenGL}
     \State $\left[(x_{homo,Sun}, y_{homo,Sun}, ...\right] \gets MVP_{Sun} \left[ R_{pix,obs}, 1 \right]^T$
-    \State $x_{Sun} \gets \left(1 + p_{x, homo}\right) \frac{w_{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
-    \State $y_{Sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_{pix}}{2} $
+    \State $x_{Sun} \gets \left(1 + p_{x, homo}\right) \frac{w_\mathrm{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
+    \State $y_{Sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_\mathrm{pix}}{2} $
     \State $D_{Sun} \gets  d(x_{sun}, y_{sun})$ \Comment{Closest pixel depth to the Sun direction}
-    \State $D_{obs} \gets \left( L - O \right) \cdot L$ \Comment{Closest pixel depth in the Observer direction}
-    \If{$D_{obs} > D_{Sun}$}
+    \State $D_\mathrm{obs} \gets \left( L - O \right) \cdot L$ \Comment{Closest pixel depth in the Observer direction}
+    \If{$D_\mathrm{obs} > D_{Sun}$}
       \State $\delta_{ss} = 1$ \Comment{Pixel is self-shadowed}
     \Else 
       \State $\delta_{ss} = 0$ \Comment{Pixel may be illuminated}
@@ -90,11 +90,11 @@ The zodiacal light surface brightness in $S_10$ is a function of the latitude \t
     Secondary diameter         & $0.1724660 \: [m]$                              \\ \hline
     Sensor pixels               & $4096 \times 4096$                              \\ \hline
     Pixel size               & $9.009 \cdot 10^{-6} \: [m / \textrm{pix}]$                              \\ \hline
-    Pixel scale $s_{pix}$              & $0.72545 \: [arcsec]$                              \\ \hline
+    Pixel scale $s_\mathrm{pix}$              & $0.72545 \: [arcsec]$                              \\ \hline
     Field of view               & $0.824425^\circ \times 0.824425^\circ$                              \\ \hline
     Integration time $\Delta t$              & $10 \: [s]$                              \\ \hline
     Integration dark noise $\lambda_{dark}$ & $3 \: \left[ e^- / \mathrm{pix} / s\right]$ \\ \hline
-    Read noise variance $\sigma_{read}^2$ & $9 \: \left[ e^- \right]$ \\ \hline
+    Read noise variance $\sigma_\mathrm{read}^2$ & $9 \: \left[ e^- \right]$ \\ \hline
     CCD gain $g$ & $1$ \\ \hline
     \end{tabular}
     \caption{Purdue Optical Ground Station telescope parameters}

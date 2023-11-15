@@ -336,10 +336,10 @@ To develop this multiple hypothesis inversion procedure that works for both conv
   M_{\mathrm{interp}} = \sum_{i}{w_i M_i}.
 \end{equation}
 
-The algorithm presented in this work for weighted mesh averaging depends on signed distance fields (SDFs). The SDF implicitly represents a shape by associating each point $\vctr{x} \in \mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. As a result, the gradient of the SDF points directly away from the closest piece of the object's geometry. For a given SDF $f(\vctr{x})$, the surface of the object $\mathcal{S}_{obj}$ is given by all points $\vctr{x}$ that yield $f(\vctr{x}) = 0$:
+The algorithm presented in this work for weighted mesh averaging depends on signed distance fields (SDFs). The SDF implicitly represents a shape by associating each point $\vctr{x} \in \mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. As a result, the gradient of the SDF points directly away from the closest piece of the object's geometry. For a given SDF $f(\vctr{x})$, the surface of the object $\mathcal{S}_\mathrm{obj}$ is given by all points $\vctr{x}$ that yield $f(\vctr{x}) = 0$:
 
 \begin{equation} \label{eq:sdf_zero_level_set}
-  \mathcal{S}_{obj} = \left\{ \vctr{x} \in \mathbb{R}^3 \mid f(\vctr{x}) = 0 \right\}.
+  \mathcal{S}_\mathrm{obj} = \left\{ \vctr{x} \in \mathbb{R}^3 \mid f(\vctr{x}) = 0 \right\}.
 \end{equation}
 
 Computing the SDF of a triangulated mesh breaks down into computing distances from the points, line segments, and planes making up the mesh to the queried point \cite{baerentzen2002}. A slice of the SDF of a test model is displayed in Figure \ref{fig:sdf_slice}.
@@ -377,7 +377,7 @@ Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or nonconvex mesh
 The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by allowing the weights $w_i$ to be functions of the location in $\mathbb{R}^3$ of each SDF grid point:
 
 \begin{equation}
-  \mathrm{SDF}_{\mathrm{interp}}(x, y, z) = w_1(x, y, z) \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
+  \mathrm{SDF}_{\mathrm{interp}}(x, y, z) = w_1(x, y, z) \cdot \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
 \end{equation}
 
 To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \forall (x,y,z) \in \mathbb{R}^3$.
@@ -402,13 +402,13 @@ Computing $\hat{I}_{j}$ is useful as it represents the total quantity of signal 
   u_{quant,j} = 1 - \frac{\hat{I}_{j} - \min_{j}{\hat{I}_{j}}}{\max_{j}{\hat{I}_{j}} - \min_{j}{\hat{I}_{j}}}.
 \end{equation}
 
-Interpreting Eq \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_{lc}$ is:
+Interpreting Eq \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_\mathrm{lc}$ is:
 
 \begin{equation}
-  \lambda_{lc} = \sum_{i} C_{obj,meas,i},
+  \lambda_\mathrm{lc} = \sum_{i} C_{obj,meas,i},
 \end{equation}
 
-implying that as the sum of the signal magnitudes grow linearly, their standard deviation $\sqrt{\lambda_{lc}}$ grows sublinearly. As a result, a higher quantity of available data for a face will will always exponentially lower the SNR. That said, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the light curve error:
+implying that as the sum of the signal magnitudes grow linearly, their standard deviation $\sqrt{\lambda_\mathrm{lc}}$ grows sublinearly. As a result, a higher quantity of available data for a face will will always exponentially lower the SNR. That said, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the light curve error:
 
 \begin{equation}
   \mathrm{Var}\left(\delta \hat{I}\right) = \mathrm{Var}\left(Ga - \hat{I}_{meas}\right)
@@ -481,10 +481,10 @@ In practice, this is solved with a Balltree, a spatial search data structure des
 The final spherical weighting $w(\vctr{r}_q)$ applied to each object at a given query point location $\vctr{r}_q \in \mathbb{R}^3$ is the certainty of the nearest face $1-u_j(\vctr{r}_q)$ scaled by the light curve error of that object:
 
 \begin{equation} \label{eq:merge_weighting}
-  w(\vctr{r}_q) = \left( 1-u_j(\vctr{r}_q) \right) \left( \hat{I}_{meas} - \hat{I}_{obj} \right),
+  w(\vctr{r}_q) = \left( 1-u_j(\vctr{r}_q) \right) \left( \hat{I}_{meas} - \hat{I}_\mathrm{obj} \right),
 \end{equation}
 
-where $\hat{I}_{meas}$ is the measured normalized light curve produced by Eq \ref{eq:ihat_meas} and $\hat{I}_{obj}$ is the normalized light curve produced by the shape estimate under the same observation conditions.
+where $\hat{I}_{meas}$ is the measured normalized light curve produced by Eq \ref{eq:ihat_meas} and $\hat{I}_\mathrm{obj}$ is the normalized light curve produced by the shape estimate under the same observation conditions.
 
 \subsection{Full Noisy Inversion Procedure} \label{sec:mh_inversion}
 

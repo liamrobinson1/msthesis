@@ -413,13 +413,13 @@ the object and the solar constant to yield the noiseless received irradiance. Fo
   \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(L_j, O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
 \end{equation}
 
-In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(L_j, O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_{obs}$ to the object center of mass $\vctr{r}_{obj}$:
+In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(L_j, O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
   I_{j} = \frac{I_s \hat{I}_j}{r_j^2}.
 \end{equation}
 
-Note that using $r_j = \| \vctr{r}_{obj} - \vctr{r}_{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
+Note that using $r_j = \| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
 
 \subsection{Simulating Normalized Light Curves of Nonconvex Objects}
 
@@ -480,16 +480,16 @@ The view matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspecti
   \end{bmatrix}
 \end{align*}
 
-Together, these matrices form the so-called Model-View-Projection matrix which transforms directly from coordinates in the object body frame $r_{obj}$ to the image plane:
+Together, these matrices form the so-called Model-View-Projection matrix which transforms directly from coordinates in the object body frame $r_\mathrm{obj}$ to the image plane:
 
 \begin{equation} \label{eq:mvp}
   \begin{bmatrix} x_h \\ y_h \\ z_h \\w_h \end{bmatrix} = M V P \begin{bmatrix} r_{obj,x} \\ r_{obj,y} \\ r_{obj,z} \\ 1 \end{bmatrix}.
 \end{equation}
 
-In Eq \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the image plane, running linearly from $[-1, -1]$ at the top left corner of the image to $[1, 1]$ at the bottom right. Given the width of the image in $w_{pix}$ pixels, the image coordinates $\left(x,y\right)$ of $r_{obj}$ in pixels are:
+In Eq \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the image plane, running linearly from $[-1, -1]$ at the top left corner of the image to $[1, 1]$ at the bottom right. Given the width of the image in $w_\mathrm{pix}$ pixels, the image coordinates $\left(x,y\right)$ of $r_\mathrm{obj}$ in pixels are:
 
 \begin{equation} \label{eq:homo_to_pix}
-  \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} w_{pix} \left(\frac{1}{2} + \frac{x_h}{2w_h}\right) \\ a \cdot w_{pix}\left(\frac{1}{2} + \frac{y_h}{2w_h}\right) \end{bmatrix}.
+  \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} w_\mathrm{pix} \left(\frac{1}{2} + \frac{x_h}{2w_h}\right) \\ a \cdot w_\mathrm{pix}\left(\frac{1}{2} + \frac{y_h}{2w_h}\right) \end{bmatrix}.
 \end{equation}
 
 The transformation summarized in Eqs \ref{eq:mvp} and \ref{eq:homo_to_pix} are crucial in Section \ref{sec:shadow_mapping} for the shadow mapping algorithm used to compute pixel-wise self-shadowing effects.
@@ -529,8 +529,8 @@ In order to compute the final shaded and shadowed image, a depth map must be com
   \caption{Pixel-wise depth map computation for shadow mapping} \label{alg:depth_map}
   \begin{algorithmic}
     \State $(x, y) \in \mathbb{Z}$ \Comment{Pixel coordinates on the image plane}
-    \State $R_{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
-    \State $d(x, y) \gets \left( R_{cam} - R_{pix} \right) \cdot R_{cam}$ \Comment{Pixel depth in the camera view direction}
+    \State $R_\mathrm{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
+    \State $d(x, y) \gets \left( R_{cam} - R_\mathrm{pix} \right) \cdot R_{cam}$ \Comment{Pixel depth in the camera view direction}
   \end{algorithmic}
 \end{algorithm}
 
@@ -544,16 +544,16 @@ The pixel-wise shading process is summarized in Algorithm \ref{alg:pix_shading} 
 \end{figure}
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 
-An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a normalized irradiance value by computing the area of the square orthographic field of view given the image pixel count $n_{pix}$:
+An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a normalized irradiance value by computing the area of the square orthographic field of view given the image pixel count $n_\mathrm{pix}$:
 
 \begin{equation} \label{eq:ortho_area}
-  A_{image} = 2 n_{pix} \left(FOV \right)^2.
+  A_{image} = 2 n_\mathrm{pix} \left(FOV \right)^2.
 \end{equation}
 
-This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_{pix}$ pixels and dimensionalizing by the area of the image plane:
+This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_\mathrm{pix}$ pixels and dimensionalizing by the area of the image plane:
 
 \begin{equation} \label{eq:lc_normalized_engine}
-  \hat{I}_j = \frac{A_{image}}{n_{pix}} \sum_{i=1}^{n_{pix}}{\frac{v_{i}}{255}}
+  \hat{I}_j = \frac{A_{image}}{n_\mathrm{pix}} \sum_{i=1}^{n_\mathrm{pix}}{\frac{v_{i}}{255}}
 \end{equation}
 
 \section{Simulating The Observations}
@@ -832,7 +832,7 @@ The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used
 
 Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
 
-Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_{pix} = 0.72 \: [arcsec/pixel]$), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
+Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_\mathrm{pix} = 0.72 \: [arcsec/pixel]$), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much farther than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
@@ -862,10 +862,10 @@ The far-field diffraction pattern produced by a point source is known as an Airy
 In Eq \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
 
 \begin{equation} \label{eq:airy_center}
-  C_0 = \frac{S_{obj}^2 A_\mathrm{aperture}^2}{2 f^4}.
+  C_0 = \frac{S_\mathrm{obj}^2 A_\mathrm{aperture}^2}{2 f^4}.
 \end{equation}
 
-In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_\mathrm{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
+In Eq \ref{eq:airy_center}, $S_\mathrm{obj}$ is the total mean irradiance incident on the CCD due to the source, $A_\mathrm{aperture}$ is the aperture area, and $f$ is the focal length of the optics \cite{frueh2019notes}. The pattern produced by Eq \ref{eq:airy_disk} is depicted in Figure \ref{fig:airy_disk_magnitude}.
 
 \begin{figure}[ht]
   \centering
@@ -877,7 +877,7 @@ In Eq \ref{eq:airy_center}, $S_{obj}$ is the total mean irradiance incident on t
 The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:fwhm_airy}
-  FWHM_{airy} = \frac{1.028 \lambda}{2 r_d}.
+  FWHM_\mathrm{Airy} = \frac{1.028 \lambda}{2 r_d}.
 \end{equation}
 
 The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern FWHMs are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
@@ -889,19 +889,19 @@ The diffraction pattern is not the only effect that spreads the unresolved signa
 The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
 
 \begin{equation} \label{eq:airy_gaussian}
-  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
+  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_\mathrm{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
 \end{equation}
 
 In practice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
 
 \begin{equation} \label{eq:pix_values_gauss}
-  C_{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_{Gauss}(\theta(x, y))} \: dy \: dy.
+  C_\mathrm{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_{Gauss}(\theta(x, y))} \: dy \: dy.
 \end{equation}
 
 The area within the first maximum of the Airy disk is given by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:airy_area}
-  A_{airy} = \pi \left(\frac{648000 / \pi}{s_{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
+  A_\mathrm{Airy} = \pi \left(\frac{648000 / \pi}{s_\mathrm{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
 \end{equation}
 
 \subsection{Signal-to-Noise Ratio (SNR)}
@@ -909,13 +909,13 @@ The area within the first maximum of the Airy disk is given by \cite{frueh2019no
 Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:ccd_snr}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj}+N}}.
+  SNR = \frac{S_\mathrm{obj}}{\sqrt{S_\mathrm{obj}+N}}.
 \end{equation}
 
 Explicitly, the SNR can be expanded in terms of the signal means and variances, assuming that their respective probability density functions are independent \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:ccd_snr_expanded}
-  SNR = \frac{S_{obj}}{\sqrt{S_{obj} + n_{pix} \left( \lambda_{background} + \lambda_{dark} + \sigma^2_{read} + \frac{g^2}{24} \right)}}.
+  SNR = \frac{S_\mathrm{obj}}{\sqrt{S_\mathrm{obj} + n_\mathrm{pix} \left( \lambda_\mathrm{background} + \lambda_{dark} + \sigma^2_\mathrm{read} + \frac{g^2}{24} \right)}}.
 \end{equation}
 
 It should be noted that the SNR computed in Eq \ref{eq:ccd_snr_expanded} is idealized. In reality, the discrete sampling of each random variable in each object pixel --- as well as the Poisson sampling of the object signal --- results in a slightly different value. As the number of object pixels approaches infinity, the SNR computed from the image would approach the theoretical value. Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
@@ -939,7 +939,7 @@ The aperture of the telescope is the beginning of the optical path within the te
   A_\mathrm{eff} = A_\mathrm{aperture} - \pi r_{o}^2,
 \end{equation}
 
-where $r_o$ is the radius of the obstruction. The telescope focal length $f$ is the length of the optical path within the optics required to resolve a focused image. The pixel scale $s_{pix}$ is a measure of the angle spanned by the side length of each square pixel, often expressed in arcseconds per pixel. 
+where $r_o$ is the radius of the obstruction. The telescope focal length $f$ is the length of the optical path within the optics required to resolve a focused image. The pixel scale $s_\mathrm{pix}$ is a measure of the angle spanned by the side length of each square pixel, often expressed in arcseconds per pixel. 
 
 \subsection{Brightness Units}
 
@@ -1026,10 +1026,10 @@ units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Wa
 radiation and second of integration time. The aperture diameter factor outside the integral accounts
 for the area of light incident on the CCD, giving $\mathcal{S}_\mathrm{int}$ units of $\left[ \frac{m^2}{Ws}
 \right]$. The spectra in Eq \ref{eq:sint} are plotted in Figure \ref{fig:spectra} with data in Appendix \ref{data:spectra}. Multiplying by irradiance in $\left[ \frac{W}{m^2} \right]$ and an integration time $\Delta t$ 
-in seconds will yield the mean photoelectron signal $\bar{C}_{all}$ in ADU via:
+in seconds will yield the mean photoelectron signal $\bar{C}_\mathrm{all}$ in ADU via:
 
 \begin{equation} \label{eq:irrad_to_count}
-  \bar{C}_{all} = \mathcal{S}_\mathrm{int} \cdot I \cdot \Delta t.
+  \bar{C}_\mathrm{all} = \mathcal{S}_\mathrm{int} \cdot I \cdot \Delta t.
 \end{equation}
 
 For completeness, irradiance can be recovered from a signal in ADU and the integration time:
@@ -1094,7 +1094,7 @@ The quantity $\mathcal{A}_\mathrm{int}$ has units $\left[ \frac{1}{s\cdot sr} \r
 mean airglow signal in ADU per pixel is simply given by:
 
 \begin{equation} \label{eq:airglow_adu}
-  \bar{S}_{airglow} = \mathcal{A}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
+  \bar{S}_{airglow} = \mathcal{A}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
 \end{equation}
 
 In Eq \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass function which accounts for the accumulation of air along the optical path at different zenith angles \cite{frueh2019notes}. This airmass is termed \textit{relative} as it relates the ratio of absolute airmass at a zenith angle to the absolute airmass at zenith. Often, this function is approximated by the Van-Rhijn factor $\textrm{AM}(\theta_z) = \sec{\theta_z}$, which remains accurate up to $\theta_z \approx 70^\circ$ before diverging to infinity. Instead, a function proposed by Pickering is used \cite{pickering2002}.
@@ -1140,7 +1140,7 @@ $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith
 The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{\mathrm{poll},z}$ in MPSAS, linearly interpolated from the World Atlas dataset, is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via:
  
 \begin{equation} \label{eq:pollution_adu}
-  \bar{S}_{pollution} = B_{\mathrm{poll},z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
+  \bar{S}_{pollution} = B_{\mathrm{poll},z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
 \end{equation}
 
 Note that Krag does not implement a specific light pollution model, but instead takes the dark sky site zenith brightness of $22$ MPSAS as input to an atmospherically scattered light model \cite{krag2003}. The formulation of the light pollution model in Eq \ref{eq:pollution_adu} is simply an adaptation of Krag's model with a variable zenith brightness driven by a light pollution dataset.
@@ -1173,7 +1173,7 @@ Eq \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105^\circ
 Computing the mean CCD signal in ADU per pixel due to the twilight brightness proceeds identically to the light pollution formulation. 
 
 \begin{equation} \label{eq:twilight_adu}
-  \bar{S}_{twilight} = B_{twi,z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2
+  \bar{S}_{twilight} = B_{twi,z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2
 \end{equation}
 
 The mean twilight signal on the local observer hemisphere is displayed in Figure \ref{fig:twilight_hemi}.
@@ -1229,12 +1229,12 @@ $\mathcal{Z}$ has units of $\left[ \frac{1}{s} \right]$, representing the mean t
 through the telescope aperture due to integrated starlight. 
 
 \begin{equation} \label{eq:starlight_adu}
-  \bar{S}_{star} = 10^{-4} \cdot \mathcal{Z} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot
+  \bar{S}_{star} = 10^{-4} \cdot \mathcal{Z} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot
   b_{is}
 \end{equation}
 
 In Eq \ref{eq:starlight_adu}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
-\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$ and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\mathcal{Z}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
+\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_\mathrm{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$ and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\mathcal{Z}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
 
 \begin{figure}[ht]
   \centering
@@ -1246,7 +1246,7 @@ In Eq \ref{eq:starlight_adu}, $b_{is}$ is the integrated starlight brightness in
 
 \subsubsection{Scattered Moonlight}
 
-Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_{obs}$, the angle from the Moon to zenith $z_\mathrm{Moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
+Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_\mathrm{obs}$, the angle from the Moon to zenith $z_\mathrm{Moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
 
 \begin{equation} \label{eq:mie_scattering_moon}
   F_{ms}(\lambda) = a_1 \left[ e^{-\left(\frac{\Psi}{\Psi_1}\right)} + a_2 e^{-\left(\frac{\pi - \Psi}{\Psi_2}\right)} \right] F_{rs}(\lambda).
@@ -1267,7 +1267,7 @@ in Eq \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase functio
 With all these pieces, the mean scattered moonlight signal in ADU per pixel is \cite{krag2003}:
 
 \begin{equation} \label{eq:moonlight_adu}
-  \bar{S}_\mathrm{Moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_{corr}.
+  \bar{S}_\mathrm{Moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_{corr}.
 \end{equation}
 
 \begin{figure}[ht]
@@ -1283,7 +1283,7 @@ With all these pieces, the mean scattered moonlight signal in ADU per pixel is \
 Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light $B_\mathrm{zod}(\alpha, \delta)$ in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via:
 
 \begin{equation} \label{eq:zodiacal_adu}
-  \bar{S}_{zod} = \mathcal{Z} \cdot \left( \frac{s_{pix}}{3600} \right)^2 \cdot \Delta t \cdot B_\mathrm{zod}(\alpha, \delta) \cdot 10^{-4}.
+  \bar{S}_{zod} = \mathcal{Z} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot B_\mathrm{zod}(\alpha, \delta) \cdot 10^{-4}.
 \end{equation}
 
 As in the integrated starlight signal, the $10^{-4}$ factor reconciles the $S_{10}$ surface brightness with the 0th magnitude source in $\mathcal{Z}$. 
@@ -1307,10 +1307,10 @@ The background signals are only defined in terms of their means, as each signal 
 This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. The background sources modeled in this work are reasonably assumed to be independent as they each originate from distinct physical processes.
 
 \begin{equation} \label{eq:background_poisson}
-  \lambda_{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_\mathrm{Moon} + \bar{S}_{zod}
+  \lambda_\mathrm{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_\mathrm{Moon} + \bar{S}_{zod}
 \end{equation}
 
-Drawing samples from the Poisson distribution defined by $\lambda_{background}$ computes the background of the CCD image. 
+Drawing samples from the Poisson distribution defined by $\lambda_\mathrm{background}$ computes the background of the CCD image. 
 
 \subsection{Sensor Effects}
 
@@ -1322,11 +1322,11 @@ The dark noise, also called the dark current or dark count, captures the tempera
 
 \subsubsection{Readout Noise}
 
-When the CCD is read out, the charge contained in each pixel well must be digitized. This process introduces noise in the final signal due to electronic effects within the CCD circuitry and its surrounding environment \cite{krag2003}. The readout noise is modeled as a zero-mean Gaussian distribution with variance $\sigma_{read}^2$ and is also assumed to be independent from other sensor effects \cite{frueh2019notes}.
+When the CCD is read out, the charge contained in each pixel well must be digitized. This process introduces noise in the final signal due to electronic effects within the CCD circuitry and its surrounding environment \cite{krag2003}. The readout noise is modeled as a zero-mean Gaussian distribution with variance $\sigma_\mathrm{read}^2$ and is also assumed to be independent from other sensor effects \cite{frueh2019notes}.
 
 \subsubsection{Truncation Noise}
 
-Truncation noise in a CCD stems from the fact that the charge in each pixel is digitized into an integer factor of the gain \cite{frueh2019notes}. This is modeled using a uniform distribution on $\left[ -g/2, g/2 \right]$, yielding a variance $N^2_{trunc} = \frac{g^2}{24}$ \cite{frueh2019notes}.
+Truncation noise in a CCD stems from the fact that the charge in each pixel is digitized into an integer factor of the gain \cite{frueh2019notes}. This is modeled using a uniform distribution on $\left[ -g/2, g/2 \right]$, yielding a variance $N^2_\mathrm{trunc} = \frac{g^2}{24}$ \cite{frueh2019notes}.
 
 The particular noise variances for the Purdue Optical Ground Station are listed in \ref{tb:pogs_parameters}.
 
@@ -1339,10 +1339,10 @@ Accurately simulating light curves requires realistic constraints on the observi
 The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ computed following Section \ref{sec:planet_ephem} and object in J2000, the local irradiance fraction is expressed \cite{krag2003}:
 
 \begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
-  \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_{obj} \\
+  \vctr{r}_{obj2Sun} &= \vctr{r}_{Sun} - \vctr{r}_\mathrm{obj} \\
   \epsilon_s &= \sin^{-1}\left( \frac{R_{Sun}}{\| \vctr{r}_{obj2Sun} \|} \right) \\
-  \epsilon_e &= \sin^{-1}\left( \frac{R_\mathrm{Earth}(\phi_{obj})}{\| \vctr{r}_{obj} \|} \right) \\
-  \epsilon &= \cos^{-1} \left( -\hat{r}_{obj2Sun} \cdot \hat{r}_{obj} \right) \\
+  \epsilon_e &= \sin^{-1}\left( \frac{R_\mathrm{Earth}(\phi_\mathrm{obj})}{\| \vctr{r}_\mathrm{obj} \|} \right) \\
+  \epsilon &= \cos^{-1} \left( -\hat{r}_{obj2Sun} \cdot \hat{r}_\mathrm{obj} \right) \\
   \epsilon_1 &= \frac{\epsilon^2 - \epsilon_e^2 + \epsilon_s^2}{2 \epsilon} \\
   \epsilon_2 &= \frac{\epsilon^2 + \epsilon_e^2 - \epsilon_s^2}{2 \epsilon}. \\
 \end{align*}
@@ -1356,7 +1356,7 @@ The Earth casts a conical shadow into space. Outside this shadow, the fraction o
 \end{figure}
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 
-In Eq \ref{eq:irradiance_fraction_angles}, $\epsilon_s$ is the half-angle of the Sun disk at the object, $\epsilon_e$ is the half-angle of the Earth disk from the object as a function of the geodetic latitude of the object $\phi_{obj}$. Additionally, $\epsilon$ is the angle between the center of the Earth and Sun from the perspective of the object, with $\epsilon_1$ and $\epsilon_2$ being the angles from the center of the Sun and Earth disks to the center of their overlap, if it exists \cite{krag2003}. These angles are defined in Figure \ref{fig:penumbra_angles}. Given these angles, the illumination fraction $f_{Sun}$ is computed:
+In Eq \ref{eq:irradiance_fraction_angles}, $\epsilon_s$ is the half-angle of the Sun disk at the object, $\epsilon_e$ is the half-angle of the Earth disk from the object as a function of the geodetic latitude of the object $\phi_\mathrm{obj}$. Additionally, $\epsilon$ is the angle between the center of the Earth and Sun from the perspective of the object, with $\epsilon_1$ and $\epsilon_2$ being the angles from the center of the Sun and Earth disks to the center of their overlap, if it exists \cite{krag2003}. These angles are defined in Figure \ref{fig:penumbra_angles}. Given these angles, the illumination fraction $f_{Sun}$ is computed:
 
 \begin{equation} \label{eq:irradiance_fraction}
   f_{Sun} = \begin{cases}
@@ -1404,7 +1404,7 @@ Focusing the irradiance of the Moon onto the sensor grid will seriously damage t
 
 \begin{equation} \label{eq:moon_exclusion}
   \nu_\mathrm{Moon} = \begin{cases}
-    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{Moon} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obj} - \vctr{r}_{obs} \|} \right) > \theta_{Moon,ex}\\
+    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{Moon} - \vctr{r}_\mathrm{obs} \right) \cdot \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_\mathrm{obs} \| \| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|} \right) > \theta_{Moon,ex}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
@@ -1413,12 +1413,12 @@ In Eq \ref{eq:moon_exclusion}, $\nu_\mathrm{Moon} = 1$ implies that the observat
 
 \subsubsection{Minimum Elevation}
 
-Due to the local topology at the observer location, an operator may assign a minimum angle from the horizon $\theta_{elev,min}$ for observations. Approximating the station inertial position $\vctr{r}_{obs}$ as being aligned with zenith, this yields the condition:
+Due to the local topology at the observer location, an operator may assign a minimum angle from the horizon $\theta_{elev,min}$ for observations. Approximating the station inertial position $\vctr{r}_\mathrm{obs}$ as being aligned with zenith, this yields the condition:
 
 
 \begin{equation} \label{eq:elevation_exclusion}
   \nu_{elevation} = \begin{cases}
-    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right) \cdot \left( \vctr{r}_{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_{obs} \| \| \vctr{r}_{obs} \|} \right) > \theta_{elev,min}\\
+    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right) \cdot \left( \vctr{r}_\mathrm{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_\mathrm{obs} \| \| \vctr{r}_\mathrm{obs} \|} \right) > \theta_{elev,min}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
@@ -1430,40 +1430,40 @@ In Eq \ref{eq:elevation_exclusion}, $\nu_{elevation} = 1$ implies that the obser
 Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for convex objects or Eq \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the received mean irradiance at the telescope aperture is given by:
 
 \begin{equation} \label{eq:mean_irrad_at_aperture}
-  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \hat{I}}{\left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2}.
+  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \hat{I}}{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2}.
 \end{equation}
 
-In Eq \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_{Sun}$ determines the solar irradiance incident on the object, and the remaining terms $\hat{I} / \left( \vctr{r}_{obj} - \vctr{r}_{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:irrad_to_count}, yielding $\bar{C}_{all}$:
+In Eq \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_{Sun}$ determines the solar irradiance incident on the object, and the remaining terms $\hat{I} / \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:irrad_to_count}, yielding $\bar{C}_\mathrm{all}$:
 
 \begin{equation}
-  \bar{C}_{all} = \mathcal{S}_\mathrm{int} \cdot \bar{I} \cdot \Delta t.
+  \bar{C}_\mathrm{all} = \mathcal{S}_\mathrm{int} \cdot \bar{I} \cdot \Delta t.
 \end{equation}
 
 \subsection{Sampling Noisy Light Curves} \label{sec:sampling_lcs}
 
-Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian} where the angle $\theta$ from the center of the frame is converted into pixels via $\theta^2 = \left((x - x_0)^2 + (y - y_0)^2 \right) / s_{pix}^2$:
+Given the irradiance of the object observed by the telescope, the noisy light curve is computed by building a grid containing the object signal, background noise, and sensor noise. On a pixel-by-pixel basis, the mean object signal is given by an alteration of Eq \ref{eq:airy_gaussian} where the angle $\theta$ from the center of the frame is converted into pixels via $\theta^2 = \left((x - x_0)^2 + (y - y_0)^2 \right) / s_\mathrm{pix}^2$:
 
 \begin{equation} \label{eq:obj_signal_grid}
-  \bar{C}_{obj}(x, y) = \frac{0.838 \bar{C}_{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_{pix}^2} \right).
+  \bar{C}_\mathrm{obj}(x, y) = \frac{0.838 \bar{C}_\mathrm{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_\mathrm{pix}^2} \right).
 \end{equation}
 
-In Eq \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Eq \ref{eq:airy_variance} in arcseconds, and $s_{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions:
+In Eq \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Eq \ref{eq:airy_variance} in arcseconds, and $s_\mathrm{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions:
 
 \begin{equation} \label{eq:noise_signal_grid}
-  C_{noise} = N_{background} + N_{dark} + N_{trunc} + N_{read}.
+  C_{noise} = N_\mathrm{background} + N_{dark} + N_\mathrm{trunc} + N_\mathrm{read}.
 \end{equation}
 
-In Eq \ref{eq:noise_signal_grid}, $N_{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_{dark})$, $N_{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_{read}$ is drawn from $\mathrm{N}(0, \sigma_{read}^2)$. 
+In Eq \ref{eq:noise_signal_grid}, $N_\mathrm{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_\mathrm{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_{dark})$, $N_\mathrm{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_\mathrm{read}$ is drawn from $\mathrm{N}(0, \sigma_\mathrm{read}^2)$. 
 
-Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_{obj}, y_{obj}\}$ is given by:
+Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_\mathrm{obj}, y_\mathrm{obj}\}$ is given by:
 
 \begin{align*} \numberthis \label{eq:noisy_counts}
-  C_{noise,all} &= \sum_{i=1}^{A_{airy}}{C_{noise,i}} \\
-  C_{obj,all} &= \sum_{x \in x_{obj}, \: y \in x_{obj}}{\bar{C}_{obj}(x, y)} \\
-  C_{obj,meas} &= C_{noise,all} - A_{airy} \left( \Delta t \cdot \lambda_{dark} + \lambda_{background} \right) 
+  C_{noise,all} &= \sum_{i=1}^{A_\mathrm{Airy}}{C_{noise,i}} \\
+  C_{obj,all} &= \sum_{x \in x_\mathrm{obj}, \: y \in x_\mathrm{obj}}{\bar{C}_\mathrm{obj}(x, y)} \\
+  C_{obj,meas} &= C_{noise,all} - A_\mathrm{Airy} \left( \Delta t \cdot \lambda_{dark} + \lambda_\mathrm{background} \right) 
 \end{align*}
 
-In Eq \ref{eq:noisy_counts}, $A_{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Eq \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Eq \ref{eq:count_to_irrad}:
+In Eq \ref{eq:noisy_counts}, $A_\mathrm{Airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Eq \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Eq \ref{eq:count_to_irrad}:
 
 \begin{equation} \label{eq:noisy_counts_to_irrad}
   I_{obj,meas} = \frac{C_{obj,meas}}{\mathrm{\mathcal{S}_\mathrm{int}} \cdot \Delta t}
@@ -1478,7 +1478,7 @@ or to apparent magnitude by applying Eq \ref{eq:mag_to_irradiance}:
 or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
 
 \begin{equation} \label{eq:ihat_meas}
-  \hat{I}_{obj,meas} = \frac{\| \vctr{r}_{obj} - \vctr{r}_{obs} \|^2}{I_s} I_{obj,meas}.
+  \hat{I}_{obj,meas} = \frac{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|^2}{I_s} I_{obj,meas}.
 \end{equation}
 
 \section{Light Curve Simulation Results}
@@ -1503,7 +1503,7 @@ This section presents the entire process for simulating the normalized light cur
   $n$ & $5$ \\ \hline
   Initial date & 2023-03-26 05:00:00 UTC \\ \hline
   $\Delta t$ & $0.1$ $[s]$ \\ \hline
-  $n_{obs}$ & $360$ $[s]$ \\ \hline
+  $n_\mathrm{obs}$ & $360$ $[s]$ \\ \hline
   $\phi_{geod}$ & $32.900^\circ$ \\ \hline
   $\lambda$ & $-105.533^\circ$ \\ \hline
   \end{tabular}
@@ -1570,7 +1570,7 @@ The second case deals with simulating a realistic noisy light curve for a comple
   BRDF & Phong \\ \hline
   Initial date & 2022-12-09 08:00:00 UTC \\ \hline
   $\Delta t$ & $10$ $[s]$ \\ \hline
-  $n_{obs}$ & $180$ $[s]$ \\ \hline
+  $n_\mathrm{obs}$ & $180$ $[s]$ \\ \hline
   Telescope & Table \ref{tb:pogs_parameters} \\ \hline
   $\phi_{geod}$ & $32.900^\circ$ \\ \hline
   $\lambda$ & $-105.533^\circ$ \\ \hline
@@ -1602,7 +1602,7 @@ The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics}
 
 The BRDF --- which varies across the surface of the object --- is encoded in the \texttt{.obj} file in the red channel of the diffuse material color $R$ such that $C_d = R$ and $C_s = 1 - R$. Given the unit vectors in the object body frame pointing towards the observer and the Sun, Algorithms \ref{alg:depth_map} and \ref{alg:pix_shading} are used to render images of the object which are integrated to yield a mean normalized irradiance value $\hat{I}$ with Eqs \ref{eq:ortho_area} and \ref{eq:lc_normalized_engine}. 
 
-This normalized irradiance is dimensionalized with Eq \ref{eq:irradiance_to_norm_irradiance} to yield a mean irradiance $I$. Next, the background signal variances are computed for the Moonlight in Eq \ref{eq:moonlight_adu}, zodiacal light in Eq \ref{eq:zodiacal_adu}, integrated starlight in Eq \ref{eq:starlight_adu}, twilight in eq \ref{eq:twilight_adu}, light pollution in Eq \ref{eq:pollution_adu}, and airglow in Eq \ref{eq:airglow_adu}. These background signal variances are used to compute the overall background variance $\lambda_{background}$. The signal variance due to read noise, dark noise, and truncation noise are found in Table \ref{tb:pogs_parameters}, yielding the overall mean and variance of the background pixels. 
+This normalized irradiance is dimensionalized with Eq \ref{eq:irradiance_to_norm_irradiance} to yield a mean irradiance $I$. Next, the background signal variances are computed for the Moonlight in Eq \ref{eq:moonlight_adu}, zodiacal light in Eq \ref{eq:zodiacal_adu}, integrated starlight in Eq \ref{eq:starlight_adu}, twilight in eq \ref{eq:twilight_adu}, light pollution in Eq \ref{eq:pollution_adu}, and airglow in Eq \ref{eq:airglow_adu}. These background signal variances are used to compute the overall background variance $\lambda_\mathrm{background}$. The signal variance due to read noise, dark noise, and truncation noise are found in Table \ref{tb:pogs_parameters}, yielding the overall mean and variance of the background pixels. 
 
 These means and variances are used to compute the SNR of each attempted observation using Eq \ref{eq:ccd_snr}. This SNR is used compute the minimum SNR constraint in Eq \ref{eq:snr_exclusion}. The Moon exclusion angle constraint is also evaluated with Eq \ref{eq:moon_exclusion} and the minimum elevation constraint is evaluated with Eq \ref{eq:elevation_exclusion}. If all constraints are satisfied, the object is observable and the light curve measurement process can continue. Otherwise, the measurement is impossible and no value is saved for this timestep.
 
