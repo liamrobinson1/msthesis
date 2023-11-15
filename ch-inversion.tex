@@ -2,18 +2,6 @@
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 \chapter{Light Curve Shape Inversion}
 
-\section{Nature of The Problem}
-
-\subsection{Types of Ambiguity}
-
-\subsubsection{True Ambiguities}
-
-albedo-area factor etc
-
-\subsubsection{Nonconvex Shape Ambiguities}
-
-\subsection{Bayesian Inversion}
-
 \section{Direct Convex Shape Inversion}
 
 Traditionally, direct light curve inversion involves two distinct optimization problems: a linear least squares problem to optimize normal vectors and areas to match the measured light curve, and a second optimization to produce accurate vertex positions and face adjacency information \cite{fan2020thesis, kaasalainen2000, kaas2001shape, cabrera2021}. The first problem is data-driven and linear, using the observations to estimate a plausible EGI. The second problem is highly nonlinear but convex and requires significant tuning for robust convergence \cite{fan2019}. The full convex inversion process presented in this work is outlined:
@@ -87,7 +75,7 @@ Given a light curve, direct shape inversion schemes sample $m$ candidate normal 
 
 to yield an optimal set of face areas $\vec{a}_i$. In Eq \ref{eq:area_opt_convex}, the reflection matrix $G$ is computed from the chosen normal vectors $\hat{n}_i$, the uniform BRDF, and the Sun and observer vectors in the body frame of the object. NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Eq \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
 
-The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibbonaci mapping described by Keinert et al.\ in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{fig:initial_egi_sampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
+The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibonacci mapping described by Keinert et al.\ in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{fig:initial_egi_sampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
 
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 \begin{figure}[!htb]
@@ -97,7 +85,17 @@ The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation
   \label{fig:initial_egi_sampling}
 \end{figure}
 
-\subsection{EGI Optimization Observability}
+\subsection{Nature of The Problem}
+
+\subsubsection{True Ambiguities}
+
+albedo-area factor etc
+
+\subsubsection{Nonconvex Shape Ambiguities}
+
+\subsubsection{Bayesian Inversion}
+
+\subsubsection{EGI Optimization Observability}
 
 Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, the gradient of the light curve error with respect to that normal vector of the EGI is zero, and that face's area cannot be recovered. For a given set of candidate normal vectors, the ability to recover a reliable solution from the area optimization problem is known as its observability. As studied by Friedman, the EGI optimization is observable if the Gramian matrix --- $G^T G$ in this case --- is full rank \cite{friedman2020}.
 
@@ -124,7 +122,7 @@ In Eq \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi},
   \lambda &= \hat{n}_{cone} \times [0, 0, 1]^T
 \end{align*}
 
-The number of new candidates sampled per initial solution vector and the cone half-angle should be adjusted on a case-by-case basis depending on the compute power available and light curve data quality. Multiple iterative methods exist for solving nonnegatively constrained least squares (NNLS) problems. The classical NNLS algorithm was published by Lawson and Hanson and improved later by Bro and De Jong in their Fast NNLS (FNNLS) approach \cite{lawson1976, bro1996}.
+The number of new candidates sampled per initial solution vector and the cone half-angle should be adjusted on a case-by-case basis depending on the compute power available and light curve data quality. Multiple iterative methods exist for solving nonnegative constrained least squares (NNLS) problems. The classical NNLS algorithm was published by Lawson and Hanson and improved later by Bro and De Jong in their Fast NNLS (FNNLS) approach \cite{lawson1976, bro1996}.
 
 Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedman \cite{friedman2020}, and Cabrera \cite{cabrera2021} are limited by a single normal vector sampling step, leading to a lack of sparsity in the optimized EGI. High-density normal vector sampling in regions known to contain non-zero area leads to EGI solutions that are generally more sparse and cluster more tightly about true normal vectors. An example of this process is shown in Figure \ref{fig:resampled_egi}.
 
@@ -137,7 +135,7 @@ Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedm
 
 \subsection{EGI Merging}
 
-After resampling and reoptimizing with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
+After resampling and optimizing again with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
 
 \begin{equation} \label{eq:egi_merge}
   \mathcal{G}_k = \left\{ \vec{E}_i \in \vec{E} \:\| \cos^{-1}\left( \frac{\hat{E}_i \cdot \hat{E}_k}{\|\vec{E}_i \| \| \vec{E}_k \|}\right) < \theta_\mathrm{merge} \right\}.
@@ -335,7 +333,7 @@ This work presents a method for multiple hypothesis shape inversion that builds 
 To develop this multiple hypothesis inversion procedure that works for both convex and nonconvex shape candidates, it is useful to be able to take a weighted average of an arbitrary set of triangle meshes. Given candidate object meshes $M_i$ with scalars $w_i$, this weighted average process should be of the form:
 
 \begin{equation}
-  M_{interp} = \sum_{i}{w_i M_i}.
+  M_{\mathrm{interp}} = \sum_{i}{w_i M_i}.
 \end{equation}
 
 The algorithm presented in this work for weighted mesh averaging depends on signed distance fields (SDFs). The SDF implicitly represents a shape by associating each point $\vctr{x} \in \mathbb{R}^3$ with the distance to the closest point on the surface of the object \cite{baerentzen2002}. As a result, the gradient of the SDF points directly away from the closest piece of the object's geometry. For a given SDF $f(\vctr{x})$, the surface of the object $\mathcal{S}_{obj}$ is given by all points $\vctr{x}$ that yield $f(\vctr{x}) = 0$:
@@ -379,7 +377,7 @@ Algorithm \ref{alg:sdf_interp} can operate on arbitrary convex or nonconvex mesh
 The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by allowing the weights $w_i$ to be functions of the location in $\mathbb{R}^3$ of each SDF grid point:
 
 \begin{equation}
-  \mathrm{SDF}_{\textrm{interp}}(x, y, z) = w_1(x, y, z) \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
+  \mathrm{SDF}_{\mathrm{interp}}(x, y, z) = w_1(x, y, z) \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
 \end{equation}
 
 To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \forall (x,y,z) \in \mathbb{R}^3$.
