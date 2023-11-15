@@ -936,7 +936,7 @@ While much of the focus in this work is directed towards the CCD, the telescope 
 The aperture of the telescope is the beginning of the optical path within the telescope --- the area that collects incoming light. The area of the aperture $A_\mathrm{aperture} = \pi r_{d}^2$, where $r_d$ is the radius of the aperture must be distinguished from the \textit{effective} aperture area, which is the total area of the aperture which actually collects light. Some telescopes have central obstructions which remove an amount of aperture area from the optical path, such that the effective aperture area is:
 
 \begin{equation}
-  A_{eff} = A_\mathrm{aperture} - \pi r_{o}^2,
+  A_\mathrm{eff} = A_\mathrm{aperture} - \pi r_{o}^2,
 \end{equation}
 
 where $r_o$ is the radius of the obstruction. The telescope focal length $f$ is the length of the optical path within the optics required to resolve a focused image. The pixel scale $s_{pix}$ is a measure of the angle spanned by the side length of each square pixel, often expressed in arcseconds per pixel. 
@@ -1014,14 +1014,14 @@ concerned about, effects smaller than the sensor readout noise and dark current 
 through \cite{krag2003}:
 
 \begin{equation} \label{eq:sint}
- \mathcal{S}_\mathrm{int} = A_{eff}
+ \mathcal{S}_\mathrm{int} = A_\mathrm{eff}
 	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
 \end{equation}
 
 In Eq \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
 $\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun, generally taken to be
-the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$, and $A_{eff}$ is the effective aperture area. Read literally, the integral term has
+the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$, and $A_\mathrm{eff}$ is the effective aperture area. Read literally, the integral term has
 units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
 radiation and second of integration time. The aperture diameter factor outside the integral accounts
 for the area of light incident on the CCD, giving $\mathcal{S}_\mathrm{int}$ units of $\left[ \frac{m^2}{Ws}
@@ -1080,31 +1080,31 @@ perform better.
 Certain chemical reactions from 80-110 km altitude in the upper atmosphere release visible light
 \cite{krag2003}. This effect is known as
 airglow. Since these reactions are assumed to be isotropic ---  equally intense when integrated along any
-vertical line extending upwards from the surface. The airglow signal $\textrm{AINT}$ is modeled in a
-similar fashion to integrated starlight. Given the airglow spectra $\textrm{GLINT}(\lambda) \:
+vertical line extending upwards from the surface. The airglow signal $\mathcal{A}_\mathrm{int}$ is modeled in a
+similar fashion to integrated starlight. Given the airglow spectra $\mathcal{A}(\lambda) \:
 \left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the sensor quantum efficiency $\textrm{QE}(\lambda)$, the atmospheric transmission $\textrm{ATM}(\lambda)$, as well as Plank's constant $h$ and the speed of light in vacuum $c$, the airglow signal is computed via \cite{krag2003}:
 
 \begin{equation} \label{eq:aint}
- \textrm{AINT} = A_\mathrm{aperture}
-  \int_{10^{-8}}^{10^{-6}}{ \textrm{GLINT}(\lambda) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+ \mathcal{A}_\mathrm{int} = A_\mathrm{aperture}
+  \int_{10^{-8}}^{10^{-6}}{ \mathcal{A}(\lambda) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
 \end{equation}
 
-The quantity $\textrm{AINT}$ has units $\left[ \frac{1}{s\cdot sr} \right]$, meaning that the
+The quantity $\mathcal{A}_\mathrm{int}$ has units $\left[ \frac{1}{s\cdot sr} \right]$, meaning that the
 mean airglow signal in ADU per pixel is simply given by:
 
 \begin{equation} \label{eq:airglow_adu}
-  \bar{S}_{airglow} = AINT \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
+  \bar{S}_{airglow} = \mathcal{A}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_{pix}}{648000} \right)^2.
 \end{equation}
 
 In Eq \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass function which accounts for the accumulation of air along the optical path at different zenith angles \cite{frueh2019notes}. This airmass is termed \textit{relative} as it relates the ratio of absolute airmass at a zenith angle to the absolute airmass at zenith. Often, this function is approximated by the Van-Rhijn factor $\textrm{AM}(\theta_z) = \sec{\theta_z}$, which remains accurate up to $\theta_z \approx 70^\circ$ before diverging to infinity. Instead, a function proposed by Pickering is used \cite{pickering2002}.
 
 \begin{equation} \label{eq:pickering_airmass}
-  \textrm{AM}(\theta_z) = \frac{1}{\sin\left((90 - \theta_z) +  \frac{244}{165 + 47 * \left(90 - \theta_z \right)^{1.1}}\right)}
+  \textrm{AM}(\theta_z) = \frac{1}{\sin\left((90 - \theta_z) +  \frac{244}{165 + 47 \left(90 - \theta_z \right)^{1.1}}\right)}
 \end{equation}
 
 
-Using Eq \ref{eq:pickering_airmass} instead of the Van-Rhijn factor enables the computation of background signals near the horizon without the singularity of $\sec{\theta}$. Figure \ref{fig:airmass_fcns} displays this comparison in action.
+Using Eq \ref{eq:pickering_airmass} instead of the Van-Rhijn factor enables the computation of background signals near the horizon without the singularity of $\sec \theta$. Figure \ref{fig:airmass_fcns} displays this comparison in action.
 
 \begin{figure}[ht]
   \centering
