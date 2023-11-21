@@ -6,21 +6,52 @@
 
 The problem of light curve shape inversion is plagued by different types of ambiguities. In order to understand the later inversion methods, it is important to understand the characteristics of each ambiguity.
 
-\subsection{True Ambiguities}
+\subsection{Ambiguities}
 
-A true ambiguity exists in the shape inversion problem due to the interplay between the coefficients of reflection of the object's surfaces and their areas. Often, these factors are considered together as the \textit{albedo-area}. For a given shape, there exist an infinite family of geometrically similar shapes which possess the same albedo area with face areas scaled by a nonzero scalar $c$ and coefficients of reflection scaled by $a^{-1}$, constrained such that the scaled face albedo cannot violate energy conservation \cite{fan2020thesis}. This family produces the same light curve in the same observation conditions, and is thus no decision can be made about the object's true scale within this family without additional information. In practice, knowledge of standard properties of common materials may be used to further constrain the scale of the object, but nonzero true ambiguities always remain.
+Many types of ambiguities exist in the light curve shape inversion problem. Some of these ambiguities can be resolved by collecting more light curve data, but others are inherent to the problem.
 
-\subsection{Convex Observability Ambiguities}
+\subsubsection{Albedo-Area}
 
-Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, both the area and normal vector of the face are unobservable. The geometry of a convex object in these unobserved areas is unconstrained by the light curve alone.
+A true ambiguity exists in the shape inversion problem due to the interplay between the coefficients of reflection of the object's surfaces and their areas \cite{fan2020thesis}. These factors are considered together as the \textit{albedo-area}. For a given shape, there exist an infinite family of geometrically similar shapes which possess the same albedo area with face areas scaled by a nonzero scalar $c$ and coefficients of reflection scaled by $a^{-1}$, constrained such that the scaled face albedo cannot violate energy conservation \cite{fan2020thesis}. Further ambiguities lie in the albedo-area variations of subsets of the object geometry. For example, scaling the areas of the end caps of a cylinder has the same effect on the light curve as applying the same scaling to their albedo. These families produces the same light curve in the same observation conditions, and is thus no decision can be made about the object's true scale within this family without additional information. In practice, knowledge of standard properties of common materials may be used to further constrain the scale of the object, but some amount of albedo-area ambiguity will always remain.
 
-\subsection{Nonconvex Shape Ambiguities}
+\subsubsection{Orientation}
+
+% Multiple orientations of the object may produce the same light curve value. This behavior is demonstrated for a cube in Figure \ref{fig:brightness_iso}, where the continuous surfaces in attitude space sharing a common brightness value are plotted. 
+
+% \begin{figure}[!htb]
+%   \centering
+%   \includegraphics[width=\figmed]{brightness_iso.png}
+%   \caption{Brightness isosurfaces for a cube with $C_d=0.5$, $C_s=0.5$, $n=5$ at $\phi=45^\circ$ and normalized irradiance value $\hat{I} = 0.73$}
+%   \label{fig:brightness_iso}
+% \end{figure}
+
+% Figure \ref{fig:brightness_iso} points to a more general conclusion about the coupling of the light curve and object orientation. Because the light curve is continuous nature and the observation geometry at a given phase angle is determined entirely by the three-dimensional object orientation, any required light curve value acts as a one-dimensional constraint on orientation space. This yields two-dimensional surfaces in attitude space that produce the same light curve value.
+
+\subsubsection{Object Symmetry}
+
+Objects with symmetries in their albedo-area are also ambiguous in the shape inversion problem.
+
+\subsubsection{Observation Geometry}
+
+If the directions of the Sun and observer in the body frame of the object are flipped --- thereby mirroring the object about the plane containing the Sun-object-observer bisector vector --- the light curve will be identical \cite{burton2023attitude}. This follows from the reciprocity of light reflection as modeled by the BRDF as well as the reciprocity of the shadows \cite{burton2023attitude}. Upon mirroring the object as described, areas which were previously Sun-shadowed become observer-shadowed and vice versa, preserving the total amount of shadowing and therefore the overall light curve. This creates an ambiguity in the object orientation as it yields two equally plausible solutions for the object's attitude profile \cite{burton2023attitude}. This orientation ambiguity produces ambiguity in the object's shape as well: the observed light curve may correspond to either the flipped or ``nominal'' orientation of the object.
+
+\subsubsection{Nonconvex Shape Features}
 
 The influence of concavities are only observable in the light curve due to the variability of self-shadowing. If viewed at a constant phase angle of $\phi = 0^\circ$ between the Sun and observer vectors, no self-shadowing can occur and the resulting light curve will be well-fit by a convex estimate. Similarly, a concavity that is never illuminated or is never able to be observed while illuminated is unobservable as its self-shadowing effects are not present in the observed light curve. 
 
 If a concave feature does contribute to the light curve while self-shadowing is occurring, new ambiguities are introduced. A single concave feature can be broken up into multiple smaller concavities with the same interior geometry and proportionally smaller face areas. Similarly, other concavity geometries may produce the same aggregate effect on the light curve.
 
-\subsection{Bayesian Inversion}
+\subsection{Face Observability}
+
+Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, no information is available to constrain the geometry of these unilluminated, unobserved faces. As an example, a cylinder rotating about its axis of symmetry may never point an end face towards the observer over a set of observations. This ambiguity can be resolved by waiting until the observation geometry and object orientation change to allow these regions of the object to be illuminated and observed. 
+
+\subsection{Full Shape Observability}
+
+Although the light curve contains information that aids in shape estimation, the particular construction of the object being observed is fundamentally unobservable, independent of object convexity. In the simplest case, a cube produces the same light curve as 
+
+Every shape inversion method makes some assumption about how the object shape is constructed from the information in the light curve. EGI-based methods construct a convex approximation of the geometry by leveraging the Minkowski problem. 
+
+\subsubsection{Bayesian Inversion Implications}
 
 Bayes' theorem is stated \cite{mahler2014}:
 
