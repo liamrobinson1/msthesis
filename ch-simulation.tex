@@ -214,15 +214,17 @@ The simplest BRDF is one that reflects equally in all directions. This BRDF is t
 
 In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
 
+While the diffuse BRDF reflects energy isotropically, many real-world reflections are highly biased. At the extreme end, a perfect mirror reflection is effectively a Dirac delta function in the reflected illumination direction. Many real-world materials are well modeled as a linear combination of diffuse and specular effects. 
+
 \subsubsection{Phong}
 
-While the diffuse BRDF reflects energy isotropically, many real-world reflections are highly biased. At the extreme end, a perfect mirror reflection is effectively a Dirac delta function in the reflected illumination direction. Many real-world materials are well modeled as a linear combination of diffuse and specular effects. A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
+A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
 
 \begin{equation} \label{eq:brdf_phong}
   f_r(L, O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
 \end{equation}
 
-In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. 
+In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $R$ instead of the halfway vector $H$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Blinn-Phong}
 
@@ -240,7 +242,7 @@ The so-called glossy BRDF simulates reflections from plastic materials using an 
   f_r(L, O) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(N \cdot L\right)}  e^{\frac{-\left( R \cdot O \right)^2}{2\sigma^2}},
 \end{equation}
 
-where the parameter $\sigma$ controls the width of the specular Gaussian.
+where the parameter $\sigma$ controls the width of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $R$ instead of the halfway vector $H$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Cook-Torrance}
 

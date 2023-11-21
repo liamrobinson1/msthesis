@@ -25,7 +25,7 @@ Further ambiguities lie in the albedo-area variations of subsets of the object g
 
 \subsubsection{Orientation}
 
-Multiple orientations of the object may produce the same light curve value. This behavior is demonstrated for a cube in Figure \ref{fig:brightness_iso}, where the continuous surfaces in attitude space sharing a common brightness value are plotted. 
+Multiple orientations of the object may produce the same light curve value \cite{burton2023attitude}. This behavior is demonstrated for a cube in Figure \ref{fig:brightness_iso}, where the continuous surfaces in attitude space sharing a common brightness value are plotted. 
 
 \begin{figure}[!htb]
   \centering
@@ -34,7 +34,7 @@ Multiple orientations of the object may produce the same light curve value. This
   \label{fig:brightness_iso}
 \end{figure}
 
-Figure \ref{fig:brightness_iso} points to a more general conclusion about the coupling of the light curve and object orientation. Because the light curve is continuous nature and the observation geometry at a given phase angle is determined entirely by the three-dimensional object orientation, any required light curve value acts as a one-dimensional constraint on orientation space. This yields two-dimensional surfaces in attitude space that produce the same light curve value.
+Figure \ref{fig:brightness_iso} points to a more general conclusion about the coupling of the light curve and object orientation. Because the light curve is continuous nature and the observation geometry at a given phase angle is determined entirely by the three-dimensional object orientation, any required light curve value acts as a one-dimensional constraint on orientation space. This yields two-dimensional surfaces in attitude space that produce the same light curve value. As a result, even if the shape of the object is known precisely, a single light curve measurement is not sufficient to determine the object's attitude.
 
 \subsubsection{Object Symmetry}
 
@@ -73,19 +73,19 @@ Every shape inversion method makes some assumption about how the object shape is
 
 \subsubsection{Bayesian Inversion Implications}
 
-Many iterative shape and attitude inversion methods rely on Bayes' theorem to compute the probability of a given shape hypothesis $M^\ell$ for a set of light curve measurements $I_{1:i}$ via \cite{linares2017}:
+Many iterative shape and attitude inversion methods rely on Bayes' theorem to compute the probability of a given shape hypothesis $M^\ell$ for a set of light curve measurements $I_{1:i}$ via \cite{linares2018space}:
 
 \begin{equation}
   P(M^\ell \vert I_{1:i}) = \frac{P(I_{1:i} \vert M^\ell)P(M^\ell)}{P(I_{1:i})}.
 \end{equation}
 
-Linares and Crassidis note that in most cases, computing the normalizing factor $P(I_{1:i})$ is not tractable as it is equivalent to integrating over the space of possible shapes \cite{linares2017}:
+Linares and Crassidis note that in most cases, computing the normalizing factor $P(I_{1:i})$ is not tractable as it is equivalent to integrating over the space of possible shapes \cite{linares2018space}:
 
 \begin{equation}
   P(I_{1:i}) = \int P(I_{1:i} \vert M^\ell)P(M^\ell) dM^\ell.
 \end{equation}
 
-The filter-based inversion literature proposes various methods for circumventing this issue. Multiple authors have used a Markov Chain Monte Carlo (MCMC) method to remove the need for the normalizing factor while still approaching the target posterior distribution in the limit of the chain \cite{linares2017, campbell2023}. Linares et al.\ use a Multiple Model Adaptive Estimation (MMAE) method which approximates the normalizing factor using a bank of $n$ known shape models $M^\ell_j)$ \cite{linares2014}:
+The filter-based inversion literature proposes various methods for circumventing this issue. Multiple authors have used a Markov Chain Monte Carlo (MCMC) method to remove the need for the normalizing factor while still approaching the target posterior distribution in the limit of the chain \cite{linares2018space, campbell2023}. Linares et al.\ use a Multiple Model Adaptive Estimation (MMAE) method which approximates the normalizing factor using a bank of $n$ known shape models $M^\ell_j)$ \cite{linares2014space}:
 
 \begin{equation}
   P(I_{1:i}) = \sum_{j=1}^n P(I_{1:i} \vert M^\ell_j)P(M^\ell_j),
