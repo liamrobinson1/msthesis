@@ -12,7 +12,16 @@ Many types of ambiguities exist in the light curve shape inversion problem. Some
 
 \subsubsection{Albedo-Area}
 
-A true ambiguity exists in the shape inversion problem due to the interplay between the coefficients of reflection of the object's surfaces and their areas \cite{fan2020thesis}. These factors are considered together as the \textit{albedo-area}. For a given shape, there exist an infinite family of geometrically similar shapes which possess the same albedo area with face areas scaled by a nonzero scalar $c$ and coefficients of reflection scaled by $a^{-1}$, constrained such that the scaled face albedo cannot violate energy conservation \cite{fan2020thesis}. Further ambiguities lie in the albedo-area variations of subsets of the object geometry. For example, scaling the areas of the end caps of a cylinder has the same effect on the light curve as applying the same scaling to their albedo. These families produces the same light curve in the same observation conditions, and is thus no decision can be made about the object's true scale within this family without additional information. In practice, knowledge of standard properties of common materials may be used to further constrain the scale of the object, but some amount of albedo-area ambiguity will always remain.
+A true ambiguity exists in the shape inversion problem due to the interplay between the coefficients of reflection of the object's surfaces and their areas \cite{fan2020thesis}. These factors are considered together as the \textit{albedo-area}. For a given shape, there exist an infinite family of geometrically similar shapes which possess the same albedo area with face areas scaled by a nonzero scalar $c$ and coefficients of reflection scaled by $a^{-1}$, constrained such that the scaled face albedo cannot violate energy conservation \cite{fan2020thesis}. This behavior is displayed in Figure \ref{fig:albedo_amb}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_light_curve_ambiguities_001_2_00x.png}
+  \caption{Albedo-area ambiguity for a cube illuminated using a Cook-Torrance BRDF}
+  \label{fig:albedo_amb}
+\end{figure}
+
+Further ambiguities lie in the albedo-area variations of subsets of the object geometry. For example, scaling the areas of the end caps of a cylinder has the same effect on the light curve as applying the same scaling to their albedo. These families produces the same light curve in the same observation conditions, and is thus no decision can be made about the object's true scale within this family without additional information. In practice, knowledge of standard properties of common materials may be used to further constrain the scale of the object, but some amount of albedo-area ambiguity will always remain.
 
 \subsubsection{Orientation}
 
@@ -33,7 +42,16 @@ Objects with symmetries in their albedo-area are also ambiguous in the shape inv
 
 \subsubsection{Observation Geometry}
 
-If the directions of the Sun and observer in the body frame of the object are flipped --- thereby mirroring the object about the Sun-object-observer bisector vector by $180^\circ$ --- the light curve will be identical for the same initial angular velocity \cite{burton2023attitude}. This equivalence holds so long as the phase angle of the observation is the same \cite{burton2023attitude}. This follows from the reciprocity of light reflection as modeled by the BRDF as well as the reciprocity of the shadows \cite{burton2023attitude}. Upon reflectin the object as described, areas which were previously Sun-shadowed become observer-shadowed and vice versa, preserving the total amount of shadowing and therefore the overall light curve. In the context of shape inversion, this behavior yields two equally plausible solutions for the object's shape in a given attitude profile that are offset from eachother by a rigid rotation of $180^\circ$ in the body frame \cite{burton2023attitude}. 
+If the directions of the Sun and observer in the body frame of the object are flipped --- thereby mirroring the object about the Sun-object-observer bisector vector by $180^\circ$ --- the light curve will be identical for the same initial angular velocity \cite{burton2023attitude}. This equivalence holds so long as the phase angle of the observation is the same \cite{burton2023attitude}. This follows from the reciprocity of light reflection as modeled by the BRDF as well as the reciprocity of the shadows \cite{burton2023attitude}. Upon reflectin the object as described, areas which were previously Sun-shadowed become observer-shadowed and vice versa, preserving the total amount of shadowing and therefore the overall light curve. For a simple conved shape case, Figure \ref{fig:obs_amg} displays this behavior.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_light_curve_ambiguities_002_2_00x.png}
+  \caption{Obseravtion geometry ambiguity for a cube in an arbitrary rigid body attitude profile.}
+  \label{fig:obs_amg}
+\end{figure}
+
+In the context of shape inversion, this behavior yields two equally plausible solutions for the object's shape in a given attitude profile that are offset from eachother by a rigid rotation of $180^\circ$ in the body frame \cite{burton2023attitude}. 
 
 \subsubsection{Nonconvex Shape Features}
 
@@ -55,13 +73,25 @@ Every shape inversion method makes some assumption about how the object shape is
 
 \subsubsection{Bayesian Inversion Implications}
 
-Bayes' theorem for the light curve inversion shape inversion problem is stated \cite{mahler2014}:
+Many iterative shape and attitude inversion methods rely on Bayes' theorem to compute the probability of a given shape hypothesis $M^\ell$ for a set of light curve measurements $I_{1:i}$ via \cite{linares2017}:
 
 \begin{equation}
-  P(M^\ell \vert I_{1:i}) = \frac{P(I_{1:i} \vert M^\ell)P(M^\ell)}{P(I_{1:i})},
+  P(M^\ell \vert I_{1:i}) = \frac{P(I_{1:i} \vert M^\ell)P(M^\ell)}{P(I_{1:i})}.
 \end{equation}
 
-where $M^\ell$ is a particular shape hypothesis and $I_{1:i}$ all the light curve measurements up to time $i$. 
+Linares and Crassidis note that in most cases, computing the normalizing factor $P(I_{1:i})$ is not tractable as it is equivalent to integrating over the space of possible shapes \cite{linares2017}:
+
+\begin{equation}
+  P(I_{1:i}) = \int P(I_{1:i} \vert M^\ell)P(M^\ell) dM^\ell.
+\end{equation}
+
+The filter-based inversion literature proposes various methods for circumventing this issue. Multiple authors have used a Markov Chain Monte Carlo (MCMC) method to remove the need for the normalizing factor while still approaching the target posterior distribution in the limit of the chain \cite{linares2017, campbell2023}. Linares et al.\ use a Multiple Model Adaptive Estimation (MMAE) method which approximates the normalizing factor using a bank of $n$ known shape models $M^\ell_j)$ \cite{linares2014}:
+
+\begin{equation}
+  P(I_{1:i}) = \sum_{j=1}^n P(I_{1:i} \vert M^\ell_j)P(M^\ell_j),
+\end{equation}
+
+implicitly assuming that the set of chosen models sufficiently spans the space of possible space object shapes. This assumption is not necessarily true if the observed object is unknown. Instead, this assumption could cause the MMAE method to become overly confident in a particular shape model in its bank as it has no sense of the space of shapes outside the bank.
 
 % In the context of shape inversion, we seek to find the shape $A$ that best explains the light curve $B$. To evaluate the probability of a given shape mesh estimate $\mathcal{M}_i$ based on light curve data $I_{1:i}$, the quantities $P(\mathcal{M}_i)$ and $P(I_{1:i})$ are required. The probability of a given mesh estimate $P(\mathcal{M}_i)$ is difficult to evaluate, as it is not clear how to define a prior distribution over the space of all possible meshes. As a result, it is impractical to perform a full Bayesian update on a given shape estimate.
 
