@@ -8,20 +8,20 @@ The problem of light curve shape inversion is plagued by different types of ambi
 
 \subsection{Ambiguities}
 
-Many types of ambiguities exist in the light curve shape inversion problem. Some of these ambiguities can be resolved by collecting more light curve data, but others are inherent to the problem.
+Many types of ambiguities exist in the light curve shape inversion problem. Some of these ambiguities can be resolved or reduced by collecting more light curve data, but others are inherent to the problem and remain regardless of the quality or quantity of available data.
 
 \subsubsection{Albedo-Area}
 
-A true ambiguity exists in the shape inversion problem due to the interplay between the coefficients of reflection of the object's surfaces and their areas \cite{fan2020thesis}. These factors are considered together as the \textit{albedo-area}. For a given shape, there exist an infinite family of geometrically similar shapes which possess the same albedo area with face areas scaled by a nonzero scalar $c$ and coefficients of reflection scaled by $a^{-1}$, constrained such that the scaled face albedo cannot violate energy conservation \cite{fan2020thesis}. This behavior is displayed in Figure \ref{fig:albedo_amb}.
+The interplay between the coefficients of reflection of the object's surfaces and their areas creates an ambiguity in the final estimated shape \cite{fan2020thesis}. These factors are considered together as the \textit{albedo-area}. For a given shape, there exist an infinite family of geometrically similar shapes which possess the same albedo area with face areas scaled by a nonzero scalar $c$ and coefficients of reflection scaled by $c^{-1}$, constrained such that the scaled face albedo cannot violate energy conservation \cite{fan2020thesis}. This behavior is displayed in Figure \ref{fig:albedo_amb}.
 
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curve_ambiguities_001_2_00x.png}
-  \caption{Albedo-area ambiguity for a cube illuminated using a Cook-Torrance BRDF}
+  \caption{Albedo-area ambiguity for a cube in an arbitrary torque-free rigid body attitude profile illuminated using a Cook-Torrance BRDF}
   \label{fig:albedo_amb}
 \end{figure}
 
-Further ambiguities lie in the albedo-area variations of subsets of the object geometry. For example, scaling the areas of the end caps of a cylinder has the same effect on the light curve as applying the same scaling to their albedo. These families produces the same light curve in the same observation conditions, and is thus no decision can be made about the object's true scale within this family without additional information. In practice, knowledge of standard properties of common materials may be used to further constrain the scale of the object, but some amount of albedo-area ambiguity will always remain.
+Further ambiguities lie in the albedo-area variations of subsets of the object geometry. For example, scaling the areas of the end caps of a cylinder has the same effect on the light curve as applying the same scaling to their albedo. These families produce the same light curve in the same observation conditions, and thus no decision can be made about the object's true scale within without additional information \cite{fan2020thesis}.
 
 \subsubsection{Orientation}
 
@@ -30,11 +30,11 @@ Multiple orientations of the object may produce the same light curve value \cite
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curve_iso_surfaces_002.png}
-  \caption{Brightness isosurfaces in rotation vector $\vctr{p} = \theta \hat{\lambda}$ for a cube illuminated using a Phong BRDF with $C_d=0.5$, $C_s=0.5$, $n=5$ at $\phi=45^\circ$ and normalized irradiance value $\hat{I} = 0.73$}
+  \caption{Brightness isosurfaces in rotation vector $\vctr{p} = \theta \hat{\lambda}$ for a cube with face areas $a_i = 4$ illuminated using a Phong BRDF with $C_d=0.5$, $C_s=0.5$, $n=5$ at $\phi=45^\circ$ and normalized irradiance value $\hat{I} = 0.73$}
   \label{fig:brightness_iso}
 \end{figure}
 
-Figure \ref{fig:brightness_iso} points to a more general conclusion about the coupling of the light curve and object orientation. Because the light curve is continuous nature and the observation geometry at a given phase angle is determined entirely by the three-dimensional object orientation, any required light curve value acts as a one-dimensional constraint on orientation space. This yields two-dimensional surfaces in attitude space that produce the same light curve value. As a result, even if the shape of the object is known precisely, a single light curve measurement is not sufficient to determine the object's attitude.
+Figure \ref{fig:brightness_iso} points to a more general conclusion about the coupling of the light curve and object orientation. Even if the shape of the object is known precisely, a single light curve measurement is not sufficient to determine the object's attitude due to this coupling.
 
 \subsubsection{Object Symmetry}
 
@@ -42,7 +42,7 @@ Objects with symmetries in their albedo-area are also ambiguous in the shape inv
 
 \subsubsection{Observation Geometry}
 
-If the directions of the Sun and observer in the body frame of the object are flipped --- thereby mirroring the object about the Sun-object-observer bisector vector by $180^\circ$ --- the light curve will be identical for the same initial angular velocity \cite{burton2023attitude}. This equivalence holds so long as the phase angle of the observation is the same \cite{burton2023attitude}. This follows from the reciprocity of light reflection as modeled by the BRDF as well as the reciprocity of the shadows \cite{burton2023attitude}. Upon reflectin the object as described, areas which were previously Sun-shadowed become observer-shadowed and vice versa, preserving the total amount of shadowing and therefore the overall light curve. For a simple conved shape case, Figure \ref{fig:obs_amg} displays this behavior.
+If the directions of the Sun and observer in the body frame of the object are swapped --- thereby rotating the object about the Sun-object-observer bisector vector by $180^\circ$ --- the light curve will be identical if the body has the same initial angular velocity \cite{burton2023attitude}. This equivalence holds so long as the phase angle of the observation is the same \cite{burton2023attitude}. This follows from the reciprocity of light reflection as modeled by the BRDF as well as the reciprocity of the shadows \cite{burton2023attitude}. Upon rotating the object as described, areas which were previously Sun-shadowed become observer-shadowed and vice versa, preserving the total amount of shadowing and therefore the overall light curve. Figure \ref{fig:obs_amg} displays this behavior.
 
 \begin{figure}[!htb]
   \centering
@@ -55,25 +55,23 @@ In the context of shape inversion, this behavior yields two equally plausible so
 
 \subsubsection{Nonconvex Shape Features}
 
-The influence of concavities are only observable in the light curve due to the variability of self-shadowing. Sometimes, certain faces of an object with concavities may be fully illuminated while at other times those faces may have shadows cast on them due to other parts of the object geometry. The larger the phase angle $\phi$ between the Sun and observer directions, the more self-shadowing will take place until no faces can be illuminated and viewed simultaneously at $\phi=180^\circ$. 
+The influence of concavities are only observable in the light curve due to the variability of self-shadowing \cite{durech2003}. Sometimes, certain faces of an object with concavities may be fully illuminated while at other times those faces may have shadows cast on them due to other parts of the object geometry. The larger the phase angle $\phi$ between the Sun and observer directions, the more self-shadowing will take place until no faces can be illuminated and viewed simultaneously at $\phi=180^\circ$ \cite{durech2003}.
 
-If a concave feature does contribute to the light curve while self-shadowing is occurring, new ambiguities are introduced. A single concave feature can be broken up into multiple smaller concavities with the same interior geometry and proportionally smaller face areas \cite{durech2003}. Similarly, other concavity geometries may produce the same aggregate effect on the light curve \cite{durech2003}.
+If a concave feature does contribute to the light curve while self-shadowing is occurring, new ambiguities are introduced. A single concave feature can be broken up into multiple smaller concavities with the same interior geometry and proportionally smaller face areas \cite{durech2003}. Similarly, other concavity geometries may produce the same aggregate effect on the light curve \cite{durech2003}. This particular ambiguity is truly unresolvable due to the unobservability of the face connectivity --- and more generally the final construction of the object --- from the light curve alone, as discussed in Section \ref{sec:full_shape}.
 
 \subsection{Face Observability}
 
-Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time. In such cases, no information is available to constrain the geometry of these unilluminated, unobserved faces. As an example, a cylinder rotating about its axis of symmetry may never point an end face towards the observer over a set of observations. Without any information on these faces, the hidden geometry within that region is unknown and the shape estimate is ambiguous. This ambiguity can be resolved by waiting until the observation geometry and object orientation change to allow these regions of the object to be illuminated and observed. 
+Depending on the object attitude profile and the geometry of the observer and the Sun, some faces of the object may never be illuminated and observed at the same time \cite{fan2020thesis}. In such cases, no information is available to constrain the geometry of these unilluminated, unobserved faces. As an example, a cylinder rotating about its axis of symmetry may never point an end face towards the observer over a set of observations. Without any information on these faces, the hidden geometry within that region is unknown and the shape estimate is ambiguous. This ambiguity can be resolved by waiting until the observation geometry and object orientation change to allow these regions of the object to be illuminated and observed \cite{friedman2020}. 
 
 % If an object is viewed at a constant phase angle of $\phi = 0^\circ$ between the Sun and observer vectors, no self-shadowing can occur and the resulting light curve will be well-fit by a convex estimate \cite{durech2003}. Similarly, a concavity that is never illuminated or is never able to be observed while illuminated is unobservable as its self-shadowing effects are not present in the observed light curve \cite{durech2003}.
 
-\subsection{Full Shape Observability}
+\subsection{Full Shape Observability} \label{sec:full_shapes}
 
-Although the light curve contains information that aids in shape estimation, the particular construction of the object being observed is fundamentally unobservable, independent of object convexity. In the simplest case, a cube produces the same light curve as 
-
-Every shape inversion method makes some assumption about how the object shape is constructed from the information in the light curve. EGI-based methods construct a convex approximation of the geometry by leveraging the Minkowski problem. 
+Although the light curve contains information that aids in shape estimation, the particular construction of the object is fundamentally unobservable, independent of object convexity \textit{I really need a citation here, but I cannot find any paper that makes this point about the inversion problem in general}. Every shape inversion method makes an assumption about how the object shape may be constructed from the information in the light curve. For example, EGI-based methods construct a convex approximation of the geometry by leveraging the Minkowski problem while filter-based methods may assume that the object is one of a set of known shapes. These assumptions are not driven by the data, as the data fundamentally cannot reveal the construction of the object without ambiguity.
 
 \subsubsection{Bayesian Inversion Implications}
 
-Many iterative shape and attitude inversion methods rely on Bayes' theorem to compute the probability of a given shape hypothesis $M^\ell$ for a set of light curve measurements $I_{1:i}$ via \cite{linares2018space}:
+It would be advantageous is Bayes' theorem could be easily applied to iteratively update a shape estimate as measurements are collected. Many iterative shape and attitude inversion methods already do this, applying Bayes' theorem to compute the probability of a given shape hypothesis $M^\ell$ for a set of light curve measurements $I_{1:i}$, via \cite{linares2018space}:
 
 \begin{equation}
   P(M^\ell \vert I_{1:i}) = \frac{P(I_{1:i} \vert M^\ell)P(M^\ell)}{P(I_{1:i})}.
@@ -85,13 +83,15 @@ Linares and Crassidis note that in most cases, computing the normalizing factor 
   P(I_{1:i}) = \int P(I_{1:i} \vert M^\ell)P(M^\ell) dM^\ell.
 \end{equation}
 
-The filter-based inversion literature proposes various methods for circumventing this issue. Multiple authors have used a Markov Chain Monte Carlo (MCMC) method to remove the need for the normalizing factor while still approaching the target posterior distribution in the limit of the chain \cite{linares2018space, campbell2023}. Linares et al.\ use a Multiple Model Adaptive Estimation (MMAE) method which approximates the normalizing factor using a bank of $n$ known shape models $M^\ell_j)$ \cite{linares2014space}:
+The filter-based inversion literature proposes various methods for circumventing this issue. Multiple authors have used a Markov Chain Monte Carlo (MCMC) method to remove the need for the normalizing factor while still approaching the target posterior distribution in the limit of the chain \cite{linares2018space, campbell2023}. Linares et al.\ discretize the shape space with a Multiple Model Adaptive Estimation (MMAE) method which approximates the normalizing factor using a bank of $n$ known shape models $M^\ell_j)$ \cite{linares2014space}:
 
 \begin{equation}
-  P(I_{1:i}) = \sum_{j=1}^n P(I_{1:i} \vert M^\ell_j)P(M^\ell_j),
+  P(I_{1:i}) = \sum_{j=1}^n P(I_{1:i} \vert M^\ell_j)P(M^\ell_j).
 \end{equation}
 
-implicitly assuming that the set of chosen models sufficiently spans the space of possible space object shapes. This assumption is not necessarily true if the observed object is unknown. Instead, this assumption could cause the MMAE method to become overly confident in a particular shape model in its bank as it has no sense of the space of shapes outside the bank.
+This implicitly assumes that the set of chosen models sufficiently spans the space of possible space object shapes. This assumption is not necessarily true for real observations, where there may be significant uncertainty associated with the object's identity and origin. In such cases, this assumption could cause the MMAE method to become overly confident in a particular shape model in its bank as it has no sense of the space of shapes outside the bank.
+
+As a result, filter-based methods make the same core assumption the direct methods: they assume a construction or selection method to determine the final geometry. Because this non-data-driven step is required to produce a shape estimate, a full Bayes update is not possible for the shape inversion problem and workarounds must be developed in each Bayesian method to approximate the posterior distribution \cite{linares2012, linares2014space, campbell2023, linares2017}.
 
 % In the context of shape inversion, we seek to find the shape $A$ that best explains the light curve $B$. To evaluate the probability of a given shape mesh estimate $\mathcal{M}_i$ based on light curve data $I_{1:i}$, the quantities $P(\mathcal{M}_i)$ and $P(I_{1:i})$ are required. The probability of a given mesh estimate $P(\mathcal{M}_i)$ is difficult to evaluate, as it is not clear how to define a prior distribution over the space of all possible meshes. As a result, it is impractical to perform a full Bayesian update on a given shape estimate.
 
