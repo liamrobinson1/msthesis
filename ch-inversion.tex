@@ -65,7 +65,7 @@ Depending on the object attitude profile and the geometry of the observer and th
 
 % If an object is viewed at a constant phase angle of $\phi = 0^\circ$ between the Sun and observer vectors, no self-shadowing can occur and the resulting light curve will be well-fit by a convex estimate \cite{durech2003}. Similarly, a concavity that is never illuminated or is never able to be observed while illuminated is unobservable as its self-shadowing effects are not present in the observed light curve \cite{durech2003}.
 
-\subsection{Full Shape Observability} \label{sec:full_shapes}
+\subsection{Full Shape Observability} \label{sec:full_shape}
 
 Although the light curve contains information that aids in shape estimation, the particular construction of the object is fundamentally unobservable, independent of object convexity \textit{I really need a citation here, but I cannot find any paper that makes this point about the inversion problem in general}. Every shape inversion method makes an assumption about how the object shape may be constructed from the information in the light curve. For example, EGI-based methods construct a convex approximation of the geometry by leveraging the Minkowski problem while filter-based methods may assume that the object is one of a set of known shapes. These assumptions are not driven by the data, as the data fundamentally cannot reveal the construction of the object without ambiguity.
 
@@ -91,7 +91,7 @@ The filter-based inversion literature proposes various methods for circumventing
 
 This implicitly assumes that the set of chosen models sufficiently spans the space of possible space object shapes. This assumption is not necessarily true for real observations, where there may be significant uncertainty associated with the object's identity and origin. In such cases, this assumption could cause the MMAE method to become overly confident in a particular shape model in its bank as it has no sense of the space of shapes outside the bank.
 
-As a result, filter-based methods make the same core assumption the direct methods: they assume a construction or selection method to determine the final geometry. Because this non-data-driven step is required to produce a shape estimate, a full Bayes update is not possible for the shape inversion problem and workarounds must be developed in each Bayesian method to approximate the posterior distribution \cite{linares2012, linares2014space, campbell2023, linares2017}.
+As a result, filter-based methods make the same core assumption the direct methods: they assume a construction or selection method to determine the final geometry. Because this non-data-driven step is required to produce a shape estimate, a full Bayes update is not possible for the shape inversion problem and workarounds must be developed in each Bayesian method to approximate the posterior distribution \cite{linares2012, linares2014space, campbell2023, linares2018space}.
 
 % In the context of shape inversion, we seek to find the shape $A$ that best explains the light curve $B$. To evaluate the probability of a given shape mesh estimate $\mathcal{M}_i$ based on light curve data $I_{1:i}$, the quantities $P(\mathcal{M}_i)$ and $P(I_{1:i})$ are required. The probability of a given mesh estimate $P(\mathcal{M}_i)$ is difficult to evaluate, as it is not clear how to define a prior distribution over the space of all possible meshes. As a result, it is impractical to perform a full Bayesian update on a given shape estimate.
 
@@ -122,18 +122,18 @@ In the continuous case, the Gaussian Image associates each point on the surface 
   E(\theta, \phi) = \sum_i{\frac{1}{\| \kappa(u_i, v_i) \|}}.
 \end{equation}
 
-By Eq \ref{eq:egi_deg}, flat areas of the object are mapped to point masses in the EGI, motivating a simpler definition of the EGI for discrete surfaces. The discrete EGI $\vctr{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\vctr{N}$ each scaled by a nonnegative areea $a \in \mathbb{R}$, where $a_i \geq 0 \forall i$ \cite{little1983}.
+By Eq \ref{eq:egi_deg}, flat areas of the object are mapped to point masses in the EGI, motivating a simpler definition of the EGI for discrete surfaces. The discrete EGI $\vctr{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\vctr{n}$ each scaled by a nonnegative areea $a \in \mathbb{R}$, where $a_i \geq 0 \forall i$ \cite{little1983}.
 
 \begin{equation}
-  \vctr{E}_i = a_i \vctr{N}_i
+  \vctr{E}_i = a_i \vctr{n}_i
 \end{equation}
 
-In the context of shape inversion, the $m$ vectors $\vctr{N}$ should be a relatively uniform tessellation of the unit sphere. A convex polytope can be uniquely represented by an EGI of facet normal vectors scaled by each facet's area. The set of normal vectors in an EGI is denoted $\mathcal{N}$ with the set of areas denoted $\mathcal{A}$. The vector of facet areas is denoted $\vctr{a} \in \mathbb{R}^{m \times 1}$. The norm of the EGI is notated $\| \vctr{E} \| = \vctr{a}$ with the `size' of the EGI $\|\vctr{E}\| = m$.
+In the context of shape inversion, the $m$ vectors $\vctr{n}$ should be a relatively uniform tessellation of the unit sphere. A convex polytope can be uniquely represented by an EGI of facet normal vectors scaled by each facet's area. The set of normal vectors in an EGI is denoted $\mathcal{N}$ with the set of areas denoted $\mathcal{A}$. The vector of facet areas is denoted $\vctr{a} \in \mathbb{R}^{m \times 1}$. The norm of the EGI is notated $\| \vctr{E} \| = \vctr{a}$ with the `size' of the EGI $\|\vctr{E}\| = m$.
 
 The solution to the Minkowski problem proves the existence and uniqueness of a convex polytope for any EGI satisfying the closure condition \cite{minkowski1909}:
 
 \begin{equation} \label{eq:egi_closure}
-  \sum_{i=1}^m a_i \vctr{N}_i = [0, 0, 0].
+  \sum_{i=1}^m a_i \vctr{n}_i = [0, 0, 0].
 \end{equation}
 
 Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polytope --- with no open boundaries, up to a translation. While a given EGI uniquely represents a polytope, that same EGI could also be interpreted to be an infinite number of nonconvex and open geometries. An example of this extended family is depicted in Figure \ref{fig:egi_family}.
@@ -153,7 +153,7 @@ To accomplish the goal of fitting a convex object to a collection of light curve
 
 \begin{align*} \numberthis \label{eq:reflection_matrix}
   G_{ij} &= \frac{I_{ij}}{I_s a_j} \\
-  &= f_r\left(L, O \right) \left(L_j \cdot N_i\right) \left(O_j \cdot N_i\right).
+  &= f_r\left(\vctr{\ell}, \vctr{o} \right) \left(\vctr{\ell}_j \cdot \vctr{n}_i\right) \left(\vctr{o}_j \cdot \vctr{n}_i\right).
 \end{align*}
 
 It must be noted that Eq \ref{eq:reflection_matrix} assumes that the BRDF of the object is uniform across its surface. This is a core assumption of the direct convex inversion scheme in the literature, and a limitation of the method that cannot be easily circumvented. This relationship between the received normalized irradiance and the areas of the object faces reveals the compact form of Eq \ref{eq:lc_func_normalized} for convex objects for any BRDF:
@@ -162,13 +162,13 @@ It must be noted that Eq \ref{eq:reflection_matrix} assumes that the BRDF of the
   \check{I}_{convex} = G \vctr{a}.
 \end{equation}
 
-Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\vctr{N}$ on the unit sphere to fit an EGI to the observed light curve $\check{I}_\textrm{obs} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vctr{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares (NNLS) problem and can be solved efficiently for large numbers of normal vectors $\vctr{N}$ and light curve data points $\check{I}_\textrm{obs}$:
+Given a light curve, direct shape inversion schemes sample $m$ candidate normal vectors $\vctr{n}$ on the unit sphere to fit an EGI to the observed light curve $\check{I}_\textrm{obs} \in \mathbb{R}^{n \times 1}$ \cite{friedman2020, fan2020thesis}. This is accomplished by solving an optimization problem to distribute the area vector $\vctr{a}$ across the sampled normals to minimize the residual between the observed and modeled light curves. In practice, this is a constrained nonnegative least squares (NNLS) problem and can be solved efficiently for large numbers of normal vectors $\vctr{n}$ and light curve data points $\check{I}_\textrm{obs}$:
 
 \begin{equation} \label{eq:area_opt_convex}
   \min_{\vctr{a}}{\|\check{I}_{\textrm{obs}} - G \vctr{a}\|_2} \:\:\: \textrm{ subject to } \vctr{a}_i \geq 0,
 \end{equation}
 
-to yield an optimal set of face areas $\vctr{a}_i$. In Eq \ref{eq:area_opt_convex}, the reflection matrix $G$ is computed from the chosen normal vectors $\vctr{N}_i$, the uniform BRDF, and the Sun and observer vectors in the body frame of the object. NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Eq \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
+to yield an optimal set of face areas $\vctr{a}_i$. In Eq \ref{eq:area_opt_convex}, the reflection matrix $G$ is computed from the chosen normal vectors $\vctr{n}_i$, the uniform BRDF, and the Sun and observer vectors in the body frame of the object. NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Eq \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
 
 The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibonacci mapping described by Keinert et al.\ in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{fig:initial_egi_sampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
 
@@ -195,18 +195,18 @@ A normal vector resampling step is presented in this work to promote a more accu
 Uniformly sampling a cone of half-angle $\phi$ is accomplished by strategically sampling points on the unit sphere. 
 
 \begin{equation} \label{eq:cone_sample_n_pole}
-  \vctr{N}_{cone} = \begin{bmatrix}
+  \vctr{n}_{cone} = \begin{bmatrix}
     \sqrt{1-z^2}\cos{\theta} \\
     \sqrt{1-z^2}\sin{\theta} \\
     z \\
   \end{bmatrix}
 \end{equation}
 
-In Eq \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\vctr{N}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Eq \ref{eq:cone_sampling_rv} which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
+In Eq \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\vctr{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Eq \ref{eq:cone_sampling_rv} which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
 
 \begin{align*} \label{eq:cone_sampling_rv} \numberthis
-  \theta &= 2 \cos^{-1}\left( \vctr{N}_{cone,z} \right) \\
-  \lambda &= \vctr{N}_{cone} \times [0, 0, 1]^T
+  \theta &= 2 \cos^{-1}\left( \vctr{n}_{cone,z} \right) \\
+  \hat{\lambda} &= \vctr{n}_{cone} \times [0, 0, 1]^T
 \end{align*}
 
 The number of new candidates sampled per initial solution vector and the cone half-angle should be adjusted on a case-by-case basis depending on the compute power available and light curve data quality. Multiple iterative methods exist for solving nonnegative constrained least squares (NNLS) problems. The classical NNLS algorithm was published by Lawson and Hanson and improved later by Bro and De Jong in their Fast NNLS (FNNLS) approach \cite{lawson1976, bro1996}.
@@ -248,7 +248,7 @@ Merging the resampled EGI shown in Figure \ref{fig:resampled_egi} produces a fin
 At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
 
 \begin{equation} \label{eq:egi_validation}
-  \vctr{E}_{\textrm{closed}} = \vctr{E}_{\textrm{open}} - \sum_{i=1}^m a_i \vctr{N}_i .
+  \vctr{E}_{\textrm{closed}} = \vctr{E}_{\textrm{open}} - \sum_{i=1}^m a_i \vctr{n}_i .
 \end{equation}
 
 The concept of a closure step is not a novel contribution. Fan's method solved an optimization problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is improved with a simpler analytical correction. In practice this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
@@ -307,7 +307,7 @@ Information about large, unilateral object concavities is obtained during EGI es
 The mean axis of prominent concave features is determined by measuring the divergence of the optimized EGI from a closed object with the magnitude of the closure error $\vctr{e}_{EGI}$.
 
 \begin{equation} \label{eq:closure_error}
-  \vctr{e}_{EGI} = -\sum_{i=1}^{m} a_i \vctr{N}_i.
+  \vctr{e}_{EGI} = -\sum_{i=1}^{m} a_i \vctr{n}_i.
 \end{equation}
 
 The EGI closure error vector in Eq \ref{eq:closure_error} represents the missing area on each body axis that could be added to close the object. The addition of the minus sign transforms the vector from expressing the presence of excess area to the absence of missing area. The closure error will be negligible if there are no concavities present. The closure error may also be negligible if there is no self-shadowing present over the sampled attitude profile, therefore the closure error merely quantifies the self-shadowing present in the measurements, not whether there may be self-shadowing in other orientations.
@@ -338,8 +338,8 @@ When introducing a concavity, it is important to classify which vertices are par
 
 \begin{equation} \label{eq:root_free}
   C(F_i) = \begin{cases} 
-    0 & \cos^{-1}\left( \vctr{N}_i \cdot \hat{e}_{EGI} \right) \geq \frac{\pi}{2} - \varepsilon \\
-    1 & \cos^{-1}\left( \vctr{N}_i \cdot \hat{e}_{EGI} \right) < \frac{\pi}{2} - \varepsilon \\
+    0 & \cos^{-1}\left( \vctr{n}_i \cdot \hat{e}_{EGI} \right) \geq \frac{\pi}{2} - \varepsilon \\
+    1 & \cos^{-1}\left( \vctr{n}_i \cdot \hat{e}_{EGI} \right) < \frac{\pi}{2} - \varepsilon \\
   \end{cases}.
 \end{equation}
 
