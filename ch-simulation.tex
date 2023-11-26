@@ -190,16 +190,16 @@ This discussion raises an important question; how should the macroscopic outcome
     f_r(\vctr{x}, L, O) = \frac{d\mathcal{R}\left(\vctr{x}, O\right)}{d\mathcal{I}\left(L, \vctr{x}\right)}.
 \end{equation}
 
-In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $L \in \mathbb{S}^2$ is the incoming illumination unit vector and $O \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, L, O)$ and $f_r(L, O)$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
+In Eq \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $\vctr{L} \in \mathbb{S}^2$ is the incoming illumination unit vector and $\vctr{O} \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, \vctr{L}, \vctr{O})$ and $f_r(\vctr{L}, \vctr{O})$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
 
 \begin{equation} \label{eq:brdf_energy_cons}
-  \forall L \in \mathbb{S}^2 : \:\: \int_{O \in \mathbb{S}^2} f_r(L, O) \: d\mathbb{S}^2 \leq 1.
+  \forall \vctr{L} \in \mathbb{S}^2 : \:\: \int_{\vctr{O} \in \mathbb{S}^2} f_r(\vctr{L}, \vctr{O}) \: d\mathbb{S}^2 \leq 1.
 \end{equation}
 
 Eq \ref{eq:brdf_energy_cons} states that for all possible illumination directions $L$, integrating all possible outgoing observer directions $O$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
 
 \begin{equation} \label{eq:brdf_reciprocity}
-  \forall L, O \in \mathbb{S}^2 : \:\: f_r(L, O) = f_r(O, L).
+  \forall \vctr{L}, \vctr{O} \in \mathbb{S}^2 : \:\: f_r(\vctr{L}, \vctr{O}) = f_r(\vctr{O}, \vctr{L}).
 \end{equation}
 
 Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. Real-world materials are modeled with these BRDFs by fitting the free parameters of a given BRDF to measured reflectance data \cite{matusik2003}. If a BRDF can be fit to the data with low error, that reflection function can be considered to be a faithful model for the true physics. 
@@ -209,7 +209,7 @@ Now that the requirements for a plausible physical BRDF have been established, a
 The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
 
 \begin{equation} \label{eq:brdf_lambertian}
-  f_r(L, O) = \frac{C_d}{\pi}
+  f_r(\vctr{L}, \vctr{O}) = \frac{C_d}{\pi}
 \end{equation}
 
 In Eq \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
@@ -221,17 +221,17 @@ While the diffuse BRDF reflects energy isotropically, many real-world reflection
 A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
 
 \begin{equation} \label{eq:brdf_phong}
-  f_r(L, O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (O \cdot R)^n}{N \cdot L}
+  f_r(\vctr{L}, \vctr{O}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{O} \cdot \vctr{R})^n}{\vctr{N} \cdot \vctr{L}}
 \end{equation}
 
-In Eq \ref{eq:brdf_phong}, $R$ is the reflected illumination vector, computed via $R = 2 (N \cdot L) N - L$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $R$ instead of the halfway vector $H$ used by other models \cite{duvenhage2013}.
+In Eq \ref{eq:brdf_phong}, $\vctr{R}$ is the reflected illumination vector, computed via $\vctr{R} = 2 (\vctr{N} \cdot \vctr{L}) \vctr{N} - \vctr{L}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{R}$ instead of the halfway vector $\vctr{H}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Blinn-Phong}
 
-The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $H$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $H = L + O$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\vctr{H}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\vctr{H} = \vctr{L} + \vctr{O}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
 
 \begin{equation} \label{eq:brdf_blinn_phong}
-  f_r(L, O) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (N \cdot H)^n}{4 (N \cdot L)(N \cdot O)}
+  f_r(\vctr{L}, \vctr{O}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{N} \cdot \vctr{H})^n}{4 (\vctr{N} \cdot \vctr{L})(\vctr{N} \cdot \vctr{O})}
 \end{equation}
 
 \subsubsection{Glossy}
@@ -239,35 +239,35 @@ The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the spec
 The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_glossy}
-  f_r(L, O) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(N \cdot L\right)}  e^{\frac{-\left( R \cdot O \right)^2}{2\sigma^2}},
+  f_r(\vctr{L}, \vctr{O}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(N \cdot L\right)}  e^{\frac{-\left( R \cdot O \right)^2}{2\sigma^2}},
 \end{equation}
 
-where the parameter $\sigma$ controls the width of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $R$ instead of the halfway vector $H$ used by other models \cite{duvenhage2013}.
+where the parameter $\sigma$ controls the width of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{R}$ instead of the halfway vector $\vctr{H}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Cook-Torrance}
 
-The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $H$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
+The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\vctr{H}$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
 
 \begin{equation} \label{eq:d_beckmann}
-  D_{ct} = \frac{1}{\pi \alpha^2 \left( N \cdot H \right)^4} \exp\left( \frac{1 - \left(N \cdot H\right)^2}{\alpha^2 \left(N \cdot H\right)^2} \right).
+  D_{ct} = \frac{1}{\pi \alpha^2 \left( \vctr{N} \cdot \vctr{H} \right)^4} \exp\left( \frac{1 - \left(\vctr{N} \cdot \vctr{H}\right)^2}{\alpha^2 \left( \vctr{N} \cdot \vctr{H} \right)^2} \right).
 \end{equation}
 
 In Eq \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as \cite{cook1982}:
 
 \begin{equation} \label{eq:fresnel_approx}
-  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( H \cdot L \right) \right) ^ 5.
+  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{H} \cdot \vctr{L} \right) \right) ^ 5.
 \end{equation}
 
 The geometric attenuation term expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
-  G_{ct} = \min \left\{ 1, \frac{2\left(N \cdot H\right) \left(N \cdot O\right)}{O \cdot H}, \frac{2\left(N \cdot H\right) \left(N \cdot L\right)}{O \cdot H} \right\}.
+  G_{ct} = \min \left\{ 1, \frac{2\left(\vctr{N} \cdot \vctr{H}\right) \left(\vctr{N} \cdot \vctr{O} \right)}{\vctr{O} \cdot \vctr{H}}, \frac{2\left(\vctr{N} \cdot \vctr{H}\right) \left(\vctr{N} \cdot \vctr{L}\right)}{\vctr{O} \cdot \vctr{H}} \right\}.
 \end{equation}
 
 The overall reflectance for the Cook-Torrance BRDF is given by:
 
 \begin{equation} \label{eq:brdf_cook_torrance}
-  f_r(L, O) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(N \cdot L\right) \left( N \cdot O \right)}
+  f_r(\vctr{L}, \vctr{O}) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(\vctr{N} \cdot \vctr{L}\right) \left( \vctr{N} \cdot \vctr{O} \right)}
 \end{equation}
 
 \subsubsection{Oren-Nayar}
@@ -277,15 +277,15 @@ The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-wo
 \begin{align*} \numberthis
   A &= 1 - 0.5 \frac{\alpha^2}{\alpha^2 + 0.33} \\
   B &= 0.45 \frac{\alpha^2}{\alpha^2 + 0.09} \\
-  C &= \frac{\mathrm{proj}_{N}\left(L\right)}{\|\mathrm{proj}_{N}\left(L\right)\|} \cdot  \frac{\mathrm{proj}_{N}\left(O\right)}{\|\mathrm{proj}_{N}\left(O\right)\|} \\
-  \beta &= \max \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\} \\
-  \gamma &= \min \left\{ \arccos\left( L \cdot N \right), \: \arccos\left( O \cdot N \right) \right\}. \\
+  C &= \frac{\mathrm{proj}_{\vctr{N}}\left(\vctr{L}\right)}{\|\mathrm{proj}_{\vctr{N}}\left(\vctr{L}\right)\|} \cdot  \frac{\mathrm{proj}_{\vctr{N}}\left(\vctr{O}\right)}{\|\mathrm{proj}_{\vctr{N}}\left(\vctr{O}\right)\|} \\
+  \beta &= \max \left\{ \arccos\left( \vctr{L} \cdot \vctr{N} \right), \: \arccos\left( \vctr{O} \cdot \vctr{N} \right) \right\} \\
+  \gamma &= \min \left\{ \arccos\left( \vctr{L} \cdot \vctr{N} \right), \: \arccos\left( \vctr{O} \cdot \vctr{N} \right) \right\}. \\
 \end{align*}
 
 With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
 
 \begin{equation}
-  f_r(L, O) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
+  f_r(\vctr{L}, \vctr{O}) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
 \end{equation}
 
 \subsubsection{Ashikhmin-Shirley}
@@ -293,11 +293,11 @@ With these values computed, the reflectance of the Oren-Nayar BRDF is given by \
 The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
 
 \begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
-  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{N \cdot L}{2}\right)^5\right) \left(1 - \left(1 - \frac{N \cdot O}{2}\right)^5\right) \\
-  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( N \cdot H \right)
-  ^\frac{n_u \left(H \cdot U \right)^2 + n_v \left( H \cdot V \right)^2}{1 - \left(H \cdot N\right)^2}}
-  {\left(H \cdot L\right) \max\left\{ N \cdot O, N \cdot L \right\}} F \\
-  f_r(L, O) &= \rho_d + \rho_s. \\
+  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\vctr{N} \cdot \vctr{L}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\vctr{N} \cdot \vctr{O}}{2}\right)^5\right) \\
+  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( \vctr{N} \cdot \vctr{H} \right)
+  ^\frac{n_u \left(\vctr{H} \cdot \vctr{U} \right)^2 + n_v \left( \vctr{H} \cdot \vctr{V} \right)^2}{1 - \left(\vctr{H} \cdot \vctr{N}\right)^2}}
+  {\left(\vctr{H} \cdot \vctr{L}\right) \max\left\{ \vctr{N} \cdot \vctr{O}, \vctr{N} \cdot \vctr{L} \right\}} F \\
+  f_r(\vctr{L}, \vctr{O}) &= \rho_d + \rho_s. \\
 \end{align*}
 
 In Eq \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Eq \ref{eq:fresnel_approx} while $U$ and $V$ are predefined surface basis vectors perpendicular to the surface normal.
