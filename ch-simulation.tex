@@ -169,13 +169,13 @@ The support of the $i$th face --- the perpendicular distance from the origin to 
 The volume of the object is computed:
 
 \begin{equation} \label{eq:object_volume}
-    V = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vec{h}_i \cdot \vec{a}_i.
+    V = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vctr{h}_i \cdot \vctr{a}_i.
 \end{equation}
 
-In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vec{h}$ and $\vec{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
+In Eq \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vctr{h}$ and $\vctr{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
 
 \begin{equation} \label{eq:egi_definition}
-    \vec{E}_i = \vec{a}_i \vec{n}_i.
+    \vctr{E}_i = \vctr{a}_i \vctr{n}_i.
 \end{equation}
 
 \subsection{The Bidirectional Reflectance Distribution Function}
@@ -719,10 +719,10 @@ Many later transformations require the body axis rotation matrices $R_1$, $R_2$,
 
 \subsection{Topocentric East North Up (ENU) Reference Frame}
 
-The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vec{r}_\mathrm{itrf}$ in ITRF to $\vec{r}_{enu}$ in ENU is a function of the longitude of the station $\lambda$ and the geocentric latitude $\phi_\mathrm{geoc}$ by \cite{frueh2019notes}:
+The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vctr{r}_\mathrm{itrf}$ in ITRF to $\vctr{r}_{enu}$ in ENU is a function of the longitude of the station $\lambda$ and the geocentric latitude $\phi_\mathrm{geoc}$ by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:itrf_to_enu}
-  \vec{r}_{enu} = F_2 F_1 R_2(\phi_\mathrm{geoc}) R_3(\lambda) \vec{r}_\mathrm{itrf}.
+  \vctr{r}_{enu} = F_2 F_1 R_2(\phi_\mathrm{geoc}) R_3(\lambda) \vctr{r}_\mathrm{itrf}.
 \end{equation}
 
 In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$ swaps the second and third unit vectors, and $F_2$ swaps the first and third unit vectors. The orientation of the ENU reference frame at the Purdue Optical Ground Station is depicted in Figure \ref{fig:pogs_enu}.
@@ -738,36 +738,36 @@ In Eq \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$
 
 Transforming from ITRF to a standardized inertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Montenbruck and Gill \cite{montenbruck2012}. 
 
-Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vec{r}_\mathrm{itrf}$ in ITRF to $\vec{r}_{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
+Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vctr{r}_\mathrm{itrf}$ in ITRF to $\vctr{r}_{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:itrf_to_gtod}
-  \vec{r}_{gtod} = R_1(y_p) R_2(x_p) \vec{r}_\mathrm{itrf},
+  \vctr{r}_{gtod} = R_1(y_p) R_2(x_p) \vctr{r}_\mathrm{itrf},
 \end{equation}
 
-where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from $\vec{r}_{gtod}$ in GTOD to $\vec{r}_{teme}$ in the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
+where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from $\vctr{r}_{gtod}$ in GTOD to $\vctr{r}_{teme}$ in the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:gtod_to_teme}
-  \vec{r}_{teme} = R_3(-\theta_{GMST}) \vec{r}_{gtod},
+  \vctr{r}_{teme} = R_3(-\theta_{GMST}) \vctr{r}_{gtod},
 \end{equation}
 
-where $\theta_{GMST}$ is the Greenwich mean sidereal time. Accounting for the difference between GMST and GAST at the date of interest transforms $\vec{r}_{teme}$ TEME to $\vec{r}_{tod}$ in the True of Date (TOD) reference frame via \cite{vallado4ed}:
+where $\theta_{GMST}$ is the Greenwich mean sidereal time. Accounting for the difference between GMST and GAST at the date of interest transforms $\vctr{r}_{teme}$ TEME to $\vctr{r}_{tod}$ in the True of Date (TOD) reference frame via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:teme_to_tod}
-  \vec{r}_{tod} = R_3(-\Delta \Psi \cos \epsilon) \vec{r}_{teme},
+  \vctr{r}_{tod} = R_3(-\Delta \Psi \cos \epsilon) \vctr{r}_{teme},
 \end{equation}
 
-where $\Delta \Psi$ is the angular difference in the longitude of the vernal equinox between GMST and GAST, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}. Accounting for the nutation of Earth's pole transforms $\vec{r}_{tod}$ from TOD to $\vec{r}_{mod}$ in the Mean of Date (MOD) reference frame via \cite{vallado4ed}:
+where $\Delta \Psi$ is the angular difference in the longitude of the vernal equinox between GMST and GAST, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}. Accounting for the nutation of Earth's pole transforms $\vctr{r}_{tod}$ from TOD to $\vctr{r}_{mod}$ in the Mean of Date (MOD) reference frame via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:tod_to_mod}
-  \vec{r}_{mod} = R_1(-\bar{\epsilon}) R_3(\Delta\Psi) R_1(\bar{\epsilon} + \Delta\epsilon) \vec{r}_{tod},
+  \vctr{r}_{mod} = R_1(-\bar{\epsilon}) R_3(\Delta\Psi) R_1(\bar{\epsilon} + \Delta\epsilon) \vctr{r}_{tod},
 \end{equation}
 
 where $\bar{\epsilon}$ is the mean inclination of the ecliptic at the time of interest, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}.
 
-Accounting for the secular precession of Earth's pole transforms $\vec{r}_{mod}$ from MOD to $\vec{r}_\mathrm{icrf}$ in ICRF via \cite{vallado4ed}:
+Accounting for the secular precession of Earth's pole transforms $\vctr{r}_{mod}$ from MOD to $\vctr{r}_\mathrm{icrf}$ in ICRF via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:mod_to_icrf}
-  \vec{r}_\mathrm{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vec{r}_{mod},
+  \vctr{r}_\mathrm{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vctr{r}_{mod},
 \end{equation}
 
 through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$. Each of these angles modeling the precession are a function of the date of the transformation, and are approximated by polynomial expansions in the Julian century $T$ \cite{frueh2019notes}.

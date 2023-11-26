@@ -85,7 +85,7 @@
 \newcommand{\boldvectcommand}{\boldsymbol} % needs bm package
 \@mmacro{vect}{\ifthenelse{\boolean{arrowvect}}{\vv}{\boldvectcommand}}
 \newcommand*{\hvect}[1]{\vv{\vphantom{h}#1}}
-\newcommand*{\hvec}[1]{\vec{\vphantom{t}#1}}
+\newcommand*{\hvec}[1]{\vctr{\vphantom{t}#1}}
 
 \newcommand*{\@norm}[1]{
     \mbox{\raisebox{1.75pt}{$\bigl\Vert$}} #1
