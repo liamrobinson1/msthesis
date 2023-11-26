@@ -151,7 +151,7 @@ One common text file format for 3D model files is \texttt{.obj}, developed by Wa
 For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with:
 
 \begin{equation} \label{eq:face_normal}
-    \hat{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
+    \vctr{N} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
 \end{equation}
 
 The face area is computed with:
@@ -160,10 +160,10 @@ The face area is computed with:
     a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
 \end{equation}
 
-The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\, the first vertex $v_{i,1}$, and the face normal vector $\hat{n}_i$:
+The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\, the first vertex $v_{i,1}$, and the face normal vector $\vctr{N}_i$:
 
 \begin{equation} \label{eq:face_support}
-    h_i = v_{i,1} \cdot \hat{n}_i.
+    h_i = v_{i,1} \cdot \vctr{N}_i.
 \end{equation}
 
 The volume of the object is computed:
@@ -377,10 +377,10 @@ yielding:
 
 \subsubsection{Normalized Irradiance}
 
-The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of an object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\hat{I}$ via:
+The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of an object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\check{I}$ via:
 
 \begin{equation} \label{eq:irradiance_to_norm_irradiance}
-  \hat{I} = \frac{r^2}{I_s} I.
+  \check{I} = \frac{r^2}{I_s} I.
 \end{equation}
 
 To be precise, the normalized irradiance has units $m^2$ and can be interpreted as the area of a flat plate illuminated by a $1 \: \left[W/m^2\right]$ light source required to reflect the same irradiance in the direction of the observer. Throughout this work, normalized irradiance is treated as being nondimensional for light curve simulation and inversion purposes as its physical interpretation is largely irrelevant.
@@ -395,30 +395,26 @@ expressed by the shadowing condition $\mu_{ij}$.
 
 \begin{equation} \label{eq:cvx_shadow_cond}
   \mu_{ij} = \begin{cases}
-    1 \text{ if } \left( O_j \cdot \hat{n}_i \right) > 0 \text{ and } \left( L_j \cdot \hat{n}_i \right) > 0 
+    1 \text{ if } \left( \vctr{O}_j \cdot \vctr{N}_i \right) > 0 \text{ and } \left( \vctr{L}_j \cdot \vctr{N}_i \right) > 0 
 	  \text{ and } \delta_{ij,\text{ss}} = 0 \text{ and } \delta_{ij,\text{os}} = 0\\
     0 \text{ otherwise } \\
   \end{cases}
 \end{equation}
 
-The unit vectors $O$ and $L$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\hat{n}$ is chosen by convention for all mesh operations. 
-The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, 
-are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. 
-For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing 
-refers to otherwise visible faces blocked by other portions of the geometry.
+The unit vectors $\vctr{O}$ and $\vctr{L}$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\vctr{N}$ is chosen by convention for all mesh operations. The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing refers to otherwise visible faces blocked by other portions of the geometry.
 
 The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
-normalized irradiance $\hat{I}$. This can be scaled to adjust for the distance from the observer to
+normalized irradiance $\check{I}$. This can be scaled to adjust for the distance from the observer to
 the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
 
 \begin{equation} \label{eq:lc_func_normalized}
-  \hat{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(L_j, O_j) \left( \hat{O}_j \cdot \hat{n}_i \right) \left( \hat{S}_j \cdot \hat{n}_i \right)}.
+  \check{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(\vctr{L}_j, \vctr{O}_j) \left( \vctr{O}_j \cdot \vctr{N}_i \right) \left( \vctr{S}_j \cdot \vctr{N}_i \right)}.
 \end{equation}
 
-In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(L_j, O_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
+In Eq \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(\vctr{L}_j, \vctr{O}_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
-  I_{j} = \frac{I_s \hat{I}_j}{r_j^2}.
+  I_{j} = \frac{I_s \check{I}_j}{r_j^2}.
 \end{equation}
 
 Note that using $r_j = \| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|$ is a simplifying assumption as some faces of the object are further or closer to the Sun than the center of mass. As the scale of human-made space objects are a factor of $10^{10}$ to $10^{12}$ smaller than the distance to the Sun, the difference across the surface of the object is negligible.
@@ -429,7 +425,7 @@ The light curve simulation framework developed in this work relies on a pixel-by
 
 \subsubsection{Camera Projections and Terminology}
 
-In computer graphics, a camera is defined by its position $R_{cam}$, target $T_{cam}$, reference up direction $U_{cam}$, and a field of view $FOV$. In order to render a 3D scene to a 2D image using this camera, a transformation is needed. An orthographic camera accomplishes this transformation by orthogonally projecting points onto a plane perpendicular to camera look direction $T_{cam} - R_{cam}$. The volume of space that falls into view of the camera is known as the frustum \cite{shirley2009}. An important consequence of orthogonal projection is that objects further away from the camera do not shrink in the image, which is sometimes advantageous. A perspective projection forms a more complex frustum that expands outwards from a near plane to a proportionally larger far plane. Because of the expansion of the frustum, geometry processed by the perspective transformation shrinks as it moves further from the near plane. Figure \ref{fig:ortho_perspective_cameras} displays the geometry of these camera frustums, with additional reference frames detailed in Section \ref{sec:graphics_trans}.
+In computer graphics, a camera is defined by its position $\vctr{R}_{cam}$, target $\vctr{T}_{cam}$, reference up direction $\vctr{U}_{cam}$, and a field of view $FOV$. In order to render a 3D scene to a 2D image using this camera, a transformation is needed. An orthographic camera accomplishes this transformation by orthogonally projecting points onto a plane perpendicular to camera look direction $\vctr{T}_{cam} - \vctr{R}_{cam}$. The volume of space that falls into view of the camera is known as the frustum \cite{shirley2009}. An important consequence of orthogonal projection is that objects further away from the camera do not shrink in the image, which is sometimes advantageous. A perspective projection forms a more complex frustum that expands outwards from a near plane to a proportionally larger far plane. Because of the expansion of the frustum, geometry processed by the perspective transformation shrinks as it moves further from the near plane. Figure \ref{fig:ortho_perspective_cameras} displays the geometry of these camera frustums, with additional reference frames detailed in Section \ref{sec:graphics_trans}.
 
 \begin{figure}[!htb]
   \centering
@@ -444,7 +440,7 @@ While the perspective projection is shown in Figure \ref{fig:ortho_perspective_c
 
 Transformations in computer graphics are often represented by $4 \times 4$ matrices. These matrices operate on so-called homogeneous coordinates, operating on vectors in $\mathbb{R}^4$ of the form $\left[ x, y, z, w \right]^T$ \cite{shirley2009}. The inclusion of the fourth component enables simultaneous rotation, translation, and scaling of the input points by the matrix, provided that the outputs are normalized to set $w = 1$ \cite{shirley2009}.
 
-There are a few fundamental matrices used in computer graphics that are necessary for later hardware-accelerated light curve simulation algorithms. The first is the model matrix $M \in \mathbb{R}^{4 \times 4}$ which transforms from the world frame to the model frame given the origin of the model body frame $R_{m} \in \mathbb{R}^{3 \times 3}$ and the orientation of the model body frame relative to the world frame $\mathbf{q}_m \in \mathbb{R}^4$ as a quaternion \cite{shirley2009}:
+There are a few fundamental matrices used in computer graphics that are necessary for later hardware-accelerated light curve simulation algorithms. The first is the model matrix $M \in \mathbb{R}^{4 \times 4}$ which transforms from the world frame to the model frame given the origin of the model body frame $\vctr{R}_{m} \in \mathbb{R}^{3 \times 3}$ and the orientation of the model body frame relative to the world frame $\mathbf{q}_m \in \mathbb{R}^4$ as a quaternion \cite{shirley2009}:
 
 \begin{equation} \label{eq:model_matrix}
   M = \begin{bmatrix}
@@ -455,21 +451,21 @@ There are a few fundamental matrices used in computer graphics that are necessar
   \end{bmatrix}.
 \end{equation}
 
-Eq \ref{eq:model_matrix} uses Eq \ref{eq:quat2dcm} to transform the quaternion into a DCM. The model matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspective_cameras} as $M_i$, with the world frame basis vectors notated with $W_i$. Given the location of the camera origin $R_{cam} \in \mathbb{R}^3$, its target position $T_{cam} \in \mathbb{R}^3$, and the camera up direction $U_{cam} \in \mathbb{R}^3$, the view matrix $V \in \mathbb{R}^{4 \times 4}$ that transforms from the world frame to the camera frame is given by \cite{shirley2009}:
+Eq \ref{eq:model_matrix} uses Eq \ref{eq:quat2dcm} to transform the quaternion into a DCM. The model matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspective_cameras} as $M_i$, with the world frame basis vectors notated with $\vctr{W}_i$. Given the location of the camera origin $\vctr{R}_{cam} \in \mathbb{R}^3$, its target position $\vctr{T}_{cam} \in \mathbb{R}^3$, and the camera up direction $\vctr{U}_{cam} \in \mathbb{R}^3$, the view matrix $V \in \mathbb{R}^{4 \times 4}$ that transforms from the world frame to the camera frame is given by \cite{shirley2009}:
 
 \begin{align*} \numberthis \label{eq:view_matrix}
-  v_3 &= \frac{R_{cam} - T_{cam}}{\| R_{cam} - T_{cam} \|} \\
-  v_1 &= \frac{U_{cam} \times v_z}{\| U_{cam} \times v_3 \|} \\
-  v_2 &= v_1 \times v_3 \\
+  \vctr{v}_3 &= \frac{\vctr{R}_{cam} - \vctr{T}_{cam}}{\| \vctr{R}_{cam} - \vctr{T}_{cam} \|} \\
+  \vctr{v}_1 &= \frac{\vctr{U}_{cam} \times \vctr{v}_z}{\| \vctr{U}_{cam} \times \vctr{v}_3 \|} \\
+  \vctr{v}_2 &= \vctr{v}_1 \times \vctr{v}_3 \\
   V &= \begin{bmatrix}
-    v_{1,x} & v_{1,y} & v_{1,z} & -v_1 \cdot R_{cam} \\
-    v_{2,x} & v_{2,y} & v_{2,z} & -v_2 \cdot R_{cam} \\
-    v_{3,x} & v_{3,y} & v_{3,z} & -v_3 \cdot R_{cam} \\
+    v_{1,x} & v_{1,y} & v_{1,z} & -\vctr{v}_1 \cdot \vctr{R}_{cam} \\
+    v_{2,x} & v_{2,y} & v_{2,z} & -\vctr{v}_2 \cdot \vctr{R}_{cam} \\
+    v_{3,x} & v_{3,y} & v_{3,z} & -\vctr{v}_3 \cdot \vctr{R}_{cam} \\
     0 & 0 & 0 & 1
   \end{bmatrix}.
 \end{align*}
 
-The view matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspective_cameras} as $V_i$. Given the field of view of the camera $FOV$ in radians, the distance from the camera origin to the near $n$ and far $f$ clipping planes, and the camera aspect ratio $a$, the orthographic projection matrix $P \in \mathbb{R}^{4 \times 4}$ that transforms from the camera frame to the image plane is given by \cite{shirley2009}:
+The view matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspective_cameras} as $\vctr{V}_i$. Given the field of view of the camera $FOV$ in radians, the distance from the camera origin to the near $n$ and far $f$ clipping planes, and the camera aspect ratio $a$, the orthographic projection matrix $P \in \mathbb{R}^{4 \times 4}$ that transforms from the camera frame to the image plane is given by \cite{shirley2009}:
 
 \begin{align*} \numberthis \label{eq:projection_matrix}
   t &= n \cdot \tan\left(\frac{FOV}{2}\right) \\
@@ -482,10 +478,10 @@ The view matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspecti
   \end{bmatrix}
 \end{align*}
 
-Together, these matrices form the so-called Model-View-Projection matrix which transforms directly from coordinates in the object body frame $r_\mathrm{obj}$ to the image plane:
+Together, these matrices form the so-called Model-View-Projection matrix which transforms directly from coordinates in the object body frame $\vctr{r}_\mathrm{obj}$ to the image plane:
 
 \begin{equation} \label{eq:mvp}
-  \begin{bmatrix} x_h \\ y_h \\ z_h \\w_h \end{bmatrix} = M V P \begin{bmatrix} r_{obj,x} \\ r_{obj,y} \\ r_{obj,z} \\ 1 \end{bmatrix}.
+  \begin{bmatrix} x_h \\ y_h \\ z_h \\w_h \end{bmatrix} = M V P \begin{bmatrix} \vctr{r}_{\mathrm{obj},x} \\ \vctr{r}_{\mathrm{obj},y} \\ \vctr{r}_{\mathrm{obj},z} \\ 1 \end{bmatrix}.
 \end{equation}
 
 In Eq \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the image plane, running linearly from $[-1, -1]$ at the top left corner of the image to $[1, 1]$ at the bottom right. Given the width of the image in $w_\mathrm{pix}$ pixels, the image coordinates $\left(x,y\right)$ of $r_\mathrm{obj}$ in pixels are:
@@ -531,8 +527,8 @@ In order to compute the final shaded and shadowed image, a depth map must be com
   \caption{Pixel-wise depth map computation for shadow mapping} \label{alg:depth_map}
   \begin{algorithmic}
     \State $(x, y) \in \mathbb{Z}$ \Comment{Pixel coordinates on the image plane}
-    \State $R_\mathrm{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
-    \State $d(x, y) \gets \left( R_{cam} - R_\mathrm{pix} \right) \cdot R_{cam}$ \Comment{Pixel depth in the camera view direction}
+    \State $\vctr{R}_\mathrm{pix} \in \mathbb{R}^3$ \Comment{Pixel world coordinates; provided by OpenGL}
+    \State $d(x, y) \gets \left( \vctr{R}_{cam} - \vctr{R}_\mathrm{pix} \right) \cdot \vctr{R}_{cam}$ \Comment{Pixel depth in the camera view direction}
   \end{algorithmic}
 \end{algorithm}
 
@@ -555,7 +551,7 @@ An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a norma
 This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_\mathrm{pix}$ pixels and dimensionalizing by the area of the image plane:
 
 \begin{equation} \label{eq:lc_normalized_engine}
-  \hat{I}_j = \frac{A_{image}}{n_\mathrm{pix}} \sum_{i=1}^{n_\mathrm{pix}}{\frac{v_{i}}{255}}
+  \check{I}_j = \frac{A_{image}}{n_\mathrm{pix}} \sum_{i=1}^{n_\mathrm{pix}}{\frac{v_{i}}{255}}
 \end{equation}
 
 \section{Simulating The Observations}
@@ -684,10 +680,10 @@ Terrain elevation is usually the final component needed to fully define the alti
 
 \subsubsection{Altitude Conversions}
 
-Given an altitude relative to the terrain $a_{terrain}$, the elevation above the ellipsoid $a_{ellip}$ is given as a function of the terrain elevation above the geoid $h_{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_{terrain}(\lambda, \phi)$ by \cite{vallado4ed}:
+Given an altitude relative to the terrain $a_\mathrm{terrain}$, the elevation above the ellipsoid $a_\mathrm{ellip}$ is given as a function of the terrain elevation above the geoid $h_\mathrm{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_\mathrm{terrain}(\lambda, \phi)$ by \cite{vallado4ed}:
 
 \begin{equation} \label{eq:altitude_above_ellipsoid}
-  a_{ellip} = a_{terrain} + h_{terrain}(\lambda, \phi_\mathrm{geod}) + h_{geoid}(\lambda, \phi_\mathrm{geod}).
+  a_\mathrm{ellip} = a_\mathrm{terrain} + h_\mathrm{terrain}(\lambda, \phi_\mathrm{geod}) + h_\mathrm{geoid}(\lambda, \phi_\mathrm{geod}).
 \end{equation}
 
 \subsection{International Terrestrial Reference Frame (ITRF)}
@@ -696,7 +692,7 @@ The Cartesian form of LLA is known as the Earth-centered Earth-fixed (ECEF) refe
 fundamental plane of the frame is defined to be the equator ---  orienting the $z$-axis through Earth's
 instantaneous spin axis, and the reference direction through the intersection of the prime meridian
 and the equator ---  defining the $x$-axis. Completing the right-handed system with $\hat{y} = \hat{z} \times \hat{x}$ yields a
-reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_\mathrm{geod}, a_{ellip} \right)$ to ITRF is given by \cite{vallado4ed}:
+reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_\mathrm{geod}, a_\mathrm{ellip} \right)$ to ITRF is given by \cite{vallado4ed}:
 
 \begin{align*} \numberthis \label{eq:lla_to_itrf}
   e^2 &= 2f - f^2 \\
@@ -956,10 +952,10 @@ Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ sr \ri
 
 \begin{equation} \label{eq:s10toirrad}
  \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
-  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
+  \int_{10^{-8}}^{10^{-6}}{ \mathcal{ZM}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
 \end{equation}
 
-In \ref{eq:s10toirrad}, $\textrm{STRINT}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
+In \ref{eq:s10toirrad}, $\mathcal{ZM}(\lambda) \: \left[ \frac{W}{m^2 \cdot m} \right]$ is the
 representative spectrum of a 0th magnitude star, $\textrm{QE}(\lambda)$ is the quantum efficiency
 spectrum of the observing sensor, $\textrm{ATM}(\lambda)$ is the atmospheric transmission spectrum, $\lambda \: [m]$ is wavelength, $h \: \left[
 \frac{m^2 \cdot kg}{s} \right]$ is Plank's constant, and $c \: \left[ \frac{m}{s^2} \right]$ is the
@@ -1220,7 +1216,7 @@ starlight, the corresponding signal mean in the telescope CCD is computed, adopt
 
 \begin{equation} \label{eq:bint}
  \mathcal{Z} = A_\mathrm{aperture}
-  \int_{10^{-8}}^{10^{-6}}{ \textrm{STRINT}(\lambda) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+  \int_{10^{-8}}^{10^{-6}}{ \mathcal{ZM}(\lambda) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
 \end{equation}
 
@@ -1432,10 +1428,10 @@ In Eq \ref{eq:elevation_exclusion}, $\nu_{elevation} = 1$ implies that the obser
 Given the normalized irradiance computed via Eq \ref{eq:lc_func_normalized} for convex objects or Eq \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the received mean irradiance at the telescope aperture is given by:
 
 \begin{equation} \label{eq:mean_irrad_at_aperture}
-  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \hat{I}}{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2}.
+  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \check{I}}{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2}.
 \end{equation}
 
-In Eq \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_{Sun}$ determines the solar irradiance incident on the object, and the remaining terms $\hat{I} / \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:irrad_to_count}, yielding $\bar{C}_\mathrm{all}$:
+In Eq \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_{Sun}$ determines the solar irradiance incident on the object, and the remaining terms $\check{I} / \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Eq \ref{eq:irrad_to_count}, yielding $\bar{C}_\mathrm{all}$:
 
 \begin{equation}
   \bar{C}_\mathrm{all} = \mathcal{S}_\mathrm{int} \cdot \bar{I} \cdot \Delta t.
@@ -1480,7 +1476,7 @@ or to apparent magnitude by applying Eq \ref{eq:mag_to_irradiance}:
 or normalized irradiance by applying Eq \ref{eq:irradiance_to_norm_irradiance}:
 
 \begin{equation} \label{eq:ihat_meas}
-  \hat{I}_{obj,meas} = \frac{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|^2}{I_s} I_{obj,meas}.
+  \check{I}_{obj,meas} = \frac{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|^2}{I_s} I_{obj,meas}.
 \end{equation}
 
 \section{Light Curve Simulation Results}
@@ -1602,7 +1598,7 @@ The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics}
   \label{fig:case2_attitude}
 \end{figure}
 
-The BRDF --- which varies across the surface of the object --- is encoded in the \texttt{.obj} file in the red channel of the diffuse material color $R$ such that $C_d = R$ and $C_s = 1 - R$. Given the unit vectors in the object body frame pointing towards the observer and the Sun, Algorithms \ref{alg:depth_map} and \ref{alg:pix_shading} are used to render images of the object which are integrated to yield a mean normalized irradiance value $\hat{I}$ with Eqs \ref{eq:ortho_area} and \ref{eq:lc_normalized_engine}. 
+The BRDF --- which varies across the surface of the object --- is encoded in the \texttt{.obj} file in the red channel of the diffuse material color $R$ such that $C_d = R$ and $C_s = 1 - R$. Given the unit vectors in the object body frame pointing towards the observer and the Sun, Algorithms \ref{alg:depth_map} and \ref{alg:pix_shading} are used to render images of the object which are integrated to yield a mean normalized irradiance value $\check{I}$ with Eqs \ref{eq:ortho_area} and \ref{eq:lc_normalized_engine}. 
 
 This normalized irradiance is dimensionalized with Eq \ref{eq:irradiance_to_norm_irradiance} to yield a mean irradiance $I$. Next, the background signal variances are computed for the Moonlight in Eq \ref{eq:moonlight_adu}, zodiacal light in Eq \ref{eq:zodiacal_adu}, integrated starlight in Eq \ref{eq:starlight_adu}, twilight in eq \ref{eq:twilight_adu}, light pollution in Eq \ref{eq:pollution_adu}, and airglow in Eq \ref{eq:airglow_adu}. These background signal variances are used to compute the overall background variance $\lambda_\mathrm{background}$. The signal variance due to read noise, dark noise, and truncation noise are found in Table \ref{tb:pogs_parameters}, yielding the overall mean and variance of the background pixels. 
 
