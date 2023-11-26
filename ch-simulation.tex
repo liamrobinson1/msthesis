@@ -278,8 +278,8 @@ The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-wo
   A &= 1 - 0.5 \frac{\alpha^2}{\alpha^2 + 0.33} \\
   B &= 0.45 \frac{\alpha^2}{\alpha^2 + 0.09} \\
   C &= \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{\ell}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{\ell}\right)\|} \cdot  \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)\|} \\
-  \beta &= \max \left\{ \arccos\left( \vctr{\ell} \cdot \vctr{n} \right), \: \arccos\left( \vctr{o} \cdot \vctr{n} \right) \right\} \\
-  \gamma &= \min \left\{ \arccos\left( \vctr{\ell} \cdot \vctr{n} \right), \: \arccos\left( \vctr{o} \cdot \vctr{n} \right) \right\}. \\
+  \beta &= \max \left\{ \cos^{-1}\left( \vctr{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\} \\
+  \gamma &= \min \left\{ \cos^{-1}\left( \vctr{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\}. \\
 \end{align*}
 
 With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
