@@ -8,9 +8,9 @@
 \begin{algorithm}
   \caption{Pixel-wise shading algorithm with shadow mapping}\label{alg:pix_shading}
   \begin{algorithmic}
-    \State $L \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards Sun}
-    \State $O \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards observer}
-    \State $N \in \mathbb{S}^2$ \Comment{Outward-pointing surface normal vector at pixel coordinates}
+    \State $\vctr{\ell} \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards Sun}
+    \State $\vctr{o} \in \mathbb{S}^2$ \Comment{Unit vector from object origin towards observer}
+    \State $\vctr{n}\in \mathbb{S}^2$ \Comment{Outward-pointing surface normal vector at pixel coordinates}
     \State $(C_d, C_s, n) \in \mathbb{S}^2$ \Comment{Reflection coefficients and exponent for the BRDF}
     \Require $C_d + C_s \leq 1$ \Comment{Enforce energy conservation}
     \State $MVP_{Sun} \in \mathbb{R}^{4 \times 4}$ \Comment{MVP matrix for the Sun camera}
@@ -19,19 +19,19 @@
     \State $\left[(x_{homo,Sun}, y_{homo,Sun}, ...\right] \gets MVP_{Sun} \left[ R_{pix,obs}, 1 \right]^T$
     \State $x_{Sun} \gets \left(1 + p_{x, homo}\right) \frac{w_\mathrm{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
     \State $y_{Sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_\mathrm{pix}}{2} $
-    \State $D_{Sun} \gets  d(x_{sun}, y_{sun})$ \Comment{Closest pixel depth to the Sun direction}
-    \State $D_\mathrm{obs} \gets \left( L - O \right) \cdot L$ \Comment{Closest pixel depth in the Observer direction}
+    \State $D_{Sun} \gets  d(x_{Sun}, y_{Sun})$ \Comment{Closest pixel depth to the Sun direction}
+    \State $D_\mathrm{obs} \gets \left( \vctr{\ell} - \vctr{o} \right) \cdot \vctr{\ell}$ \Comment{Closest pixel depth in the Observer direction}
     \If{$D_\mathrm{obs} > D_{Sun}$}
       \State $\delta_{ss} = 1$ \Comment{Pixel is self-shadowed}
     \Else 
       \State $\delta_{ss} = 0$ \Comment{Pixel may be illuminated}
     \EndIf
-    \If{$\left(N \cdot L\right) > 0 \textrm{ and } \left(N \cdot O\right) > 0$}
-      \State $f_r(\vctr{x}, L, O) = 0$ \Comment{Pixel cannot be both observed and illuminated}
+    \If{$\left(\vctr{n}\cdot L\right) > 0 \textrm{ and } \left(\vctr{n}\cdot \vctr{o}\right) > 0$}
+      \State $f_r(\vctr{x}, \vctr{\ell},\vctr{o}) = 0$ \Comment{Pixel cannot be both observed and illuminated}
     \Else 
-      \State $f_r(\vctr{x}, L, O) = \mathrm{Phong}(L, O, N, C_d, C_s, n)$ \Comment{The pixel is shaded with the BRDF}
+      \State $f_r(\vctr{x}, \vctr{\ell},\vctr{o}) = \mathrm{Phong}(\vctr{\ell}, \vctr{o}, \vctr{n}, C_d, C_s, n)$ \Comment{The pixel is shaded with the BRDF}
     \EndIf
-    \State $\mathrm{IM}(x, y) = f_r(\vctr{x}, L, O) \left(N \cdot L\right) $ \Comment{Image pixel value}
+    \State $\mathrm{IM}(x, y) = f_r(\vctr{x}, \vctr{\ell},\vctr{o}) \left(\vctr{n}\cdot \vctr{\ell}\right) $ \Comment{Image pixel value}
   \end{algorithmic}
 \end{algorithm}
 

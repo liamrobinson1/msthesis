@@ -248,7 +248,7 @@ Merging the resampled EGI shown in Figure \ref{fig:resampled_egi} produces a fin
 At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
 
 \begin{equation} \label{eq:egi_validation}
-  \vctr{E}_{\textrm{closed}} = \vctr{E}_{\textrm{open}} - \sum_{i=1}^m a_i \vctr{n}_i .
+  \vctr{E}_{\textrm{closed}} = \vctr{E}_{\textrm{open}} - \frac{1}{m}\sum_{i=1}^m a_i \vctr{n}_i .
 \end{equation}
 
 The concept of a closure step is not a novel contribution. Fan's method solved an optimization problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is improved with a simpler analytical correction. In practice this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
@@ -411,7 +411,7 @@ where $\check{I}$ is the observed normalized light curve and $\check{I}(\psi)$ i
 
 \section{Shape Inversion With Noisy Measurements}
 
-When the light curve measurements are subject to environmental noise, the shape inversion result --- convex or nonconvex --- may vary significantly from the noiseless shape estimate. Fan addressed this problem most recently with a multiple hypothesis scheme \cite{fan2020thesis}. Given a number of noisy light curves, Fan produced a convex shape estimate from each and ranked each by its error when simulated against a new set of observations \cite{fan2020thesis}. Fan and Frueh later adapted this scheme with a sequential Monte Carlo method, which began identically by producing a collection of convex guesses from samples of the same noisy light curve \cite{fan20201}. The error in each guess was measured against a new noisy light curve, enabling a weighted merge of the estimated EGIs, which was then perturbed to produce a new set of estimated shapes \cite{fan2021}. Throughout these methods, Fan assumed that the noise on the light curve was Gaussian and of constant magnitude, although it was noted that the real character of the noise is dependent on both the geometry of the observation and the magnitude of the signal itself \cite{fan2020thesis}. 
+When the light curve measurements are subject to environmental noise, the shape inversion result --- convex or nonconvex --- may vary significantly from the noiseless shape estimate. Fan addressed this problem most recently with a multiple hypothesis scheme \cite{fan2020thesis}. Given a number of noisy light curves, Fan produced a convex shape estimate from each and ranked each by its error when simulated against a new set of observations \cite{fan2020thesis}. Fan and Frueh later adapted this scheme with a sequential Monte Carlo method, which began identically by producing a collection of convex guesses from samples of the same noisy light curve \cite{fan2021}. The error in each guess was measured against a new noisy light curve, enabling a weighted merge of the estimated EGIs, which was then perturbed to produce a new set of estimated shapes \cite{fan2021}. Throughout these methods, Fan assumed that the noise on the light curve was Gaussian and of constant magnitude, although it was noted that the real character of the noise is dependent on both the geometry of the observation and the magnitude of the signal itself \cite{fan2020thesis}. 
 
 This work presents a method for multiple hypothesis shape inversion that builds on Fan's work by relaxing the constant, Gaussian noise assumption and is agnostic to the convexity of the candidate objects. This new method also uses an face-dependent estimate of the uncertainty in each candidate shape's geometry, yielding final object estimates that take only the most accurate features from each candidate object.
 
@@ -448,7 +448,7 @@ Interpolating three-dimensional meshes using signed distance fields is not a nov
   \label{fig:interpolating_torus_ico}
 \end{figure}
 
-The proposed algorithm for shape interpolation for SDF interpolation of two shapes $M_1, M_2$ with convex weights $w_1, w_2$ is:
+The proposed algorithm for shape interpolation for SDF interpolation of two shapes $M_1, M_2$ with convex weights $w_1, w_2$ is given by Algorithm \ref{alg:sdf_interp}.
 
 \begin{algorithm}
   \caption{SDF interpolation}\label{alg:sdf_interp}
@@ -467,7 +467,7 @@ The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by al
   \mathrm{SDF}_{\mathrm{interp}}(x, y, z) = w_1(x, y, z) \cdot \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
 \end{equation}
 
-To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \forall (x,y,z) \in \mathbb{R}^3$.
+To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \: \forall (x,y,z) \in \mathbb{R}^3$.
 
 \subsection{Shape Estimate Uncertainty}
 
