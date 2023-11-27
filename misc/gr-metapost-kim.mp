@@ -48,9 +48,9 @@ beginfig(2);
   
     dotlabel.llft(btex $p_i$ etex,        ll);          % lower left label
     label.lft(    btex $\Delta p_i$ etex, 1/2[ll,ul]);  % left label
-    dotlabel.top( btex ${\hat p}_i$ etex, ul);          % upper left label
+    dotlabel.top( btex ${\unitv p}_i$ etex, ul);          % upper left label
 
-    dotlabel.lrt(btex ${\hat p}_j$ etex, lr);           % lower rigt label
+    dotlabel.lrt(btex ${\unitv p}_j$ etex, lr);           % lower rigt label
     label.rt(    btex $\Delta p_j$ etex, 1/2[lr,ur]);   % right label
     dotlabel.urt(btex $p_j$ etex,        ur);           % upper right label
   

@@ -30,7 +30,7 @@ Multiple orientations of the object may produce the same light curve value \cite
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curve_iso_surfaces_002.png}
-  \caption{Brightness isosurfaces in rotation vector $\vctr{p} = \theta \hat{\lambda}$ for a cube with face areas $a_i = 4$ illuminated using a Phong BRDF with $C_d=0.5$, $C_s=0.5$, $n=5$ at $\phi=45^\circ$ and normalized irradiance value $\check{I} = 0.73$}
+  \caption{Brightness isosurfaces in rotation vector $\vctr{p} = \theta \unitv{\lambda}$ for a cube with face areas $a_i = 4$ illuminated using a Phong BRDF with $C_d=0.5$, $C_s=0.5$, $n=5$ at $\phi=45^\circ$ and normalized irradiance value $\check{I} = 0.73$}
   \label{fig:brightness_iso}
 \end{figure}
 
@@ -206,7 +206,7 @@ In Eq \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi},
 
 \begin{align*} \label{eq:cone_sampling_rv} \numberthis
   \theta &= 2 \cos^{-1}\left( \vctr{n}_{cone,z} \right) \\
-  \hat{\lambda} &= \vctr{n}_{cone} \times [0, 0, 1]^T
+  \unitv{\lambda} &= \vctr{n}_{cone} \times [0, 0, 1]^T
 \end{align*}
 
 The number of new candidates sampled per initial solution vector and the cone half-angle should be adjusted on a case-by-case basis depending on the compute power available and light curve data quality. Multiple iterative methods exist for solving nonnegative constrained least squares (NNLS) problems. The classical NNLS algorithm was published by Lawson and Hanson and improved later by Bro and De Jong in their Fast NNLS (FNNLS) approach \cite{lawson1976, bro1996}.
@@ -225,7 +225,7 @@ Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedm
 After resampling and optimizing again with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
 
 \begin{equation} \label{eq:egi_merge}
-  \mathcal{G}_k = \left\{ \vctr{E}_i \in \vctr{E} \:\| \cos^{-1}\left( \frac{\hat{E}_i \cdot \hat{E}_k}{\|\vctr{E}_i \| \| \vctr{E}_k \|}\right) < \theta_\mathrm{merge} \right\}.
+  \mathcal{G}_k = \left\{ \vctr{E}_i \in \vctr{E} \:\| \cos^{-1}\left( \frac{\unitv{E}_i \cdot \unitv{E}_k}{\|\vctr{E}_i \| \| \vctr{E}_k \|}\right) < \theta_\mathrm{merge} \right\}.
 \end{equation}
 
 In practice, the choice of $\theta_\mathrm{merge}$ is dependent on the user's tolerance for discretization, as merging will approximate smooth geometry by discrete faces with normal vectors offset by $2\theta_\mathrm{merge}$. Groups are merged by summing all group members, yielding a single EGI vector $\vctr{E}_m$ without loss of closure. 
@@ -338,8 +338,8 @@ When introducing a concavity, it is important to classify which vertices are par
 
 \begin{equation} \label{eq:root_free}
   C(F_i) = \begin{cases} 
-    0 & \cos^{-1}\left( \vctr{n}_i \cdot \hat{e}_{EGI} \right) \geq \frac{\pi}{2} - \varepsilon \\
-    1 & \cos^{-1}\left( \vctr{n}_i \cdot \hat{e}_{EGI} \right) < \frac{\pi}{2} - \varepsilon \\
+    0 & \cos^{-1}\left( \vctr{n}_i \cdot \unitv{e}_{EGI} \right) \geq \frac{\pi}{2} - \varepsilon \\
+    1 & \cos^{-1}\left( \vctr{n}_i \cdot \unitv{e}_{EGI} \right) < \frac{\pi}{2} - \varepsilon \\
   \end{cases}.
 \end{equation}
 
@@ -363,7 +363,7 @@ In Eq \ref{eq:root_free_verts}, $\mathcal{N}(\vctr{v}_i)$ is the set of face ind
 
 \subsection{Vertex Displacement}
 
-Given the estimated internal angle $\psi_{est}$ and the error vector $\hat{e}_{EGI}$, each $i$th free vertex is displaced to introduce a geometrically accurate concavity by moving each a distance $d_i$ in the direction of $-\hat{e}_{EGI}$:
+Given the estimated internal angle $\psi_{est}$ and the error vector $\unitv{e}_{EGI}$, each $i$th free vertex is displaced to introduce a geometrically accurate concavity by moving each a distance $d_i$ in the direction of $-\unitv{e}_{EGI}$:
 
 \begin{equation} \label{eq:flip_depth}
   d_i = p_i \sqrt{\csc^2 \frac{\psi_{est}}{2} - 1},
