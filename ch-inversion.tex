@@ -47,7 +47,7 @@ If the directions of the Sun and observer in the body frame of the object are sw
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_light_curve_ambiguities_002_2_00x.png}
-  \caption{Obseravtion geometry ambiguity for a cube in an arbitrary rigid body attitude profile.}
+  \caption{Observation geometry ambiguity for a cube in an arbitrary rigid body attitude profile.}
   \label{fig:obs_amg}
 \end{figure}
 
@@ -67,7 +67,30 @@ Depending on the object attitude profile and the geometry of the observer and th
 
 \subsection{Full Shape Observability} \label{sec:full_shape}
 
-Although the light curve contains information that aids in shape estimation, the particular construction of the object is fundamentally unobservable, independent of object convexity \textit{I really need a citation here, but I cannot find any paper that makes this point about the inversion problem in general}. Every shape inversion method makes an assumption about how the object shape may be constructed from the information in the light curve. For example, EGI-based methods construct a convex approximation of the geometry by leveraging the Minkowski problem while filter-based methods may assume that the object is one of a set of known shapes. These assumptions are not driven by the data, as the data fundamentally cannot reveal the construction of the object without ambiguity.
+Although the light curve contains information that aids in shape estimation, the particular construction of the object is fundamentally unobservable, independent of object convexity. To illustrate this, consider two cube-like objects one geostationary radius away from the observer at $r=42164$ kilometers. The first object is a standard 1-meter cube, while the second object has the same face areas, normal vectors, and reflection properties --- producing the same convex light curve --- but is constructed with the plates separated. Both shapes are illustrated in Figure \ref{fig:shape_amb_shapes}.
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=\figmed]{sphx_glr_support_unobservability_001.png}
+  \caption{Cube (blue) and separated cube (gray) superimposed.}
+  \label{fig:shape_amb_shapes}
+\end{figure}
+
+Considering an observation scenario where one face of the cube is illuminated at a phase angle of $\phi = 0^\circ$ and reflects a reasonable quantity of light --- $1\cdot10^4$ ADU --- the difference in signal produced by the two shapes is simply a function of the difference in the distance of each face from the observer. In this case, the faces of the separated cube are translated $1$ meter further from the center of mass, producing a signal that is slightly larger than the signal from the standard cube:
+
+\begin{equation}
+  \frac{I_{cube}}{I_{separated}} = \frac{42164^2}{42165^2} = 0.9999999525661708.
+\end{equation}
+
+To determine how observable this difference is in the final light curve, this difference in signal magnitude must be compared to the noise in the light curve. The truncation noise alone --- which is inherent to the light curve measurement process --- has a standard deviation $\sigma_{trunc}$ is computed following Section \ref{sec:trunc_noise}:
+
+\begin{equation}
+  \sigma_{trunc} = \sqrt{\frac{n_{pix} g^2}{24}},
+\end{equation}
+
+for $n_{pix}$ pixels contributing to the light curve and a CCD gain $g$. For the Purdue Optical Ground Station, the standard deviation of the truncation noise for an observation FWHM of $1.5$ arcseconds is approximately $11$ ADU. By contrast, $I_{separated}-I_{cube} = 4.7\cdot10^{-4}$ ADU. The SNR of this difference is computed via Equation \ref{eq:ccd_snr} to be approximately $1.4 \cdot 10^{-4}$. Due to the miniscule SNR, this difference in signal is not observable in the light curve and the light curves produced by the two shapes are indistinguishable.
+
+Every shape inversion method makes an assumption about how the object shape may be constructed from the information in the light curve. For example, EGI-based methods construct a convex approximation of the geometry by leveraging the Minkowski problem while filter-based methods may assume that the object is one of a set of known shapes. These assumptions are not driven by the data, as the data fundamentally cannot reveal the construction of the object without ambiguity.
 
 \subsubsection{Bayesian Inversion Implications}
 
@@ -122,7 +145,7 @@ In the continuous case, the Gaussian Image associates each point on the surface 
   E(\theta, \phi) = \sum_i{\frac{1}{\| \kappa(u_i, v_i) \|}}.
 \end{equation}
 
-By Eq \ref{eq:egi_deg}, flat areas of the object are mapped to point masses in the EGI, motivating a simpler definition of the EGI for discrete surfaces. The discrete EGI $\vctr{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\vctr{n}$ each scaled by a nonnegative areea $a \in \mathbb{R}$, where $a_i \geq 0 \forall i$ \cite{little1983}.
+By Equation \ref{eq:egi_deg}, flat areas of the object are mapped to point masses in the EGI, motivating a simpler definition of the EGI for discrete surfaces. The discrete EGI $\vctr{E} \in \mathbb{R}^{m \times 3}$ is composed of $m$ unit vectors $\vctr{n}$ each scaled by a nonnegative areea $a \in \mathbb{R}$, where $a_i \geq 0 \forall i$ \cite{little1983}.
 
 \begin{equation}
   \vctr{E}_i = a_i \vctr{n}_i
@@ -149,14 +172,14 @@ Equivalently, an EGI uniquely represents a closed, convex polyhedron --- a polyt
 
 The EGI fulfills two important criteria for the shape inversion problem: it can be estimated directly from the light curve, attitude profile, and material properties, and uniquely represents a convex object \cite{kaasalainen2001}. Further, the EGI can be transformed into a unique convex object and vice versa through the dual transform and Minkowski problem \cite{little1985, minkowski1909}. 
 
-To accomplish the goal of fitting a convex object to a collection of light curve measurements, it is advantageous to define a compact expression for the expected normalized irradiances of a convex object. This is accomplished through the convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined using Eq \ref{eq:brdf_def} and Eq \ref{eq:lc_func_normalized} as the normalized received facet irradiance per unit facet area:
+To accomplish the goal of fitting a convex object to a collection of light curve measurements, it is advantageous to define a compact expression for the expected normalized irradiances of a convex object. This is accomplished through the convex reflection matrix $G \in \mathbb{R}^{n \times m}$ with $ij$th entries $G_{ij}$ defined at time $i$ for each facet $j$ is defined using Equation \ref{eq:brdf_def} and Equation \ref{eq:lc_func_normalized} as the normalized received facet irradiance per unit facet area:
 
 \begin{align*} \numberthis \label{eq:reflection_matrix}
   G_{ij} &= \frac{I_{ij}}{I_s a_j} \\
   &= f_r\left(\boldsymbol{\ell}, \vctr{o} \right) \left(\boldsymbol{\ell}_j \cdot \vctr{n}_i\right) \left(\vctr{o}_j \cdot \vctr{n}_i\right).
 \end{align*}
 
-It must be noted that Eq \ref{eq:reflection_matrix} assumes that the BRDF of the object is uniform across its surface. This is a core assumption of the direct convex inversion scheme in the literature, and a limitation of the method that cannot be easily circumvented. This relationship between the received normalized irradiance and the areas of the object faces reveals the compact form of Eq \ref{eq:lc_func_normalized} for convex objects for any BRDF:
+It must be noted that Equation \ref{eq:reflection_matrix} assumes that the BRDF of the object is uniform across its surface. This is a core assumption of the direct convex inversion scheme in the literature, and a limitation of the method that cannot be easily circumvented. This relationship between the received normalized irradiance and the areas of the object faces reveals the compact form of Equation \ref{eq:lc_func_normalized} for convex objects for any BRDF:
 
 \begin{equation} \label{eq:convex_lc_with_g}
   \check{I}_{convex} = G \vctr{a}.
@@ -168,9 +191,9 @@ Given a light curve, direct shape inversion schemes sample $m$ candidate normal 
   \min_{\vctr{a}}{\|\check{I}_{\textrm{obs}} - G \vctr{a}\|_2} \:\:\: \textrm{ subject to } \vctr{a}_i \geq 0,
 \end{equation}
 
-to yield an optimal set of face areas $\vctr{a}_i$. In Eq \ref{eq:area_opt_convex}, the reflection matrix $G$ is computed from the chosen normal vectors $\vctr{n}_i$, the uniform BRDF, and the Sun and observer vectors in the body frame of the object. NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Eq \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Eq \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
+to yield an optimal set of face areas $\vctr{a}_i$. In Equation \ref{eq:area_opt_convex}, the reflection matrix $G$ is computed from the chosen normal vectors $\vctr{n}_i$, the uniform BRDF, and the Sun and observer vectors in the body frame of the object. NNLS problems are efficiently solved via Lawson and Hanson's original algorithm \cite{lawson1976}, or the more recent Fast NNLS (FNNLS) algorithm due to Bro and De Jong \cite{bro1996}. It is important to note that the area estimated with Equation \ref{eq:area_opt_convex} is the \textit{albedo-area} due to the reflectivity coefficients in Equation \ref{eq:lc_func_normalized} or \ref{eq:lc_normalized_engine}. If the value of $C_d$ and $C_s$ are uniform with a known ratio $C_d / C_s$, the recovered geometry will be scaled without impacting the face adjacency or relative feature sizes.
 
-The optimization in Eq. \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibonacci mapping described by Keinert et al.\ in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{fig:initial_egi_sampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
+The optimization in Equation \ref{eq:area_opt_convex} produces a coarse approximation of the true EGI as $m$ is finite. Increasing $m$ necessarily improves the quality and sparsity of the estimated EGI, but at the cost of computational resources. The estimation was performed using a synthetic light curve input from $n=500$ Sun and observer vectors uniformly sampled on the sphere in the body frame, producing a full rank $G$ matrix. $m = 500$ candidate normal vectors were sampled using a spherical Fibonacci mapping described by Keinert et al.\ in \cite{keinert2015}. Results are visualized for an icosahedron in the body frame in Figure \ref{fig:initial_egi_sampling}. Reconstructing the object at this stage is difficult due to the quantity of faces present in the estimated EGI. 
 
 \graphicspath{{/Users/liamrobinson/Documents/PyLightCurves/docs/build/html/_images}}
 \begin{figure}[!htb]
@@ -202,7 +225,7 @@ Uniformly sampling a cone of half-angle $\phi$ is accomplished by strategically 
   \end{bmatrix}
 \end{equation}
 
-In Eq \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\vctr{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Eq \ref{eq:cone_sampling_rv} which can be converted into the DCM using Eq \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
+In Equation \ref{eq:cone_sample_n_pole} two coordinates are chosen $z \in [\cos{\phi}, 1]$ and $\theta \in [0, 2\pi)$, yielding a point uniformly distributed on a cone of half-angle $\phi$ about the central axis $[0, 0, 1]^T$ \cite{cone_sampling_wolfram}. These points are then rotated using a direction cosine matrix to center the cone on an axis of interest. The axis of rotation for this transformation is the cross product of the original central axis $[0, 0, 1]^T$ with the final axis $\vctr{n}_{cone}$ with the rotation angle $\theta$ being the angle between the same two vectors. The principal rotation parameter form of this transformation is given in Equation \ref{eq:cone_sampling_rv} which can be converted into the DCM using Equation \ref{eq:quat2dcm} and \ref{eq:prp2quat}.
 
 \begin{align*} \label{eq:cone_sampling_rv} \numberthis
   \theta &= 2 \cos^{-1}\left( \vctr{n}_{cone,z} \right) \\
@@ -222,7 +245,7 @@ Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedm
 
 \subsection{EGI Merging}
 
-After resampling and optimizing again with Eq. \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
+After resampling and optimizing again with Equation \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
 
 \begin{equation} \label{eq:egi_merge}
   \mathcal{G}_k = \left\{ \vctr{E}_i \in \vctr{E} \:\| \cos^{-1}\left( \frac{\unitv{E}_i \cdot \unitv{E}_k}{\|\vctr{E}_i \| \| \vctr{E}_k \|}\right) < \theta_\mathrm{merge} \right\}.
@@ -245,7 +268,7 @@ Merging the resampled EGI shown in Figure \ref{fig:resampled_egi} produces a fin
 
 \subsection{Geometry Recovery from the EGI}
 
-At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Eq \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
+At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Equation \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
 
 \begin{equation} \label{eq:egi_validation}
   \vctr{E}_{\textrm{closed}} = \vctr{E}_{\textrm{open}} - \frac{1}{m}\sum_{i=1}^m a_i \vctr{n}_i .
@@ -300,9 +323,9 @@ Depending on the optimizer, additional function evaluations will be needed to ev
 
 \subsection{Nonconvex Feature Detection and Location}
 
-Many human-made space objects are, as highlighted in Figure \ref{fig:hst_bennu_shadows}, highly nonconvex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Eq \ref{eq:little_problem} cannot recover nonconvex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
+Many human-made space objects are, as highlighted in Figure \ref{fig:hst_bennu_shadows}, highly nonconvex. As a result, their shape inversion is plagued by the fact that the Minkowski problem-driven reconstruction methods of Equation \ref{eq:little_problem} cannot recover nonconvex features. Instead of beginning from the ground up, the convex shape guess can be leveraged to detect and locate concavities.
 
-Information about large, unilateral object concavities is obtained during EGI estimation in Eq. \ref{eq:area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Eq. \ref{eq:fixing_egi} is still employed.
+Information about large, unilateral object concavities is obtained during EGI estimation in Equation \ref{eq:area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Equation \ref{eq:fixing_egi} is still employed.
 
 The mean axis of prominent concave features is determined by measuring the divergence of the optimized EGI from a closed object with the magnitude of the closure error $\vctr{e}_{EGI}$.
 
@@ -310,9 +333,9 @@ The mean axis of prominent concave features is determined by measuring the diver
   \vctr{e}_{EGI} = -\sum_{i=1}^{m} a_i \vctr{n}_i.
 \end{equation}
 
-The EGI closure error vector in Eq \ref{eq:closure_error} represents the missing area on each body axis that could be added to close the object. The addition of the minus sign transforms the vector from expressing the presence of excess area to the absence of missing area. The closure error will be negligible if there are no concavities present. The closure error may also be negligible if there is no self-shadowing present over the sampled attitude profile, therefore the closure error merely quantifies the self-shadowing present in the measurements, not whether there may be self-shadowing in other orientations.
+The EGI closure error vector in Equation \ref{eq:closure_error} represents the missing area on each body axis that could be added to close the object. The addition of the minus sign transforms the vector from expressing the presence of excess area to the absence of missing area. The closure error will be negligible if there are no concavities present. The closure error may also be negligible if there is no self-shadowing present over the sampled attitude profile, therefore the closure error merely quantifies the self-shadowing present in the measurements, not whether there may be self-shadowing in other orientations.
 
-Under the strong assumption that the concavities present are major and unilateral, this EGI error vector points along the mean axis of the concavity. This is because self-shadowing in that region causes brightness measurements to be smaller than expected for the true area present, leading to an optimized EGI that attributes less area to that section of the object. As a result, summing the EGI entries produces a vector that points away from the concavity, requiring the negation seen in Eq \ref{eq:closure_error} to point towards it.
+Under the strong assumption that the concavities present are major and unilateral, this EGI error vector points along the mean axis of the concavity. This is because self-shadowing in that region causes brightness measurements to be smaller than expected for the true area present, leading to an optimized EGI that attributes less area to that section of the object. As a result, summing the EGI entries produces a vector that points away from the concavity, requiring the negation seen in Equation \ref{eq:closure_error} to point towards it.
 
 \subsection{Concavity Creation}
 
@@ -334,7 +357,7 @@ Subdividing the initial convex object guess is essential for retaining object de
 
 \subsection{Vertex Classification}
 
-When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2 - \varepsilon$ to the error vector must be updated, where $\varepsilon$ is a bias angle that controls the conservativeness of the classification. Choosing $\varepsilon=0$ selects all faces above the horizon from the EGI error vector and may lead to concavities that encompass too much of the object. Generally, $\varepsilon \in [0.3, 0.7]$ rad is effective. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Eq. \ref{eq:area_opt_convex} and EGI correction step Eq \ref{eq:egi_validation}. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces. Explicitly, each face $F_i$ is classified $C(F_i)$ via:
+When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2 - \varepsilon$ to the error vector must be updated, where $\varepsilon$ is a bias angle that controls the conservativeness of the classification. Choosing $\varepsilon=0$ selects all faces above the horizon from the EGI error vector and may lead to concavities that encompass too much of the object. Generally, $\varepsilon \in [0.3, 0.7]$ rad is effective. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Equation \ref{eq:area_opt_convex} and EGI correction step Equation \ref{eq:egi_validation}. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces. Explicitly, each face $F_i$ is classified $C(F_i)$ via:
 
 \begin{equation} \label{eq:root_free}
   C(F_i) = \begin{cases} 
@@ -343,7 +366,7 @@ When introducing a concavity, it is important to classify which vertices are par
   \end{cases}.
 \end{equation}
 
-In Eq \ref{eq:root_free}, $C(F_i) = 0$ implies a root face, with $C(F_i) = 1$ implying a free face. Vertices on free faces are further classified as being \textit{root-adjacent} or \textit{free}. Root-adjacent vertices are part of at least one root face, whereas free vertices belong to only free faces. The classification of each vertex $\vctr{v}_i$ via $C(\vctr{v}_i)$ is expressed via:
+In Equation \ref{eq:root_free}, $C(F_i) = 0$ implies a root face, with $C(F_i) = 1$ implying a free face. Vertices on free faces are further classified as being \textit{root-adjacent} or \textit{free}. Root-adjacent vertices are part of at least one root face, whereas free vertices belong to only free faces. The classification of each vertex $\vctr{v}_i$ via $C(\vctr{v}_i)$ is expressed via:
 
 \begin{equation} \label{eq:root_free_verts}
   C(\vctr{v}_i) = \begin{cases}
@@ -352,7 +375,7 @@ In Eq \ref{eq:root_free}, $C(F_i) = 0$ implies a root face, with $C(F_i) = 1$ im
   \end{cases} \: \: \forall i \in \left\{ i \mid C(F_i) = 1 \right\}.
 \end{equation}
 
-In Eq \ref{eq:root_free_verts}, $\mathcal{N}(\vctr{v}_i)$ is the set of face indices including $\vctr{v}_i$ as a vertex, yielding $C(\vctr{v}_i) = 0$ to imply a free vertex, and $C(\vctr{v}_i) = 1$ to imply a root-adjacent face. Classifying vertices in this way results in a border of root-adjacent vertices around the interior free vertices, visualized in Figure \ref{fig:root_and_free}.
+In Equation \ref{eq:root_free_verts}, $\mathcal{N}(\vctr{v}_i)$ is the set of face indices including $\vctr{v}_i$ as a vertex, yielding $C(\vctr{v}_i) = 0$ to imply a free vertex, and $C(\vctr{v}_i) = 1$ to imply a root-adjacent face. Classifying vertices in this way results in a border of root-adjacent vertices around the interior free vertices, visualized in Figure \ref{fig:root_and_free}.
 
 \begin{figure}[!htb]
   \centering
@@ -388,7 +411,7 @@ The objects in Figure \ref{fig:misleading_egi_error} were illuminated with a sim
   \psi_{opt} = \min_{\psi} \left( \| \check{I} - \check{I}(\psi) \| \right),
 \end{equation}
 
-where $\check{I}$ is the observed normalized light curve and $\check{I}(\psi)$ is the light curve resulting with Eq \ref{eq:lc_normalized_engine} using a nonconvex mesh with a concavity of angle $\psi$ introduced. In practice, a line search is sufficient to find the interior angle that minimizes the light curve error of the reconstructed object, summarized in Algorithm \ref{alg:concavity_iter}.
+where $\check{I}$ is the observed normalized light curve and $\check{I}(\psi)$ is the light curve resulting with Equation \ref{eq:lc_normalized_engine} using a nonconvex mesh with a concavity of angle $\psi$ introduced. In practice, a line search is sufficient to find the interior angle that minimizes the light curve error of the reconstructed object, summarized in Algorithm \ref{alg:concavity_iter}.
 
 \begin{algorithm}
   \caption{Concavity sizing algorithm}\label{alg:concavity_iter}
@@ -471,7 +494,7 @@ To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \:
 
 \subsection{Shape Estimate Uncertainty}
 
-When merging multiple inaccurate shape guesses it is advantageous to measure the uncertainty in each candidate shape and use that uncertainty as a weighting to bias the merging process. The formulation used in this work relies on two face-wise uncertainty terms. First, a face should have high uncertainty if very little light would have reflected off that face to contribute to the light curve. Second, that face should also have high uncertainty if its reflected light has highly contaminated by background noise. As a result, the only faces of an estimated shape with low uncertainty should be those that reflect a large \textit{quantity} of light, increasing the observability of that face, while being uncontaminated by the background to yield a high \textit{quality} signal. These uncertainty terms are computed by first scaling the columns of the reflection matrix defined in Eq \ref{eq:reflection_matrix} by the area of each respective face $a_j$:
+When merging multiple inaccurate shape guesses it is advantageous to measure the uncertainty in each candidate shape and use that uncertainty as a weighting to bias the merging process. The formulation used in this work relies on two face-wise uncertainty terms. First, a face should have high uncertainty if very little light would have reflected off that face to contribute to the light curve. Second, that face should also have high uncertainty if its reflected light has highly contaminated by background noise. As a result, the only faces of an estimated shape with low uncertainty should be those that reflect a large \textit{quantity} of light, increasing the observability of that face, while being uncontaminated by the background to yield a high \textit{quality} signal. These uncertainty terms are computed by first scaling the columns of the reflection matrix defined in Equation \ref{eq:reflection_matrix} by the area of each respective face $a_j$:
 
 \begin{equation} \label{eq:h_matrix}
   H_{ij} = a_j G_{ij}.
@@ -489,7 +512,7 @@ Computing $\check{I}_{j}$ is useful as it represents the total quantity of signa
   u_{quant,j} = 1 - \frac{\check{I}_{j} - \min_{j}{\check{I}_{j}}}{\max_{j}{\check{I}_{j}} - \min_{j}{\check{I}_{j}}}.
 \end{equation}
 
-Interpreting Eq \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_\mathrm{lc}$ is:
+Interpreting Equation \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_\mathrm{lc}$ is:
 
 \begin{equation}
   \lambda_\mathrm{lc} = \sum_{i} C_{obj,meas,i},
@@ -513,7 +536,7 @@ yielding a weighting for the data quality attributed to each face of the convex 
   u_{qual,j} = \frac{\delta \check{I}_{tot,j} - \min_{j}{\delta \check{I}_{tot,j}}}{\max_{j}{\delta \check{I}_{tot,j}} - \min_{j}{\delta \check{I}_{tot,j}}}.
 \end{equation}
 
-Eq \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Eq \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, higher environmental noise will produce a larger residual $\delta \check{I}_{tot,j}$ at a given signal magnitude. As a result, the term $u_{quant,j}$ can be seen as accounting for the variance of the object signal --- which becomes less impactful as the object signal grows --- while the term $u_{qual,j}$ acocunts for the variance of the environmental noise --- which acts to degrade the light curve signal regardless of the object signal magnitude.
+Equation \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Equation \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, higher environmental noise will produce a larger residual $\delta \check{I}_{tot,j}$ at a given signal magnitude. As a result, the term $u_{quant,j}$ can be seen as accounting for the variance of the object signal --- which becomes less impactful as the object signal grows --- while the term $u_{qual,j}$ acocunts for the variance of the environmental noise --- which acts to degrade the light curve signal regardless of the object signal magnitude.
 
 These two uncertainty weightings are combined at each face for a global uncertainty estimate:
 
@@ -521,7 +544,7 @@ These two uncertainty weightings are combined at each face for a global uncertai
   u_{j} = \frac{u_{qual,j}}{2} + \frac{u_{quant,j}}{2}.
 \end{equation}
 
-Eq \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. A face with the lowest quality and quantity will be assigned $u_{j} = 1$ while simply having bad quality or quantity alone yields $u_j = 0.5$, thereby discounting low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
+Equation \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. A face with the lowest quality and quantity will be assigned $u_{j} = 1$ while simply having bad quality or quantity alone yields $u_j = 0.5$, thereby discounting low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
 
 \begin{figure}
   \centering
@@ -571,7 +594,7 @@ The final spherical weighting $w(\vctr{r}_q)$ applied to each object at a given 
   w(\vctr{r}_q) = \left( 1-u_j(\vctr{r}_q) \right) \left( \check{I}_{meas} - \check{I}_\mathrm{obj} \right),
 \end{equation}
 
-where $\check{I}_{meas}$ is the measured normalized light curve produced by Eq \ref{eq:ihat_meas} and $\check{I}_\mathrm{obj}$ is the normalized light curve produced by the shape estimate under the same observation conditions.
+where $\check{I}_{meas}$ is the measured normalized light curve produced by Equation \ref{eq:ihat_meas} and $\check{I}_\mathrm{obj}$ is the normalized light curve produced by the shape estimate under the same observation conditions.
 
 \subsection{Full Noisy Inversion Procedure} \label{sec:mh_inversion}
 
@@ -580,8 +603,8 @@ Given $n$ noisy light curves from an object of unknown shape, the procedure dete
 \begin{enumerate}
   \item Convex shape guesses are computed for each noisy light curve.
   \item Each shape is checked for potential nonconvex features by introducing singular concavities in the direction of the EGI error vector following Algorithm \ref{alg:concavity_iter}. Each nonconvex guess along with the convex guess is simulated in the same observation conditions to compute an error with respect to the original light curve. The guess --- convex or nonconvex --- with the lowest error is selected moving forward.
-  \item Now with $n$ convex or nonconvex shape estimates, one for each original light curve, the uncertainty in each face of each object is computed with Eq \ref{eq:u_total}.
-  \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$ via Eq \ref{eq:merge_weighting}.
+  \item Now with $n$ convex or nonconvex shape estimates, one for each original light curve, the uncertainty in each face of each object is computed with Equation \ref{eq:u_total}.
+  \item Given these uncertainties, each object is assigned a spherical weighting function $w_i(x, y, z)$ via Equation \ref{eq:merge_weighting}.
   \item The objects are merged together via their weights using the SDF procedure outlined by Algorithm \ref{alg:sdf_interp}, yielding a final shape estimate.
 \end{enumerate}
 

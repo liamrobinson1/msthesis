@@ -15,7 +15,7 @@
 %      epspdf gr-metapost-tally-20.mps;  mv gr-metapost-tally-20.pdf gr-metapost-tally-20.pdf
 %
 %  If you use bash you can do
-%      for i in $(seq 1 20); \
+%      for i in $(sEquation 1 20); \
 %          do epspdf gr-tally-$i.mps ; printf -v var "%02d" "$i"; mv gr-tally-$i.pdf gr-tally-$var.pdf; \
 %      done
 %  to do all the lines that start with epspdf.

@@ -4347,8 +4347,8 @@
   \seq_new:N \l_index_seq
   \def\ix#1
     {
-      \seq_set_split:Nnn \l_index_seq {//} {#1}
-      \def\ttt{\seq_use:Nn \l_index_seq {\penalty-100\kern0.3ex $\Rightarrow$\nobreak\kern0.3ex}}
+      \seq_set_split:Nnn \l_index_sEquation {//} {#1}
+      \def\ttt{\seq_use:Nn \l_index_sEquation {\penalty-100\kern0.3ex $\Rightarrow$\nobreak\kern0.3ex}}
       \todoindex{\ttt}
       % This is a comment.
       \seq_map_inline:Nn \l_index_seq
