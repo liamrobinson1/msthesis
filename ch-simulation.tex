@@ -58,11 +58,11 @@ The direction cosine matrix (DCM) is a $3\times3$ symmetric, orthogonal matrix, 
     \vrf{b}{r} = \dcm{bn} \vrf{n}{r}.
 \end{equation}
 
-The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$ \cite{shuster1993}. 
+The orthogonal property of the DCM implies $\dcm{bn}^{-1} = \dcm{bn}^T$ such that $\dcm{bn}^T = \dcm{nb}$ \cite{shuster1993}. Note that the DCM is also notated as $C$ for a transformation between two arbitrary reference frames.
 
 \subsubsection{Principal Rotation Parameters}
 
-Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\unitv{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\unitv{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM is mapped to the PRP representation with \cite{shuster1993}:
+Another common attitude representation is the Euler angle-axis set, otherwise known as principal rotation parameters \cite{crassidis1ed}. Euler's rotation theorem guarantees that any relative orientation can be expressed as a single rotation about an axis $\unitv{\lambda} \in \mathbb{S}^2$ by an angle $\theta \in [0, 2\pi]$ \cite{crassidis1ed}. The set $\left\{\unitv{\lambda},\theta\right\}$ is known as a principal rotation parameter, abbreviated PRP hereafter. The DCM $C$ with entries $C_{ij}$ for the $i$th row and $j$th column is mapped to the PRP representation with \cite{shuster1993}:
 
 \begin{align*} \numberthis \label{eq:dcm_to_prp}
     \theta &= \cos^{-1}\left(\frac{1}{2} \left[C_{11} + C_{22} + C_{33} - 1 \right] \right), \\
@@ -70,7 +70,7 @@ Another common attitude representation is the Euler angle-axis set, otherwise kn
     \begin{bmatrix} C_{23} - C_{32} \\ C_{31}-C_{13} \\ C_{12} - C_{21}\end{bmatrix},
 \end{align*}
 
-where $C_{i,j}$ refers to the $i$th row and $j$th column of $C$ \cite{shuster1993}. The mapping from PRP to DCM is also relatively straightforward \cite{shuster1993}:
+The mapping from a PRP $\left\{ \unitv{\lambda}, \theta \right\}$ to a DCM $C$ is also relatively straightforward \cite{shuster1993}:
 
 \begin{equation} \label{eq:prp2dcm}
     C = I_3 + \sin\theta\matcp{\unitv{\lambda}} + (1-\cos\theta)\matcp{\unitv{\lambda}}^2,
@@ -90,7 +90,7 @@ This operator is useful as it rephrases the cross product as matrix multiplicati
 
 \subsubsection{Quaternions}
 
-The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP, the quaternion is given by \cite{crassidis1ed}:
+The quaternion represents attitude with a point on the surface of the hypersphere \sthree. In terms of the PRP axis and angle $\left\{ \unitv{\lambda}, \theta \right\}$, the quaternion $\vctr{q}$ is given by \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:prp2quat}
     \vctr{q} = \begin{bmatrix} \unitv{\lambda} \sin\left( \frac{\theta}{2} \right) \\ \cos\left(\frac{\theta}{2}\right) \end{bmatrix}.
@@ -103,7 +103,7 @@ The first three entries of the quaternion are often called the vector component,
     \unitv{\lambda} &= \frac{\vctr{q}_{1:3}}{\sin{\frac{\theta}{2}}}.
 \end{align*}
 
-The quaternion maps to the DCM \cite{crassidis1ed} via:
+The quaternion maps to the DCM $C$ \cite{crassidis1ed} via:
 
 \begin{equation} \label{eq:quat2dcm}
         C = \left[\begin{matrix}\ -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4\\\ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3\\\ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2\\\end{matrix}\right]
@@ -111,7 +111,7 @@ The quaternion maps to the DCM \cite{crassidis1ed} via:
 
 \subsection{Attitude Kinematics}
 
-Quaternion kinematic differential equations are chosen for simulating object attitude profiles as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ and angular velocity $\boldsymbol{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via \cite{crassidis1ed}:
+Quaternion kinematic differential equations are chosen for simulating object attitude profiles as they have no singularity and produce very smooth dynamics that are easy to integrate when compared to three-variable representations that possess singularities. Given the current orientation quaternion $\vctr{q} = [q_1, q_2, q_3, q_4]^T$ representing the orientation of the body frame in inertial space and angular velocity of the body frame in inertial space $\boldsymbol{\omega} = [\omega_1, \omega_2, \omega_3]^T$ the quaternion derivative is computed via \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:quat_kde}
     \left[\begin{matrix}\dot{q}_1\\\dot{q}_2\\\dot{q}_3\\\dot{q}_4\\\end{matrix}\right]
@@ -122,7 +122,7 @@ Quaternion kinematic differential equations are chosen for simulating object att
 
 \subsection{Attitude Dynamics}
 
-Rigid body dynamics can be easily expressed in the body principal axes for an object with the diagonal inertia tensor $J = \mathrm{diag}\left( J_1, J_2, J_3 \right)$ with an arbitrary torque $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via \cite{crassidis1ed}:
+Rigid body dynamics can be easily expressed in the body principal axes for an object with the diagonal inertia tensor $J = \mathrm{diag}\left( J_1, J_2, J_3 \right)$ with an arbitrary torque vector $\vctr{M} = \left[M_1, M_2, M_3\right]^T$ in the same frame via \cite{crassidis1ed}:
 
 \begin{equation} \label{eq:rbtf_dynamics}
     \left[\begin{matrix}\dot{\omega_1}\\\dot{\omega_2}\\\dot{\omega_3}\\\end{matrix}\right]
@@ -151,28 +151,28 @@ One common text file format for 3D model files is \texttt{.obj}, developed by Wa
 For each triangular face $F_i$ of the model defined by vertices $F_i = \left\{v_1, v_2, v_3\right\}$, the outward-pointing face normal is computed with:
 
 \begin{equation} \label{eq:face_normal}
-    \vctr{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
+    \unitv{n} = \frac{\left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)}{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right) \|_2}.
 \end{equation}
 
-The face area is computed with:
+The face area $a$ is computed with:
 
 \begin{equation} \label{eq:face_areas}
     a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
 \end{equation}
 
-The support of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\, the first vertex $v_{i,1}$, and the face normal vector $\vctr{n}_i$:
+The support $h_i$ of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\ , the first vertex $v_{i,1}$, and the face normal vector $\vctr{n}_i$:
 
 \begin{equation} \label{eq:face_support}
     h_i = v_{i,1} \cdot \vctr{n}_i.
 \end{equation}
 
-The volume of the object is computed:
+The volume of the object $v$ is computed:
 
 \begin{equation} \label{eq:object_volume}
-    V = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vctr{h}_i \cdot \vctr{a}_i.
+    v = \frac{1}{3} \sum_{i=0}^{ \lvert F \rvert}\vctr{h}_i \cdot \vctr{a}_i.
 \end{equation}
 
-In Equation \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vctr{h}$ and $\vctr{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
+In Equation \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vctr{h}$ and $\vctr{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image $\vctr{E}$, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
 
 \begin{equation} \label{eq:egi_definition}
     \vctr{E}_i = \vctr{a}_i \vctr{n}_i.
@@ -184,10 +184,10 @@ Although light curves come from unresolved measurements, the interactions that p
 
 At the microscopic scale, the surface of an object is composed of facets ---  small areas sharing a normal vector. The macroscopic optical properties of the material is driven by the distribution of sizes and normal directions of these microfacets. If the facet normals are distributed in biased orientations, the macroscopic surface may show anisotropy, leading to the appearance of brushed metal. If the microfacet normals are at large angles to each other, the surface may appear dull as the direction of the outgoing light may be largely independent from the incoming direction. Subsurface effects ---  where incoming light rays scatter \textit{inside} the surface --- can also change the macroscopic properties of the material. 
 
-This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for a BRDF $f_r$ is given by \cite{duvenhage2013}:
+This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for the BRDF reflectance fraction $f_r$ is given by \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_def}
-    f_r(\vctr{x}, L, O) = \frac{d\mathcal{R}\left(\vctr{x}, O\right)}{d\mathcal{I}\left(L, \vctr{x}\right)}.
+    f_r(\vctr{x}, \vctr{\ell}, \vctr{o}) = \frac{d\mathcal{R}\left(\vctr{x}, \vctr{o}\right)}{d\mathcal{I}\left(\vctr{\ell}, \vctr{x}\right)}.
 \end{equation}
 
 In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $\boldsymbol{\ell} \in \mathbb{S}^2$ is the incoming illumination unit vector and $\vctr{o} \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, \boldsymbol{\ell}, \vctr{o})$ and $f_r(\boldsymbol{\ell}, \vctr{o})$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
@@ -224,7 +224,7 @@ A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}
   f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{o} \cdot \vctr{r})^n}{\vctr{n} \cdot \boldsymbol{\ell}}
 \end{equation}
 
-In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\vctr{r} = 2 (\vctr{n} \cdot \boldsymbol{\ell}) \vctr{n} - \boldsymbol{\ell}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
+In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\vctr{n} \cdot \boldsymbol{\ell}) \vctr{n} - \boldsymbol{\ell}}{\| 2 (\vctr{n} \cdot \boldsymbol{\ell}) \vctr{n} - \boldsymbol{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Blinn-Phong}
 
@@ -242,23 +242,23 @@ The so-called glossy BRDF simulates reflections from plastic materials using an 
   f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\vctr{n} \cdot \vctr{\ell}\right)}  e^{\frac{-\left( \vctr{r} \cdot \vctr{o} \right)^2}{2\sigma^2}},
 \end{equation}
 
-where the parameter $\sigma$ controls the width of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
+where the parameter $\sigma$ controls the spread --- the standard deviation --- of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Cook-Torrance}
 
-The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\vctr{h}$ \cite{cook1982}. A common formulation of this term is due to Beckmann:
+The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\vctr{h}$ \cite{cook1982}. A common formulation of this term is due to Beckmann, where $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}:
 
 \begin{equation} \label{eq:d_beckmann}
   D_{ct} = \frac{1}{\pi \alpha^2 \left( \vctr{n} \cdot \vctr{h} \right)^4} \exp\left( \frac{1 - \left(\vctr{n} \cdot \vctr{h}\right)^2}{\alpha^2 \left( \vctr{n} \cdot \vctr{h} \right)^2} \right).
 \end{equation}
 
-In Equation \ref{eq:d_beckmann}, $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}. The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as \cite{cook1982}:
+The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\vctr{h}$ and $\vctr{\ell}$ respectively \cite{cook1982}:
 
 \begin{equation} \label{eq:fresnel_approx}
   F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{h} \cdot \boldsymbol{\ell} \right) \right) ^ 5.
 \end{equation}
 
-The geometric attenuation term expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
+The geometric attenuation term $G_{ct}$ expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
   G_{ct} = \min \left\{ 1, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \vctr{o} \right)}{\vctr{o} \cdot \vctr{h}}, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \boldsymbol{\ell}\right)}{\vctr{o} \cdot \vctr{h}} \right\}.
@@ -272,7 +272,7 @@ The overall reflectance for the Cook-Torrance BRDF is given by:
 
 \subsubsection{Oren-Nayar}
 
-The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-world materials like ceramics and the surface of the Moon. These materials diverge from the Lambertian model near the horizon, reflecting much more light than would be predicted by simple cosine loss \cite{oren1994}. This BRDF relies on the surface roughness $\alpha$ to compute a set of constants \cite{oren1994}:
+The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-world materials like ceramics and the surface of the Moon. These materials diverge from the Lambertian model near the horizon, reflecting much more light than would be predicted by simple cosine loss \cite{oren1994}. This BRDF relies on the surface roughness $\alpha$ to compute a set of scalars $A$, $B$, $C$, and angles $\alpha$ and $\beta$ \cite{oren1994}:
 
 \begin{align*} \numberthis
   A &= 1 - 0.5 \frac{\alpha^2}{\alpha^2 + 0.33} \\
@@ -290,7 +290,7 @@ With these values computed, the reflectance of the Oren-Nayar BRDF is given by \
 
 \subsubsection{Ashikhmin-Shirley}
 
-The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
+The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient $C_d$, the specular reflection coefficient $C_s$, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
 
 \begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
   \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\vctr{n} \cdot \boldsymbol{\ell}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\vctr{n} \cdot \vctr{o}}{2}\right)^5\right) \\
@@ -368,11 +368,10 @@ irradiance of the zero-point source. This makes sense; substituting $I = I_0$ re
 $m=0$. The star Vega is usually taken to be the zero-point with irradiance $I_0 = 2.518021002\cdot
 10^{-8} \: \left[ \frac{W}{m^2} \right]$ \cite{frueh2019notes}.
 
-Equation \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude,
-yielding:
+Equation \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a given apparent magnitude $m$, yielding:
 
 \begin{equation} \label{eq:mag_to_irradiance}
-  I = I_0 \cdot 10^{-\frac{m}{2.5}}.
+  I = I_0 \cdot 10^{-0.4 m}.
 \end{equation}
 
 \subsubsection{Normalized Irradiance}
