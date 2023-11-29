@@ -190,16 +190,16 @@ This discussion raises an important question; how should the macroscopic outcome
     f_r(\vctr{x}, \vctr{\ell}, \vctr{o}) = \frac{d\mathcal{R}\left(\vctr{x}, \vctr{o}\right)}{d\mathcal{I}\left(\vctr{\ell}, \vctr{x}\right)}.
 \end{equation}
 
-In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $\boldsymbol{\ell} \in \mathbb{S}^2$ is the incoming illumination unit vector and $\vctr{o} \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, \boldsymbol{\ell}, \vctr{o})$ and $f_r(\boldsymbol{\ell}, \vctr{o})$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
+In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $\vctr{\ell} \in \mathbb{S}^2$ is the incoming illumination unit vector and $\vctr{o} \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, \vctr{\ell}, \vctr{o})$ and $f_r(\vctr{\ell}, \vctr{o})$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
 
 \begin{equation} \label{eq:brdf_energy_cons}
-  \forall \boldsymbol{\ell} \in \mathbb{S}^2 : \:\: \int_{\vctr{o} \in \mathbb{S}^2} f_r(\boldsymbol{\ell}, \vctr{o}) \: d\mathbb{S}^2 \leq 1.
+  \forall \vctr{\ell} \in \mathbb{S}^2 : \:\: \int_{\vctr{o} \in \mathbb{S}^2} f_r(\vctr{\ell}, \vctr{o}) \: d\mathbb{S}^2 \leq 1.
 \end{equation}
 
-Equation \ref{eq:brdf_energy_cons} states that for all possible illumination directions $\boldsymbol{\ell}$, integrating all possible outgoing observer directions $\vctr{o}$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
+Equation \ref{eq:brdf_energy_cons} states that for all possible illumination directions $\vctr{\ell}$, integrating all possible outgoing observer directions $\vctr{o}$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
 
 \begin{equation} \label{eq:brdf_reciprocity}
-  \forall \boldsymbol{\ell}, \vctr{o} \in \mathbb{S}^2 : \:\: f_r(\boldsymbol{\ell}, \vctr{o}) = f_r(\vctr{o}, \boldsymbol{\ell}).
+  \forall \vctr{\ell}, \vctr{o} \in \mathbb{S}^2 : \:\: f_r(\vctr{\ell}, \vctr{o}) = f_r(\vctr{o}, \vctr{\ell}).
 \end{equation}
 
 Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. Real-world materials are modeled with these BRDFs by fitting the free parameters of a given BRDF to measured reflectance data \cite{matusik2003}. If a BRDF can be fit to the data with low error, that reflection function can be considered to be a faithful model for the true physics. 
@@ -209,7 +209,7 @@ Now that the requirements for a plausible physical BRDF have been established, a
 The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
 
 \begin{equation} \label{eq:brdf_lambertian}
-  f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi}
+  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi}
 \end{equation}
 
 In Equation \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
@@ -221,17 +221,17 @@ While the diffuse BRDF reflects energy isotropically, many real-world reflection
 A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
 
 \begin{equation} \label{eq:brdf_phong}
-  f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{o} \cdot \vctr{r})^n}{\vctr{n} \cdot \boldsymbol{\ell}}
+  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{o} \cdot \vctr{r})^n}{\vctr{n} \cdot \vctr{\ell}}
 \end{equation}
 
-In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\vctr{n} \cdot \boldsymbol{\ell}) \vctr{n} - \boldsymbol{\ell}}{\| 2 (\vctr{n} \cdot \boldsymbol{\ell}) \vctr{n} - \boldsymbol{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
+In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\vctr{n} \cdot \vctr{\ell}) \vctr{n} - \vctr{\ell}}{\| 2 (\vctr{n} \cdot \vctr{\ell}) \vctr{n} - \vctr{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Blinn-Phong}
 
-The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\vctr{h}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\vctr{h} = \boldsymbol{\ell} + \vctr{o}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\vctr{h}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\vctr{h} = \vctr{\ell} + \vctr{o}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
 
 \begin{equation} \label{eq:brdf_blinn_phong}
-  f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{n} \cdot \vctr{h})^n}{4 (\vctr{n} \cdot \boldsymbol{\ell})(\vctr{n} \cdot \vctr{o})}
+  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{n} \cdot \vctr{h})^n}{4 (\vctr{n} \cdot \vctr{\ell})(\vctr{n} \cdot \vctr{o})}
 \end{equation}
 
 \subsubsection{Glossy}
@@ -239,7 +239,7 @@ The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the spec
 The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_glossy}
-  f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\vctr{n} \cdot \vctr{\ell}\right)}  e^{\frac{-\left( \vctr{r} \cdot \vctr{o} \right)^2}{2\sigma^2}},
+  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\vctr{n} \cdot \vctr{\ell}\right)}  e^{\frac{-\left( \vctr{r} \cdot \vctr{o} \right)^2}{2\sigma^2}},
 \end{equation}
 
 where the parameter $\sigma$ controls the spread --- the standard deviation --- of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
@@ -255,19 +255,19 @@ The Cook-Torrance explicitly accounts for the orientation of the microfacets mak
 The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\vctr{h}$ and $\vctr{\ell}$ respectively \cite{cook1982}:
 
 \begin{equation} \label{eq:fresnel_approx}
-  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{h} \cdot \boldsymbol{\ell} \right) \right) ^ 5.
+  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{h} \cdot \vctr{\ell} \right) \right) ^ 5.
 \end{equation}
 
 The geometric attenuation term $G_{ct}$ expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
-  G_{ct} = \min \left\{ 1, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \vctr{o} \right)}{\vctr{o} \cdot \vctr{h}}, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \boldsymbol{\ell}\right)}{\vctr{o} \cdot \vctr{h}} \right\}.
+  G_{ct} = \min \left\{ 1, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \vctr{o} \right)}{\vctr{o} \cdot \vctr{h}}, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \vctr{\ell}\right)}{\vctr{o} \cdot \vctr{h}} \right\}.
 \end{equation}
 
 The overall reflectance for the Cook-Torrance BRDF is given by:
 
 \begin{equation} \label{eq:brdf_cook_torrance}
-  f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(\vctr{n} \cdot \boldsymbol{\ell}\right) \left( \vctr{n} \cdot \vctr{o} \right)}
+  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(\vctr{n} \cdot \vctr{\ell}\right) \left( \vctr{n} \cdot \vctr{o} \right)}
 \end{equation}
 
 \subsubsection{Oren-Nayar}
@@ -277,15 +277,15 @@ The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-wo
 \begin{align*} \numberthis
   A &= 1 - 0.5 \frac{\alpha^2}{\alpha^2 + 0.33} \\
   B &= 0.45 \frac{\alpha^2}{\alpha^2 + 0.09} \\
-  C &= \frac{\mathrm{proj}_{\vctr{n}}\left(\boldsymbol{\ell}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\boldsymbol{\ell}\right)\|} \cdot  \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)\|} \\
-  \beta &= \max \left\{ \cos^{-1}\left( \boldsymbol{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\} \\
-  \gamma &= \min \left\{ \cos^{-1}\left( \boldsymbol{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\}. \\
+  C &= \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{\ell}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{\ell}\right)\|} \cdot  \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)\|} \\
+  \beta &= \max \left\{ \cos^{-1}\left( \vctr{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\} \\
+  \gamma &= \min \left\{ \cos^{-1}\left( \vctr{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\}. \\
 \end{align*}
 
 With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
 
 \begin{equation}
-  f_r(\boldsymbol{\ell}, \vctr{o}) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
+  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
 \end{equation}
 
 \subsubsection{Ashikhmin-Shirley}
@@ -293,11 +293,11 @@ With these values computed, the reflectance of the Oren-Nayar BRDF is given by \
 The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient $C_d$, the specular reflection coefficient $C_s$, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
 
 \begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
-  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\vctr{n} \cdot \boldsymbol{\ell}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\vctr{n} \cdot \vctr{o}}{2}\right)^5\right) \\
+  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\vctr{n} \cdot \vctr{\ell}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\vctr{n} \cdot \vctr{o}}{2}\right)^5\right) \\
   \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( \vctr{n} \cdot \vctr{h} \right)
   ^\frac{n_u \left(\vctr{h} \cdot \vctr{u} \right)^2 + n_v \left( \vctr{h} \cdot \vctr{v} \right)^2}{1 - \left(\vctr{h} \cdot \vctr{n}\right)^2}}
-  {\left(\vctr{h} \cdot \boldsymbol{\ell}\right) \max\left\{ \vctr{n} \cdot \vctr{o}, \vctr{n} \cdot \boldsymbol{\ell} \right\}} F \\
-  f_r(\boldsymbol{\ell}, \vctr{o}) &= \rho_d + \rho_s. \\
+  {\left(\vctr{h} \cdot \vctr{\ell}\right) \max\left\{ \vctr{n} \cdot \vctr{o}, \vctr{n} \cdot \vctr{\ell} \right\}} F \\
+  f_r(\vctr{\ell}, \vctr{o}) &= \rho_d + \rho_s. \\
 \end{align*}
 
 In Equation \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Equation \ref{eq:fresnel_approx} while $\vctr{u}$ and $\vctr{v}$ are predefined surface basis vectors perpendicular to the surface normal.
@@ -376,7 +376,7 @@ Equation \ref{eq:irradiance_to_mag} is rearranged to compute irradiance from a g
 
 \subsubsection{Normalized Irradiance}
 
-The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of an object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\check{I}$ via:
+The light curve simulation methods presented in this work use normalized irradiance, the received irradiance of an object at a distance of $1$ meter per $\left[ W/m^2 \right]$ of the distant source illuminating it. This is a non-standard quantity in the literature, but proves useful for the same reasons absolute magnitude is used by astronomers. Adjusting the signal to a standard distance and illumination strength enables the simulation and inversion of light curves in a non-dimensional environment. This simplifies simulation and makes the shape inversion optimizations more robust. To make the conversion explicit, irradiance in $\left[ W/m^2 \right]$ observed at a distance $r$ in meters from an object is converted to normalized irradiance due to the Sun $\check{I}$ by accounting for the $r^2$ loss due to distance and the $I_s$ total solar irradiance:
 
 \begin{equation} \label{eq:irradiance_to_norm_irradiance}
   \check{I} = \frac{r^2}{I_s} I.
@@ -389,28 +389,27 @@ To be precise, the normalized irradiance has units $m^2$ and can be interpreted 
 Light curve simulation for convex geometry can be solved semi-analytically as each face's contribution 
 to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
 Determining whether a face is illuminated requires two horizon checks to determine visibility 
-from the Sun and to the observer. For a face $i$ at timestep $j$ these horizon checks are 
-expressed by the shadowing condition $\mu_{ij}$. 
+from the Sun and to the observer. For a face $i$ at timestep $j$ with normal vector $\vctr{n}_i$, these horizon checks are expressed by the shadowing condition $\mu_{ij}$. 
 
 \begin{equation} \label{eq:cvx_shadow_cond}
   \mu_{ij} = \begin{cases}
-    1 \text{ if } \left( \vctr{o}_j \cdot \vctr{n}_i \right) > 0 \text{ and } \left( \boldsymbol{\ell}_j \cdot \vctr{n}_i \right) > 0 
+    1 \text{ if } \left( \vctr{o}_j \cdot \vctr{n}_i \right) > 0 \text{ and } \left( \vctr{\ell}_j \cdot \vctr{n}_i \right) > 0 
 	  \text{ and } \delta_{ij,\text{ss}} = 0 \text{ and } \delta_{ij,\text{os}} = 0\\
     0 \text{ otherwise } \\
   \end{cases}
 \end{equation}
 
-The unit vectors $\vctr{o}$ and $\boldsymbol{\ell}$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\vctr{n}$ is chosen by convention for all mesh operations. The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing refers to otherwise visible faces blocked by other portions of the geometry.
+The unit vectors $\vctr{o}$ and $\vctr{\ell}$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\vctr{n}$ is chosen by convention for all mesh operations. The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing refers to otherwise visible faces blocked by other portions of the geometry.
 
 The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
 normalized irradiance $\check{I}$. This can be scaled to adjust for the distance from the observer to
-the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
+the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF $f_r(\vctr{\ell}, \vctr{o})$, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
 
 \begin{equation} \label{eq:lc_func_normalized}
-  \check{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(\boldsymbol{\ell}_j, \vctr{o}_j) \left( \vctr{o}_j \cdot \vctr{n}_i \right) \left( \boldsymbol{\ell}_j \cdot \vctr{n}_i \right)}.
+  \check{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(\vctr{\ell}_j, \vctr{o}_j) \left( \vctr{o}_j \cdot \vctr{n}_i \right) \left( \vctr{\ell}_j \cdot \vctr{n}_i \right)}.
 \end{equation}
 
-In Equation \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(\boldsymbol{\ell}_j, \vctr{o}_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
+In Equation \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(\vctr{\ell}_j, \vctr{o}_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
   I_{j} = \frac{I_s \check{I}_j}{r_j^2}.
@@ -439,13 +438,13 @@ While the perspective projection is shown in Figure \ref{fig:ortho_perspective_c
 
 Transformations in computer graphics are often represented by $4 \times 4$ matrices. These matrices operate on so-called homogeneous coordinates, operating on vectors in $\mathbb{R}^4$ of the form $\left[ x, y, z, w \right]^T$ \cite{shirley2009}. The inclusion of the fourth component enables simultaneous rotation, translation, and scaling of the input points by the matrix, provided that the outputs are normalized to set $w = 1$ \cite{shirley2009}.
 
-There are a few fundamental matrices used in computer graphics that are necessary for later hardware-accelerated light curve simulation algorithms. The first is the model matrix $M \in \mathbb{R}^{4 \times 4}$ which transforms from the world frame to the model frame given the origin of the model body frame $\vctr{r}_{m} \in \mathbb{R}^{3 \times 3}$ and the orientation of the model body frame relative to the world frame $\mathbf{q}_m \in \mathbb{R}^4$ as a quaternion \cite{shirley2009}:
+There are a few fundamental matrices used in computer graphics that are necessary for later hardware-accelerated light curve simulation algorithms. The first is the model matrix $M \in \mathbb{R}^{4 \times 4}$ which transforms from the world frame to the model frame given the origin of the model body frame $\vctr{r}_m = \left[ r_{m,x}, r_{m,y}, r_{m,z} \right]^T$ and the orientation of the model body frame relative to the world frame $\mathbf{q}_m \in \mathbb{R}^4$ as a quaternion \cite{shirley2009}:
 
 \begin{equation} \label{eq:model_matrix}
   M = \begin{bmatrix}
-    -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4 & -R_{m,x}\\
-    \ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3 & -R_{m,y}\\
-    \ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2 & -R_{m,z} \\
+    -\ q_2^2-\ q_3^2+q_1^2+q_4^2\ &\ 2\ q_1q_2+2\ q_3q_4&\ 2\ q_1q_3-2\ q_2q_4 & -r_{m,x}\\
+    \ 2\ q_1q_2-2\ q_3q_4&\ -\ q_1^2-\ q_3^2+q_2^2+q_4^2\ &\ 2\ q_1q_4+2\ q_2q_3 & -r_{m,y}\\
+    \ 2\ q_1q_3+2\ q_2q_4&\ 2\ q_2q_3-2\ q_1q_4&\ -q_1^2-\ q_2^2+q_3^2+q_4^2 & -r_{m,z} \\
     0 & 0 & 0 & 1
   \end{bmatrix}.
 \end{equation}
@@ -477,13 +476,13 @@ The view matrix basis vectors are illustrated in Figure \ref{fig:ortho_perspecti
   \end{bmatrix}
 \end{align*}
 
-Together, these matrices form the so-called Model-View-Projection matrix which transforms directly from coordinates in the object body frame $\vctr{r}_\mathrm{obj}$ to the image plane:
+Together, these matrices form the so-called Model-View-Projection matrix through the matrix product $\mathcal{MVP} = PVM$ which transforms directly from coordinates in the object body frame $\vctr{r}_\mathrm{obj}$ to the image plane:
 
 \begin{equation} \label{eq:mvp}
-  \begin{bmatrix} x_h \\ y_h \\ z_h \\w_h \end{bmatrix} = M V P \begin{bmatrix} \vctr{r}_{\mathrm{obj},x} \\ \vctr{r}_{\mathrm{obj},y} \\ \vctr{r}_{\mathrm{obj},z} \\ 1 \end{bmatrix}.
+  \begin{bmatrix} x_h \\ y_h \\ z_h \\w_h \end{bmatrix} = \mathcal{MVP} \begin{bmatrix} \vctr{r}_{\mathrm{obj},x} \\ \vctr{r}_{\mathrm{obj},y} \\ \vctr{r}_{\mathrm{obj},z} \\ 1 \end{bmatrix}.
 \end{equation}
 
-In Equation \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the image plane, running linearly from $[-1, -1]$ at the top left corner of the image to $[1, 1]$ at the bottom right. Given the width of the image in $w_\mathrm{pix}$ pixels, the image coordinates $\left(x,y\right)$ of $r_\mathrm{obj}$ in pixels are:
+In Equation \ref{eq:mvp}, $x_h/w_h$ and $y_h/w_h$ are homogeneous coordinates in the image plane, running linearly from $[-1, -1]$ at the top left corner of the image to $[1, 1]$ at the bottom right. Given the width of the image in $w_\mathrm{pix}$ pixels as well as the aspect ratio of the image $a$, the image coordinates $\left(x,y\right)$ of $r_\mathrm{obj}$ in pixels are:
 
 \begin{equation} \label{eq:homo_to_pix}
   \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} w_\mathrm{pix} \left(\frac{1}{2} + \frac{x_h}{2w_h}\right) \\ a \cdot w_\mathrm{pix}\left(\frac{1}{2} + \frac{y_h}{2w_h}\right) \end{bmatrix}.
@@ -547,7 +546,7 @@ An image shaded by Algorithm \ref{alg:pix_shading} is dimensionalized to a norma
   A_{image} = 2 n_\mathrm{pix} \left(FOV \right)^2.
 \end{equation}
 
-This field of view must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_\mathrm{pix}$ pixels and dimensionalizing by the area of the image plane:
+The field of view $FOV$ must be set dynamically at runtime to account for the size of the 3D model. The pixel values $v$ in the image are stored as unsigned 8 bit integers which take on values from 0 to 255, corresponding to the power range 0 to 1 within the pixel shading procedure described by Algorithm \ref{alg:pix_shading}. The total normalized irradiance in image $j$ is computed by summing over all $n_\mathrm{pix}$ pixels, each having a value $v_i$, and dimensionalizing by the area of the image plane:
 
 \begin{equation} \label{eq:lc_normalized_engine}
   \check{I}_j = \frac{A_{image}}{n_\mathrm{pix}} \sum_{i=1}^{n_\mathrm{pix}}{\frac{v_{i}}{255}}
@@ -580,7 +579,7 @@ These time scales are relevant for this research as the precise coordinate frame
 
 \subsection{Julian Date}
 
-Most tasks in astrodynamics are easier when using a continuous time system. For this reason, the Julian date is adopted. This quantity is defined as the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, the Julian date is computed via:
+Most tasks in astrodynamics are easier when using a continuous time system. For this reason, the Julian date is adopted. This quantity is defined as the number of days elapsed since January 1, 4713 B.C., at 12:00 \cite{vallado4ed}. Given a date timestamp of the form D/M/Y h:m:s between the years of 1900 and 2100, the Julian date $JD$ is computed via:
 
 \begin{equation} \label{eq:date_to_jd}
   JD = 376Y - \fl{\left[ \frac{7Y + 7 \cdot \fl{\left(\frac{M + 9}{12} \right)}}{4} \right]}
@@ -590,7 +589,7 @@ Most tasks in astrodynamics are easier when using a continuous time system. For 
       + \frac{\frac{\left(\frac{s}{60} + 60\right)}{60} + h}{24}.
 \end{equation}
 
-Note that Equation \ref{eq:date_to_jd} is always a function of the time scale used in the input, i.\,e.\, a UTC timestamp yields $JD_{UTC}$ whereas a UT1 timestamp yields $JD_{UT1}$. Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch. The J2000.0 epoch is used unless otherwise stated, resulting in \cite{vallado4ed}:
+Note that Equation \ref{eq:date_to_jd} is always a function of the time scale used in the input, i.\,e.\, a UTC timestamp yields $JD_{UTC}$ whereas a UT1 timestamp yields $JD_{UT1}$. Another useful quantity for later time and coordinate system calculations is the number of Julian centuries since a particular epoch, $T$. The J2000.0 epoch is used unless otherwise stated, resulting in \cite{vallado4ed}:
 
 \begin{equation} \label{eq:jd_to_t}
   T = \frac{JD - 2451545.0}{36535}.
@@ -600,19 +599,19 @@ Often, more specificity is needed with respect to the time scale used in Equatio
 
 \subsection{Solar and Sidereal Time}
 
-A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. Due to the Earth's orbit around the Sun, the sidereal day is about 4 minutes shorter than the solar day \cite{vallado4ed}. The Greenwich mean sidereal time (GMST) is computed in seconds via \cite{frueh2019notes}:
+A solar day is defined as the time required for the Sun to pass and return to an observer's meridian --- a line of constant longitude extending from the geographic south pole to the geographic north pole \cite{vallado4ed}. By contrast, a sidereal day is the time required for the stars to complete a revolution around an observer's meridian. Due to the Earth's orbit around the Sun, the sidereal day is about 4 minutes shorter than the solar day \cite{vallado4ed}. The Greenwich mean sidereal time (GMST) $\theta_\mathrm{GMST}$ is computed in seconds via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:date_to_gmst}
-  \theta_{GMST} = 67310.54841
+  \theta_\mathrm{GMST} = 67310.54841
         + \left(3.15576 \cdot 10^9 + 8640184.812866 \right) T_{UT1}
         + 0.093104 T_{UT1}^2
         - 6.2 \cdot 10^{-6} T_{UT1}^3.
 \end{equation}
 
-Accounting for the variations in the inclination of the ecliptic $\epsilon$ and the change in the equinox compared to the reference epoch $\Delta \Psi$ produces Greenwich apparent sidereal time (GAST) via \cite{frueh2019notes}:
+Accounting for the variations in the inclination of the ecliptic $\epsilon$ and the change in the equinox compared to the reference epoch $\Delta \Psi$ produces Greenwich apparent sidereal time (GAST) $\theta_\mathrm{GAST}$ via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:date_to_gast}
-  \theta_{GAST} = \theta_{GMST} + \Delta \Psi \cos\epsilon.
+  \theta_\mathrm{GAST} = \theta_\mathrm{GMST} + \Delta \Psi \cos\epsilon.
 \end{equation}
 
 Both the inclination of the ecliptic and the difference in the equinox are computed with series expansions following the IAU 1980 theory of nutation \cite{vallado4ed}.
@@ -623,13 +622,13 @@ A precise definition of coordinate systems is necessary for determining the posi
 
 \subsection{Latitude, Longitude and Altitude}
 
-Latitude, longitude, and altitude (LLA) is a spherical representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_\mathrm{geod}$ is converted to geocentric $\phi_\mathrm{geoc}$ latitude with \cite{frueh2019notes}:
+Latitude, longitude, and altitude (LLA) is a spherical representation of position on or above the surface of the Earth. For the purposes of precise station positioning, the difference between the two types of longitude --- geocentric and geodetic --- is important. Geocentric latitude is the angle between the line from the center of mass of the Earth to the position of interest and the equatorial plane. Geodetic latitude instead measures the angle between the local ellipsoid surface normal and the equatorial plane. Geodetic latitude $\phi_\mathrm{geod}$ is converted to geocentric $\phi_\mathrm{geoc}$ latitude using the flattening ratio of the ellipsoid $f$ with \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:geod_to_geoc}
   \phi_\mathrm{geoc} = \tan^{-1} \left((1 - f)^2 \tan\phi_\mathrm{geod} \right).
 \end{equation}
 
-Additionally, the radius of the ellipsoid $r_E$ at a given geocentric latitude is necessary for later conversion, expressed by \cite{frueh2019notes}:
+Additionally, the radius of the ellipsoid $r_E$ at a given geocentric latitude is a function of the equiatorial radius of the Earth ellipsoid $R_E$ and is necessary for later conversions, expressed by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:rad_at_geoc}
   r_E = R_E - f \sin^2 \left( \phi_\mathrm{geoc} \right).
@@ -679,7 +678,7 @@ Terrain elevation is usually the final component needed to fully define the alti
 
 \subsubsection{Altitude Conversions}
 
-Given an altitude relative to the terrain $a_\mathrm{terrain}$, the elevation above the ellipsoid $a_\mathrm{ellip}$ is given as a function of the terrain elevation above the geoid $h_\mathrm{terrain}(\lambda, \phi)$ and the geoid elevation above the ellipsoid $h_\mathrm{terrain}(\lambda, \phi)$ by \cite{vallado4ed}:
+Given an altitude relative to the terrain $a_\mathrm{terrain}$, the elevation above the ellipsoid $a_\mathrm{ellip}$ is given as a function of the terrain elevation above the geoid $h_\mathrm{terrain}(\lambda, \phi_\mathrm{geod})$ and the geoid elevation above the ellipsoid $h_\mathrm{geoid}(\lambda, \phi_\mathrm{geod})$, each evaluated at a given geodetic latitude $\phi_\mathrm{geod}$ and longitude $\lambda$, yielding \cite{vallado4ed}:
 
 \begin{equation} \label{eq:altitude_above_ellipsoid}
   a_\mathrm{ellip} = a_\mathrm{terrain} + h_\mathrm{terrain}(\lambda, \phi_\mathrm{geod}) + h_\mathrm{geoid}(\lambda, \phi_\mathrm{geod}).
@@ -691,7 +690,7 @@ The Cartesian form of LLA is known as the Earth-centered Earth-fixed (ECEF) refe
 fundamental plane of the frame is defined to be the equator ---  orienting the $z$-axis through Earth's
 instantaneous spin axis, and the reference direction through the intersection of the prime meridian
 and the equator ---  defining the $x$-axis. Completing the right-handed system with $\unitv{y} = \unitv{z} \times \unitv{x}$ yields a
-reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_\mathrm{geod}, a_\mathrm{ellip} \right)$ to ITRF is given by \cite{vallado4ed}:
+reference frame that remains fixed, neglecting effects like continental drift. The transformation from LLA $\left( \lambda, \phi_\mathrm{geod}, a_\mathrm{ellip} \right)$ to a position vector $\vctr{r}_\mathrm{itrf} = \left[ x_\mathrm{itrf}, y_\mathrm{itrf}, z_\mathrm{itrf} \right]^T$ in ITRF is given by \cite{vallado4ed}:
 
 \begin{align*} \numberthis \label{eq:lla_to_itrf}
   e^2 &= 2f - f^2 \\
@@ -702,9 +701,9 @@ reference frame that remains fixed, neglecting effects like continental drift. T
   z_\mathrm{itrf} &= \left(N (1 - e^2) + a_{\mathrm{ellip}} \right) \sin(\phi_\mathrm{geod}). \\
 \end{align*}
 
-In Equation \ref{eq:lla_to_itrf}, $e^2$ is the squared eccentricity of the ellipsoid, $N$ is the radius of curvature in the meridian, and $\rho$ is the $x-y$ plane magnitude of the station's position \cite{vallado4ed}.
+In Equation \ref{eq:lla_to_itrf}, $e^2$ is the squared eccentricity of the ellipsoid as a function of the flattening coefficient $f$, $N$ is the radius of curvature in the meridian, and $\rho$ is the $x-y$ plane magnitude of the station's position \cite{vallado4ed}.
 
-Many later transformations require the body axis rotation matrices $R_1$, $R_2$, and $R_3$ which are expressed:
+Many later transformations require the body axis rotation matrices $R_1$, $R_2$, and $R_3$ which are expressed as a function of an angle $\theta$:
 
 \begin{align*} \numberthis \label{eq:body_rotms}
   R_1(\theta) &= \begin{bmatrix}  1 & 0 & 0 \\ 0 & \cos\theta & \sin\theta \\ 0 & -\sin\theta & \cos\theta \end{bmatrix} \\
@@ -714,10 +713,10 @@ Many later transformations require the body axis rotation matrices $R_1$, $R_2$,
 
 \subsection{Topocentric East North Up (ENU) Reference Frame}
 
-The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vctr{r}_\mathrm{itrf}$ in ITRF to $\vctr{r}_{enu}$ in ENU is a function of the longitude of the station $\lambda$ and the geocentric latitude $\phi_\mathrm{geoc}$ by \cite{frueh2019notes}:
+The remaining transformations in this chapter will only be defined in terms of their rotation matrices. It is often useful to express observations in a local reference frame. The East North Up (ENU) coordinate system is used throughout this work. This system has an origin at the observing station, with the first two basis vectors pointing towards the local East and North and the third pointing towards zenith. The transformation from a vector $\vctr{r}_\mathrm{itrf}$ in ITRF to $\vctr{r}_\mathrm{enu}$ in ENU is a function of the longitude of the station $\lambda$ and the geocentric latitude $\phi_\mathrm{geoc}$ by \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:itrf_to_enu}
-  \vctr{r}_{enu} = F_2 F_1 R_2(\phi_\mathrm{geoc}) R_3(\lambda) \vctr{r}_\mathrm{itrf}.
+  \vctr{r}_\mathrm{enu} = F_2 F_1 R_2(\phi_\mathrm{geoc}) R_3(\lambda) \vctr{r}_\mathrm{itrf}.
 \end{equation}
 
 In Equation \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis, $F_1$ swaps the second and third unit vectors, and $F_2$ swaps the first and third unit vectors. The orientation of the ENU reference frame at the Purdue Optical Ground Station is depicted in Figure \ref{fig:pogs_enu}.
@@ -733,36 +732,36 @@ In Equation \ref{eq:itrf_to_enu}, $R_3$ is a rotation about the third body axis,
 
 Transforming from ITRF to a standardized inertial reference frame is an involved process due to the variety of nonlinear effects impacting the Earth's rotational motion. In total, this transformation must account for polar motion, the nutation and precession of the Earth's pole, and the mean sidereal time. These transformations are treated much more thoroughly in Montenbruck and Gill \cite{montenbruck2012}. 
 
-Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vctr{r}_\mathrm{itrf}$ in ITRF to $\vctr{r}_{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
+Accounting for polar motion --- the motion of the Earth's pole that cannot be explained through nutation theory --- transforms from $\vctr{r}_\mathrm{itrf}$ in ITRF to $\vctr{r}_\mathrm{gtod}$ in Greenwich True of Date (GTOD) via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:itrf_to_gtod}
-  \vctr{r}_{gtod} = R_1(y_p) R_2(x_p) \vctr{r}_\mathrm{itrf},
+  \vctr{r}_\mathrm{gtod} = R_1(y_p) R_2(x_p) \vctr{r}_\mathrm{itrf},
 \end{equation}
 
-where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from $\vctr{r}_{gtod}$ in GTOD to $\vctr{r}_{teme}$ in the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
+where $x_p$ and $y_p$ are the angular components of the polar motion at the time of interest \cite{frueh2019notes}. Accounting for the sidereal rotation of the Earth about its pole transforms from $\vctr{r}_\mathrm{gtod}$ in GTOD to $\vctr{r}_\mathrm{teme}$ in the True Equator, Mean Equinox (TEME) reference frame via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:gtod_to_teme}
-  \vctr{r}_{teme} = R_3(-\theta_{GMST}) \vctr{r}_{gtod},
+  \vctr{r}_\mathrm{teme} = R_3(-\theta_\mathrm{GMST}) \vctr{r}_\mathrm{gtod},
 \end{equation}
 
-where $\theta_{GMST}$ is the Greenwich mean sidereal time. Accounting for the difference between GMST and GAST at the date of interest transforms $\vctr{r}_{teme}$ TEME to $\vctr{r}_{tod}$ in the True of Date (TOD) reference frame via \cite{vallado4ed}:
+where $\theta_\mathrm{GMST}$ is the Greenwich mean sidereal time. Accounting for the difference between GMST and GAST at the date of interest transforms $\vctr{r}_\mathrm{teme}$ TEME to $\vctr{r}_\mathrm{tod}$ in the True of Date (TOD) reference frame via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:teme_to_tod}
-  \vctr{r}_{tod} = R_3(-\Delta \Psi \cos \epsilon) \vctr{r}_{teme},
+  \vctr{r}_\mathrm{tod} = R_3(-\Delta \Psi \cos \epsilon) \vctr{r}_\mathrm{teme},
 \end{equation}
 
-where $\Delta \Psi$ is the angular difference in the longitude of the vernal equinox between GMST and GAST, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}. Accounting for the nutation of Earth's pole transforms $\vctr{r}_{tod}$ from TOD to $\vctr{r}_{mod}$ in the Mean of Date (MOD) reference frame via \cite{vallado4ed}:
+where $\Delta \Psi$ is the angular difference in the longitude of the vernal equinox between GMST and GAST, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}. Accounting for the nutation of Earth's pole transforms $\vctr{r}_\mathrm{tod}$ from TOD to $\vctr{r}_\mathrm{mod}$ in the Mean of Date (MOD) reference frame via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:tod_to_mod}
-  \vctr{r}_{mod} = R_1(-\bar{\epsilon}) R_3(\Delta\Psi) R_1(\bar{\epsilon} + \Delta\epsilon) \vctr{r}_{tod},
+  \vctr{r}_\mathrm{mod} = R_1(-\bar{\epsilon}) R_3(\Delta\Psi) R_1(\bar{\epsilon} + \Delta\epsilon) \vctr{r}_\mathrm{tod},
 \end{equation}
 
 where $\bar{\epsilon}$ is the mean inclination of the ecliptic at the time of interest, and $\epsilon$ is the true inclination of the ecliptic \cite{vallado4ed}.
 
-Accounting for the secular precession of Earth's pole transforms $\vctr{r}_{mod}$ from MOD to $\vctr{r}_\mathrm{icrf}$ in ICRF via \cite{vallado4ed}:
+Accounting for the secular precession of Earth's pole transforms $\vctr{r}_\mathrm{mod}$ from MOD to $\vctr{r}_\mathrm{icrf}$ in ICRF via \cite{vallado4ed}:
 
 \begin{equation} \label{eq:mod_to_icrf}
-  \vctr{r}_\mathrm{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vctr{r}_{mod},
+  \vctr{r}_\mathrm{icrf} = R_3(\zeta) R_2(\theta) R_3(z) \vctr{r}_\mathrm{mod},
 \end{equation}
 
 through the 3-2-3 Euler angle sequence $\left( z, \theta, \zeta \right)$. Each of these angles modeling the precession are a function of the date of the transformation, and are approximated by polynomial expansions in the Julian century $T$ \cite{frueh2019notes}.
@@ -775,7 +774,7 @@ Right ascension and declination, often shortened to RA/Dec, are useful angles fo
 of the observation projected onto the inertial $x-y$ plane, measured counterclockwise from inertial
 $\unitv{x}$, represented by $\alpha$. Declination is the angle from the $x-y$ plane to the observation
 with positive values above the $x-y$ plane (closer to inertial $z$) and negative values below.
-Declination is represented by $\delta$. Given a unit vector direction $\unitv{v} = \left[ x_\mathrm{itrf}, y_\mathrm{itrf}, z_\mathrm{itrf} \right]^T$ in J2000, RA/Dec is computed via \cite{frueh2019notes}:
+Declination is represented by $\delta$. Given a vector direction $\left[ x_\mathrm{itrf}, y_\mathrm{itrf}, z_\mathrm{itrf} \right]^T$ in J2000, the corresponding J2000 RA/Dec is computed via \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:eci_to_ra_dec}
   \begin{bmatrix}
@@ -794,8 +793,7 @@ Azimuth and elevation, often shortened to Az/El, are similar angular quantities 
 the inertial sphere, they are referenced to an arbitrary reference frame. For a telescope making
 observations of an object, the local topocentric ENU frame may be used. For a satellite star
 tracker, star azimuth and elevation might be reported in the satellite body frame. In either case,
-Equation \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\unitv{v} = \left[ x_{ENU}, y_{ENU}, z_{ENU}
-\right]^T$ is expressed in the frame of interest \cite{frueh2019notes}.
+Equation \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where a vector $\left[ x_\mathrm{enu}, y_\mathrm{enu}, z_\mathrm{enu} \right]^T$ is expressed in the frame of interest \cite{frueh2019notes}.
 
 \begin{equation} \label{eq:enu_to_az_el}
   \begin{bmatrix}
@@ -803,8 +801,8 @@ Equation \ref{eq:eci_to_ra_dec} can be repurposed in terms of Az/El, where $\uni
 	El
   \end{bmatrix} = 
   \begin{bmatrix}
-	\atantwo(y_{ENU}, x_{ENU}) \\
-	\atantwo(z_{ENU}, \sqrt{x_{ENU}^2 + y_{ENU}^2})
+	\atantwo(y_\mathrm{enu}, x_\mathrm{enu}) \\
+	\atantwo(z_\mathrm{enu}, \sqrt{x_\mathrm{enu}^2 + y_\mathrm{enu}^2})
   \end{bmatrix}
 \end{equation}
 
@@ -829,7 +827,7 @@ The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used
 
 Many optical telescopes, including the Purdue Optical Ground Station, use a CCD to convert incident photons into a digital signal on a pixel grid \cite{krag2003}. CCDs accomplish this with a matrix of semiconductor pixel wells which collect electrons released by the photoelectric effect when photons are incident on that pixel \cite{krag2003}. The release of these photoelectrons is wavelength dependent and is captured by the quantum efficiency spectrum of a given CCD. Developing this background in photometry is useful for both light curve simulation as well as simulating the CCD camera measuring that light curve. 
 
-Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_\mathrm{pix} = 0.72 \: [arcsec/pixel]$), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
+Due to the sheer distance from the observer to any space object, taking an image that resolves the object's geometry is generally impossible. For an observer with the pixel scale of the Purdue Optical Ground Station ($s_\mathrm{pix} = 0.72$ arcseconds per pixel), a 6U CubeSat in LEO occupies about 1/44 of a pixel area, while a large communications satellite in GEO occupies approximately 1/13 of a pixel area. In either case, no geometric information is left on the image plane even before diffraction is taken into account. 
 
 Whenever an optical telescope is observing an unresolved space object, the object's signal is necessarily superimposed on whatever signals exist in the background as the unresolved signal spreads much farther than the object's actual geometric bounds. In this context, background does not only refer to sources physically further than the object --- as light can easily enter optical path through atmospheric scattering --- but all sources that impact the image apart from the object signal. Some of these sources even originate within the telescope optics and its sensor. To faithfully simulate a telescope observing an object, many position-based SDA tasks are able to ignore background effects while acquiring or tracking objects. For photometry-based SDA, the background is critical. The overall noise floor can be broken up into background signal sources and sensor effects.
 
@@ -853,7 +851,7 @@ For a $0.5$-meter aperture optical telescope with a pixel scale of $1$ arcsecond
 The far-field diffraction pattern produced by a point source is known as an Airy pattern or disk \cite{frueh2019notes}. The Airy disk is expressed in terms of an amplitude $C$ at an angular distance $\theta$ from the center $C(\theta)$ \cite{frueh2019notes} as:
 
 \begin{equation} \label{eq:airy_disk}
-  C_{Airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
+  C_\mathrm{airy}(\theta) = C_0 \left( \frac{2 J_1(k \cdot r_d \sin\theta)}{k \cdot r_d \sin\theta} \right).
 \end{equation}
 
 In Equation \ref{eq:airy_disk}, $C_0$ is the amplitude of the center of the Airy disk, $r_d$ is the radius of the aperture, $k = \frac{2\pi}{\lambda}$ is the wavenumber, and $J_1$ is the first order Bessel function of the first kind. The central magnitude $C_0$ is expressed:
@@ -871,28 +869,28 @@ In Equation \ref{eq:airy_center}, $S_\mathrm{obj}$ is the total mean irradiance 
   \label{fig:airy_disk_magnitude}
 \end{figure}
 
-The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed \cite{frueh2019notes}:
+The Rayleigh criterion expresses the angular size of the first zero of the Airy disk, after which the amplitude of the Airy disk drops off exponentially. It is often useful to approximate the Airy disk with a 2D Gaussian. Given the total signal to be approximated, this Gaussian is fit with a single parameter --- the full width at half maximum (FWHM). The FWHM expresses the diameter at which the signal drops to half the magnitude of its central maximum \cite{frueh2019notes}. The FWHM of the Airy disk is expressed as a function of the radius of the aperture $r_d$ and the incident wavelength $\lambda$ \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:fwhm_airy}
-  FWHM_\mathrm{Airy} = \frac{1.028 \lambda}{2 r_d}.
+  \mathrm{FWHM}_\mathrm{airy} = \frac{1.028 \lambda}{2 r_d}.
 \end{equation}
 
-The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $FWHM_{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern FWHMs are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation of the Gaussian approximation of the Airy disk is given by:
+The diffraction pattern is not the only effect that spreads the unresolved signal over the pixel grid. Atmospheric turbulence contributes to further spreading and speckling of the signal \cite{frueh2019notes}. This effect --- known as the \textit{seeing} --- is encapsulated in $\mathrm{FWHM}_\mathrm{seeing}$ and is generally between $1$ and $3$ arcseconds \cite{frueh2019notes}. While the seeing and diffraction pattern FWHMs are additive, it is sufficient to take the larger value for simulation purposes \cite{frueh2019notes}. The standard deviation $\sigma$ of the Gaussian approximation of the Airy disk is given as a function of only the FWHM:
 
 \begin{equation} \label{eq:airy_variance}
-  \sigma = \frac{FWHM}{2 \sqrt{2 \ln{2}}}.
+  \sigma = \frac{\mathrm{FWHM}}{2 \sqrt{2 \ln{2}}}.
 \end{equation}
 
-The full Gaussian approximation at an angular distance $\theta$ from the source is given by:
+The full Gaussian approximation at an angular distance $\theta$ from the source, $C_\mathrm{gauss}(\theta)$, is given by:
 
 \begin{equation} \label{eq:airy_gaussian}
-  C_{Gauss}(\theta) = \frac{0.838 \bar{C}_\mathrm{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
+  C_\mathrm{gauss}(\theta) = \frac{0.838 \bar{C}_\mathrm{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
 \end{equation}
 
 In practice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
 
 \begin{equation} \label{eq:pix_values_gauss}
-  C_\mathrm{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_{Gauss}(\theta(x, y))} \: dy \: dy.
+  C_\mathrm{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_\mathrm{gauss}(\theta(x, y))} \: dy \: dy.
 \end{equation}
 
 The area within the first maximum of the Airy disk is given by \cite{frueh2019notes}:

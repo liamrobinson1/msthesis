@@ -176,7 +176,7 @@ To accomplish the goal of fitting a convex object to a collection of light curve
 
 \begin{align*} \numberthis \label{eq:reflection_matrix}
   G_{ij} &= \frac{I_{ij}}{I_s a_j} \\
-  &= f_r\left(\boldsymbol{\ell}, \vctr{o} \right) \left(\boldsymbol{\ell}_j \cdot \vctr{n}_i\right) \left(\vctr{o}_j \cdot \vctr{n}_i\right).
+  &= f_r\left(\vctr{\ell}, \vctr{o} \right) \left(\vctr{\ell}_j \cdot \vctr{n}_i\right) \left(\vctr{o}_j \cdot \vctr{n}_i\right).
 \end{align*}
 
 It must be noted that Equation \ref{eq:reflection_matrix} assumes that the BRDF of the object is uniform across its surface. This is a core assumption of the direct convex inversion scheme in the literature, and a limitation of the method that cannot be easily circumvented. This relationship between the received normalized irradiance and the areas of the object faces reveals the compact form of Equation \ref{eq:lc_func_normalized} for convex objects for any BRDF:
