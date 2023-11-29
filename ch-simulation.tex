@@ -221,17 +221,17 @@ While the diffuse BRDF reflects energy isotropically, many real-world reflection
 A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
 
 \begin{equation} \label{eq:brdf_phong}
-  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\unitv{o} \cdot \vctr{r})^n}{\unitv{n} \cdot \unitv{\ell}}
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\unitv{o} \cdot \unitv{r})^n}{\unitv{n} \cdot \unitv{\ell}}
 \end{equation}
 
-In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\unitv{n} \cdot \unitv{\ell}) \unitv{n} - \unitv{\ell}}{\| 2 (\unitv{n} \cdot \unitv{\ell}) \unitv{n} - \unitv{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
+In Equation \ref{eq:brdf_phong}, $\unitv{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\unitv{n} \cdot \unitv{\ell}) \unitv{n} - \unitv{\ell}}{\| 2 (\unitv{n} \cdot \unitv{\ell}) \unitv{n} - \unitv{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\unitv{r}$ instead of the halfway vector $\unitv{h}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Blinn-Phong}
 
-The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\vctr{h}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\vctr{h} = \unitv{\ell} + \unitv{o}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\unitv{h}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\unitv{h} = \unitv{\ell} + \unitv{o}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
 
 \begin{equation} \label{eq:brdf_blinn_phong}
-  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\unitv{n} \cdot \vctr{h})^n}{4 (\unitv{n} \cdot \unitv{\ell})(\unitv{n} \cdot \unitv{o})}
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\unitv{n} \cdot \unitv{h})^n}{4 (\unitv{n} \cdot \unitv{\ell})(\unitv{n} \cdot \unitv{o})}
 \end{equation}
 
 \subsubsection{Glossy}
@@ -239,29 +239,29 @@ The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the spec
 The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_glossy}
-  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\unitv{n} \cdot \unitv{\ell}\right)}  e^{\frac{-\left( \vctr{r} \cdot \unitv{o} \right)^2}{2\sigma^2}},
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\unitv{n} \cdot \unitv{\ell}\right)}  e^{\frac{-\left( \unitv{r} \cdot \unitv{o} \right)^2}{2\sigma^2}},
 \end{equation}
 
-where the parameter $\sigma$ controls the spread --- the standard deviation --- of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
+where the parameter $\sigma$ controls the spread --- the standard deviation --- of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\unitv{r}$ instead of the halfway vector $\unitv{h}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Cook-Torrance}
 
-The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\vctr{h}$ \cite{cook1982}. A common formulation of this term is due to Beckmann, where $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}:
+The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\unitv{h}$ \cite{cook1982}. A common formulation of this term is due to Beckmann, where $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}:
 
 \begin{equation} \label{eq:d_beckmann}
-  D_{ct} = \frac{1}{\pi \alpha^2 \left( \unitv{n} \cdot \vctr{h} \right)^4} \exp\left( \frac{1 - \left(\unitv{n} \cdot \vctr{h}\right)^2}{\alpha^2 \left( \unitv{n} \cdot \vctr{h} \right)^2} \right).
+  D_{ct} = \frac{1}{\pi \alpha^2 \left( \unitv{n} \cdot \unitv{h} \right)^4} \exp\left( \frac{1 - \left(\unitv{n} \cdot \unitv{h}\right)^2}{\alpha^2 \left( \unitv{n} \cdot \unitv{h} \right)^2} \right).
 \end{equation}
 
-The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\vctr{h}$ and $\unitv{\ell}$ respectively \cite{cook1982}:
+The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\unitv{h}$ and $\unitv{\ell}$ respectively \cite{cook1982}:
 
 \begin{equation} \label{eq:fresnel_approx}
-  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{h} \cdot \unitv{\ell} \right) \right) ^ 5.
+  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \unitv{h} \cdot \unitv{\ell} \right) \right) ^ 5.
 \end{equation}
 
 The geometric attenuation term $G_{ct}$ expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
-  G_{ct} = \min \left\{ 1, \frac{2\left(\unitv{n} \cdot \vctr{h}\right) \left(\unitv{n} \cdot \unitv{o} \right)}{\unitv{o} \cdot \vctr{h}}, \frac{2\left(\unitv{n} \cdot \vctr{h}\right) \left(\unitv{n} \cdot \unitv{\ell}\right)}{\unitv{o} \cdot \vctr{h}} \right\}.
+  G_{ct} = \min \left\{ 1, \frac{2\left(\unitv{n} \cdot \unitv{h}\right) \left(\unitv{n} \cdot \unitv{o} \right)}{\unitv{o} \cdot \unitv{h}}, \frac{2\left(\unitv{n} \cdot \unitv{h}\right) \left(\unitv{n} \cdot \unitv{\ell}\right)}{\unitv{o} \cdot \unitv{h}} \right\}.
 \end{equation}
 
 The overall reflectance for the Cook-Torrance BRDF is given by:
@@ -294,9 +294,9 @@ The Ashikhmin-Shirley BRDF is unique among those presented in this section as it
 
 \begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
   \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\unitv{n} \cdot \unitv{\ell}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\unitv{n} \cdot \unitv{o}}{2}\right)^5\right) \\
-  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( \unitv{n} \cdot \vctr{h} \right)
-  ^\frac{n_u \left(\vctr{h} \cdot \vctr{u} \right)^2 + n_v \left( \vctr{h} \cdot \vctr{v} \right)^2}{1 - \left(\vctr{h} \cdot \unitv{n}\right)^2}}
-  {\left(\vctr{h} \cdot \unitv{\ell}\right) \max\left\{ \unitv{n} \cdot \unitv{o}, \unitv{n} \cdot \unitv{\ell} \right\}} F \\
+  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( \unitv{n} \cdot \unitv{h} \right)
+  ^\frac{n_u \left(\unitv{h} \cdot \vctr{u} \right)^2 + n_v \left( \unitv{h} \cdot \vctr{v} \right)^2}{1 - \left(\unitv{h} \cdot \unitv{n}\right)^2}}
+  {\left(\unitv{h} \cdot \unitv{\ell}\right) \max\left\{ \unitv{n} \cdot \unitv{o}, \unitv{n} \cdot \unitv{\ell} \right\}} F \\
   f_r(\unitv{\ell}, \unitv{o}) &= \rho_d + \rho_s. \\
 \end{align*}
 
@@ -1442,30 +1442,30 @@ In Equation \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixe
 
 In Equation \ref{eq:noise_signal_grid}, $N_\mathrm{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_\mathrm{background})$, $N_\mathrm{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_\mathrm{dark})$, $N_\mathrm{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_\mathrm{read}$ is drawn from $\mathrm{N}(0, \sigma_\mathrm{read}^2)$. 
 
-Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_\mathrm{obj}, y_\mathrm{obj}\}$ is given by:
+Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{\mathrm{obj},meas}$ attributed to the object pixels $\{x_\mathrm{obj}, y_\mathrm{obj}\}$ is given by:
 
 \begin{align*} \numberthis \label{eq:noisy_counts}
   C_{noise,all} &= \sum_{i=1}^{A_\mathrm{airy}}{C_{noise,i}} \\
-  C_{obj,all} &= \sum_{x \in x_\mathrm{obj}, \: y \in x_\mathrm{obj}}{\bar{C}_\mathrm{obj}(x, y)} \\
-  C_{obj,meas} &= C_{noise,all} - A_\mathrm{airy} \left( \Delta t \cdot \lambda_\mathrm{dark} + \lambda_\mathrm{background} \right) 
+  C_{\mathrm{obj},all} &= \sum_{x \in x_\mathrm{obj}, \: y \in x_\mathrm{obj}}{\bar{C}_\mathrm{obj}(x, y)} \\
+  C_{\mathrm{obj},meas} &= C_{noise,all} - A_\mathrm{airy} \left( \Delta t \cdot \lambda_\mathrm{dark} + \lambda_\mathrm{background} \right) 
 \end{align*}
 
-In Equation \ref{eq:noisy_counts}, $A_\mathrm{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Equation \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance $I_{obj,meas}$ via Equation \ref{eq:count_to_irrad} using the integration time $\Delta t$ and the irradiance to count conversion factor $\mathcal{S}_\mathrm{int}$:
+In Equation \ref{eq:noisy_counts}, $A_\mathrm{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Equation \ref{eq:airy_area}. The measured object signal $C_{\mathrm{obj},meas}$ can then be transformed into irradiance $I_{\mathrm{obj},meas}$ via Equation \ref{eq:count_to_irrad} using the integration time $\Delta t$ and the irradiance to count conversion factor $\mathcal{S}_\mathrm{int}$:
 
 \begin{equation} \label{eq:noisy_counts_to_irrad}
-  I_{obj,meas} = \frac{C_{obj,meas}}{\mathrm{\mathcal{S}_\mathrm{int}} \cdot \Delta t}
+  I_{\mathrm{obj},meas} = \frac{C_{\mathrm{obj},meas}}{\mathrm{\mathcal{S}_\mathrm{int}} \cdot \Delta t}
 \end{equation}
 
-or to apparent magnitude $m_{obj,meas}$ by applying Equation \ref{eq:mag_to_irradiance} using the zero point irradiance $I_0$:
+or to apparent magnitude $m_{\mathrm{obj},meas}$ by applying Equation \ref{eq:mag_to_irradiance} using the zero point irradiance $I_0$:
 
 \begin{equation}
-  m_{obj,meas} = -2.5 \log_{10}\left( \frac{I_{obj,meas}}{I_0} \right)
+  m_{\mathrm{obj},meas} = -2.5 \log_{10}\left( \frac{I_{\mathrm{obj},meas}}{I_0} \right)
 \end{equation}
 
-or normalized irradiance $\check{I}_{obj,meas}$ by applying Equation \ref{eq:irradiance_to_norm_irradiance} using the total solar irradiance $I_s$ and the position of the object $\vctr{r}_\mathrm{obj}$ and observer $\vctr{r}_\mathrm{obs}$ relative to some common origin:
+or normalized irradiance $\check{I}_{\mathrm{obj},meas}$ by applying Equation \ref{eq:irradiance_to_norm_irradiance} using the total solar irradiance $I_s$ and the position of the object $\vctr{r}_\mathrm{obj}$ and observer $\vctr{r}_\mathrm{obs}$ relative to some common origin:
 
 \begin{equation} \label{eq:ihat_meas}
-  \check{I}_{obj,meas} = \frac{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|^2}{I_s} I_{obj,meas}.
+  \check{I}_{\mathrm{obj},meas} = \frac{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|^2}{I_s} I_{\mathrm{obj},meas}.
 \end{equation}
 
 \section{Light Curve Simulation Results}

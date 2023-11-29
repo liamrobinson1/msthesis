@@ -245,7 +245,7 @@ Existing EGI optimization schemes like those of Fan \cite{fan2020thesis}, Friedm
 
 \subsection{EGI Merging}
 
-After resampling and optimizing again with Equation \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors within an angular offset $\theta_\mathrm{merge}$:
+After resampling and optimizing again with Equation \ref{eq:area_opt_convex}, the reestimated EGI is merged by computing all groups $\mathcal{G}$ of EGI vectors $\vctr{E}_i$ within an angular offset $\theta_\mathrm{merge}$ of each other:
 
 \begin{equation} \label{eq:egi_merge}
   \mathcal{G}_k = \left\{ \vctr{E}_i \in \vctr{E} \:\| \cos^{-1}\left( \frac{\unitv{E}_i \cdot \unitv{E}_k}{\|\vctr{E}_i \| \| \vctr{E}_k \|}\right) < \theta_\mathrm{merge} \right\}.
@@ -262,16 +262,16 @@ Merging the resampled EGI shown in Figure \ref{fig:resampled_egi} produces a fin
 \begin{figure}[!htb]
   \centering
   \includegraphics[width=\figmed]{sphx_glr_egi_figs_aas22_004.png}
-  \caption{Merged EGI for the cube data using $\alpha = \frac{\pi}{10}$. Relative face area denoted by higher sphere opacity, reference shape shown in grey.}
+  \caption{Merged EGI for the cube data using $\theta_\mathrm{merge} = \frac{\pi}{10}$. Relative face area denoted by higher sphere opacity, reference shape shown in grey.}
   \label{fig:merged_egi}
 \end{figure}
 
 \subsection{Geometry Recovery from the EGI}
 
-At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Equation \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI by adding the mean closure error to each entry:
+At this stage, the resampled and merged EGI encodes a convex approximation of the underlying object with no guarantee of the closure of this EGI. The EGI closure constraint Equation \ref{eq:egi_closure} motivates a simple procedure to correct an invalid EGI $\vctr{E}_\mathrm{open}$ by adding the mean closure error to each entry, yielding a closed EGI $\vctr{E}_\mathrm{closed}$:
 
 \begin{equation} \label{eq:egi_validation}
-  \vctr{E}_{\textrm{closed}} = \vctr{E}_{\textrm{open}} - \frac{1}{m}\sum_{i=1}^m a_i \unitv{n}_i .
+  \vctr{E}_\mathrm{closed} = \vctr{E}_\mathrm{open} - \frac{1}{m}\sum_{i=1}^m a_i \unitv{n}_i .
 \end{equation}
 
 The concept of a closure step is not a novel contribution. Fan's method solved an optimization problem to adjust the EGI towards closure \cite{fan2020thesis}. This process is improved with a simpler analytical correction. In practice this process should be performed before each reconstruction to accelerate convergence. Failing to correct non-closed EGIs will cause convergence to a nonzero minimum in the reconstruction objective function as there is no corresponding convex object with the given EGI.
@@ -288,7 +288,7 @@ If $(x, y, z)$ are chosen to be the closest points in the object's planes to the
   \mathcal{D}_i = \frac{\vctr{E}_i}{ \| \vctr{E}_i \| \vctr{h}_i}.
 \end{equation}
 
-The object's vertices $\vctr{v}_{ref}$ are found by solving a linear system of equations for each face on the convex hull of dual set vertices. Triplets of vertices on the resulting faces are used to find a single real vertex by intersecting the three planes defining the dual set vertices.
+The object's vertices $\vctr{v}_{ref}$ are found by solving a linear system of equations for each face on the convex hull of dual set vertices. Triplets of dual vertices on the resulting faces $\left\{ v_i, v_j, v_k \right\}$ are used to find a single real vertex by intersecting the three planes defining the dual set vertices.
 
 \begin{equation} \label{eq:vertex_recovery}
   \begin{bmatrix}
@@ -327,7 +327,7 @@ Many human-made space objects are, as highlighted in Figure \ref{fig:hst_bennu_s
 
 Information about large, unilateral object concavities is obtained during EGI estimation in Equation \ref{eq:area_opt_convex} by relaxing the EGI closure constraint. This unconstrained form is also generally functional for most convex objects and can be used without loss of detail in the final reconstruction as long as closure correction in Equation \ref{eq:fixing_egi} is still employed.
 
-The mean axis of prominent concave features is determined by measuring the divergence of the optimized EGI from a closed object with the magnitude of the closure error $\vctr{e}_{EGI}$.
+The mean axis of prominent concave features is determined by measuring the divergence of the optimized EGI from a closed object through the direction of the closure error vector $\vctr{e}_{EGI}$:
 
 \begin{equation} \label{eq:closure_error}
   \vctr{e}_{EGI} = -\sum_{i=1}^{m} a_i \unitv{n}_i.
@@ -357,7 +357,7 @@ Subdividing the initial convex object guess is essential for retaining object de
 
 \subsection{Vertex Classification}
 
-When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2 - \varepsilon$ to the error vector must be updated, where $\varepsilon$ is a bias angle that controls the conservativeness of the classification. Choosing $\varepsilon=0$ selects all faces above the horizon from the EGI error vector and may lead to concavities that encompass too much of the object. Generally, $\varepsilon \in [0.3, 0.7]$ rad is effective. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Equation \ref{eq:area_opt_convex} and EGI correction step Equation \ref{eq:egi_validation}. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces. Explicitly, each face $F_i$ is classified $C(F_i)$ via:
+When introducing a concavity, it is important to classify which vertices are part of the concave feature --- and therefore need to be updated --- and which vertices should remain unaffected. This is accomplished by measuring the angle from each face normal to the EGI error vector, where faces with normal vectors within an angle of $\pi/2 - \varepsilon$ to the error vector must be updated, where $\varepsilon$ is a bias angle that controls the conservativeness of the classification. Choosing $\varepsilon=0$ selects all faces above the horizon from the EGI error vector and may lead to concavities that encompass too much of the object. Generally, $\varepsilon \in [0.3, 0.7]$ rad is effective. In reality, all face normals and areas are impacted by the presence of the concavity in the area optimization Equation \ref{eq:area_opt_convex} and EGI correction step Equation \ref{eq:egi_validation}. This bound tends to produce visually accurate concavities. Faces requiring an update are termed \textit{free} faces, with all others termed \textit{root} faces. Explicitly, each face $F_i$ with normal vector $\unitv{n}_i$ is classified $C(F_i)$ using the EGI error vector $\unitv{e}_{EGI}$ via:
 
 \begin{equation} \label{eq:root_free}
   C(F_i) = \begin{cases} 
@@ -372,7 +372,7 @@ In Equation \ref{eq:root_free}, $C(F_i) = 0$ implies a root face, with $C(F_i) =
   C(\vctr{v}_i) = \begin{cases}
     0 & \sum_{j \in \mathcal{N}(\vctr{v}_i)}{C(F_j)} = 0 \\
     1 & \sum_{j \in \mathcal{N}(\vctr{v}_i)}{C(F_j)} > 0 \\    
-  \end{cases} \: \: \forall i \in \left\{ i \mid C(F_i) = 1 \right\}.
+  \end{cases} \: \: \forall \: i \in \left\{ i \mid C(F_i) = 1 \right\}.
 \end{equation}
 
 In Equation \ref{eq:root_free_verts}, $\mathcal{N}(\vctr{v}_i)$ is the set of face indices including $\vctr{v}_i$ as a vertex, yielding $C(\vctr{v}_i) = 0$ to imply a free vertex, and $C(\vctr{v}_i) = 1$ to imply a root-adjacent face. Classifying vertices in this way results in a border of root-adjacent vertices around the interior free vertices, visualized in Figure \ref{fig:root_and_free}.
@@ -490,7 +490,7 @@ The procedure in Algorithm \ref{alg:sdf_interp} can be further generalized by al
   \mathrm{SDF}_{\mathrm{interp}}(x, y, z) = w_1(x, y, z) \cdot \mathrm{SDF}_{M_1}(x, y, z) + w_2 \cdot \mathrm{SDF}_{M_2}(x, y, z).
 \end{equation}
 
-To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \: \forall (x,y,z) \in \mathbb{R}^3$.
+To discourage degenerate behavior, it is necessary to enforce $w_i(x,y,z) > 0 \: \forall \: (x,y,z) \in \mathbb{R}^3$.
 
 \subsection{Shape Estimate Uncertainty}
 
@@ -509,42 +509,42 @@ The resulting matrix $H$ has the same dimensions as $G$, but has entries $H_{ij}
 Computing $\check{I}_{j}$ is useful as it represents the total quantity of signal expected from face $j$ across the light curve. Using this value, the data quantity weighting is:
 
 \begin{equation} \label{eq:unc_quantity}
-  u_{quant,j} = 1 - \frac{\check{I}_{j} - \min_{j}{\check{I}_{j}}}{\max_{j}{\check{I}_{j}} - \min_{j}{\check{I}_{j}}}.
+  u_{\mathrm{quant},j} = 1 - \frac{\check{I}_{j} - \min_{j}{\check{I}_{j}}}{\max_{j}{\check{I}_{j}} - \min_{j}{\check{I}_{j}}}.
 \end{equation}
 
-Interpreting Equation \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{quant,j} = 0$ while the face with the least influence is assigned $u_{quant,j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_\mathrm{lc}$ is:
+Interpreting Equation \ref{eq:unc_quantity}, the face with the most influence on the overall light curve is assigned a data quantity uncertainty of $u_{\mathrm{quant},j} = 0$ while the face with the least influence is assigned $u_{\mathrm{quant},j} = 1$. This meets the first requirement for the uncertainty measure sought; a large quantity of data should produce an accurate final shape estimate. This is further motivated by investigating the statistical nature of the light curve signal. As the object signal is Poisson distributed, the signal itself is well-modeled as a Poisson distribution independently sampled at each timestep. Since the sum of two Poisson distributions with mean and variance $\lambda_1$ and $\lambda_2$ is also Poisson with parameter $\lambda_3 = \lambda_1 + \lambda_2$, the total variance of the sum of the light curve $\lambda_\mathrm{lc}$ is:
 
 \begin{equation}
-  \lambda_\mathrm{lc} = \sum_{i} C_{obj,meas,i},
+  \lambda_\mathrm{lc} = \sum_{i} C_{\mathrm{obj},\mathrm{meas},i},
 \end{equation}
 
-implying that as the sum of the signal magnitudes grow linearly, their standard deviation $\sqrt{\lambda_\mathrm{lc}}$ grows sublinearly. As a result, a higher quantity of available data for a face will will always exponentially lower the SNR. That said, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the light curve error:
+implying that as the sum of the signal magnitudes grow linearly, their standard deviation $\sqrt{\lambda_\mathrm{lc}}$ grows sublinearly. As a result, a higher quantity of available data for a face will will always exponentially lower the SNR. That said, a high quantity of available data does not necessarily mean that the data has a high SNR. Estimating the SNR in the measured counts is certainly possible, especially if the observing station is well characterized, but is a strong assumption for an unknown ground station. It would be preferable to estimate the variance of the measured signal through the convex shape guess itself. As the NNLS optimization of the EGI is guaranteed to produce the convex shape that best matches the measured irradiances, the convex guess is a good estimator for the mean of the received signal so long as the noise on the measurements is zero mean. As a result, the variance of the normalized light curve error $\mathrm{Var}\left(\delta \check{I}\right)$ is given by:
 
 \begin{equation}
-  \mathrm{Var}\left(\delta \check{I}\right) = \mathrm{Var}\left(Ga - \check{I}_{meas}\right)
+  \mathrm{Var}\left(\delta \check{I}\right) = \mathrm{Var}\left(G \vctr{a} - \check{I}_{meas}\right),
 \end{equation}
 
-generally matches the true signal and noise variance. This means that scaling the expected normalized irradiance $H_{ij}$ by the absolute value of the light curve error yields a quantity that is proportional to the number of false counts above or below the true mean attributed to a certain face:
+where $G$ is the convex reflection matrix for the convex shape guess and $\vctr{a}$ is the vector of areas of the convex shape guess, generally matches the true signal and noise variance. This means that scaling the expected normalized irradiance $H_{ij}$ by the absolute value of the light curve error yields a quantity that is proportional to the number of false counts above or below the true mean attributed to a certain face:
 
 \begin{equation}
-  \delta \check{I}_{tot,j} = a_j \sum_{i}{\left( G_{ij} a_j - \check{I}_{meas,i} \right) H_{ij}},
+  \delta \check{I}_{tot,j} = a_j \sum_{i}{\left( G_{ij} a_j - \check{I}_{\mathrm{meas},i} \right) H_{ij}},
 \end{equation}
 
 yielding a weighting for the data quality attributed to each face of the convex guess:
 
 \begin{equation} \label{eq:u_qual}
-  u_{qual,j} = \frac{\delta \check{I}_{tot,j} - \min_{j}{\delta \check{I}_{tot,j}}}{\max_{j}{\delta \check{I}_{tot,j}} - \min_{j}{\delta \check{I}_{tot,j}}}.
+  u_{\mathrm{qual},j} = \frac{\delta \check{I}_{tot,j} - \min_{j}{\delta \check{I}_{tot,j}}}{\max_{j}{\delta \check{I}_{tot,j}} - \min_{j}{\delta \check{I}_{tot,j}}}.
 \end{equation}
 
-Equation \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Equation \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, higher environmental noise will produce a larger residual $\delta \check{I}_{tot,j}$ at a given signal magnitude. As a result, the term $u_{quant,j}$ can be seen as accounting for the variance of the object signal --- which becomes less impactful as the object signal grows --- while the term $u_{qual,j}$ acocunts for the variance of the environmental noise --- which acts to degrade the light curve signal regardless of the object signal magnitude.
+Equation \ref{eq:u_qual} can be interpreted in terms of the statistical properties of the light curve just like Equation \ref{eq:unc_quantity}. Under the assumption that the EGI optimized by NNLS produces a good estimator for the mean of the measured light curve, higher environmental noise will produce a larger residual $\delta \check{I}_{tot,j}$ at a given signal magnitude. As a result, the term $u_{\mathrm{quant},j}$ can be seen as accounting for the variance of the object signal --- which becomes less impactful as the object signal grows --- while the term $u_{\mathrm{qual},j}$ acocunts for the variance of the environmental noise --- which acts to degrade the light curve signal regardless of the object signal magnitude.
 
-These two uncertainty weightings are combined at each face for a global uncertainty estimate:
+These two uncertainty weightings are combined at each face for a global uncertainty estimate $u_j$ via:
 
 \begin{equation} \label{eq:u_total}
-  u_{j} = \frac{u_{qual,j}}{2} + \frac{u_{quant,j}}{2}.
+  u_j = \frac{u_{\mathrm{qual},j}}{2} + \frac{u_{\mathrm{quant},j}}{2}.
 \end{equation}
 
-Equation \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. A face with the lowest quality and quantity will be assigned $u_{j} = 1$ while simply having bad quality or quantity alone yields $u_j = 0.5$, thereby discounting low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
+Equation \ref{eq:u_total} is formulated such that a face is only assigned a low uncertainty if it has both high data quality and quality. A face with the lowest quality and quantity will be assigned $u_j = 1$ while simply having bad quality or quantity alone yields $u_j = 0.5$, thereby discounting low quantities of high quality data as well high quantities of low quality data. Figure \ref{fig:face_uncertainties} displays the quality, quantity, and overall uncertainty weighting for the faces of a convex shape guess.
 
 \begin{figure}
   \centering
