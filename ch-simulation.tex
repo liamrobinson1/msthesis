@@ -881,36 +881,36 @@ The diffraction pattern is not the only effect that spreads the unresolved signa
   \sigma = \frac{\mathrm{FWHM}}{2 \sqrt{2 \ln{2}}}.
 \end{equation}
 
-The full Gaussian approximation at an angular distance $\theta$ from the source, $C_\mathrm{gauss}(\theta)$, is given by:
+The full Gaussian approximation at an angular distance $\theta$ from the source, $C_\mathrm{gauss}(\theta)$, is given as a function of the total mean signal $\bar{C}_\mathrm{all}$, the variance of the Gaussian $\sigma^2$:
 
 \begin{equation} \label{eq:airy_gaussian}
   C_\mathrm{gauss}(\theta) = \frac{0.838 \bar{C}_\mathrm{all}}{2 \pi \sigma^2} \exp\left( - \frac{\theta^2}{2 \sigma^2} \right)
 \end{equation}
 
-In practice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area:
+In practice, computing the Airy disk or its Gaussian approximation on rectangular pixel grid amounts to integrating the amplitude function $C(\theta)$ over the pixel area, yielding $C_\mathrm{pix}(x, y)$, the total signal contained in pixel $(x,y$):
 
 \begin{equation} \label{eq:pix_values_gauss}
   C_\mathrm{pix}(x, y) = \int_{x}^{x + \Delta x} \int_{y}^{y + \Delta y}{C_\mathrm{gauss}(\theta(x, y))} \: dy \: dy.
 \end{equation}
 
-The area within the first maximum of the Airy disk is given by \cite{frueh2019notes}:
+The area within the first maximum of the Airy disk is a function of the pixel scale $s_\mathrm{pix}$, the aperture area $A_\mathrm{aperture}$, and the incident wavelength $\lambda$ as \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:airy_area}
-  A_\mathrm{Airy} = \pi \left(\frac{648000 / \pi}{s_\mathrm{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{D}\right) \right)^2.
+  A_\mathrm{Airy} = \pi \left(\frac{648000 / \pi}{s_\mathrm{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{A_\mathrm{aperture}}\right) \right)^2.
 \end{equation}
 
-\subsection{Signal-to-Noise Ratio (SNR)}
+\subsection{Signal-to-Noise Ratio}
 
-Because the unresolved object signals are always superimposed on the background of the image, the SNR of a CCD is expressed with the signal included in the denominator noise term \cite{frueh2019notes}:
+Because the unresolved object signals are always superimposed on the background of the image, the signal-to-noise ratio (SNR) of a CCD is expressed with the signal $S_\mathrm{obj}$ included in the denominator noise term $N$ \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:ccd_snr}
   SNR = \frac{S_\mathrm{obj}}{\sqrt{S_\mathrm{obj}+N}}.
 \end{equation}
 
-Explicitly, the SNR can be expanded in terms of the signal means and variances, assuming that their respective probability density functions are independent \cite{frueh2019notes}:
+Explicitly, the SNR for a signal spread over $n_\mathrm{pix}$ pixels is expanded in terms of the signal means $S_\mathrm{obj}$ and variances for the background $\lambda_\mathrm{background}$ as well as the sensor noise terms $\lambda_\mathrm{dark}$ for intergration noise, $\sigma^2_\mathrm{read}$ for read noise, and $\frac{g^2}{24}$ for the truncation noise noise, assuming that their respective probability density functions are independent \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:ccd_snr_expanded}
-  SNR = \frac{S_\mathrm{obj}}{\sqrt{S_\mathrm{obj} + n_\mathrm{pix} \left( \lambda_\mathrm{background} + \lambda_{dark} + \sigma^2_\mathrm{read} + \frac{g^2}{24} \right)}}.
+  SNR = \frac{S_\mathrm{obj}}{\sqrt{S_\mathrm{obj} + n_\mathrm{pix} \left( \lambda_\mathrm{background} + \lambda_\mathrm{dark} + \sigma^2_\mathrm{read} + \frac{g^2}{24} \right)}}.
 \end{equation}
 
 It should be noted that the SNR computed in Equation \ref{eq:ccd_snr_expanded} is idealized. In reality, the discrete sampling of each random variable in each object pixel --- as well as the Poisson sampling of the object signal --- results in a slightly different value. As the number of object pixels approaches infinity, the SNR computed from the image would approach the theoretical value. Figure \ref{fig:snr_grid} illustrates the effect of raising the background noise level while holding the object signal constant on the SNR.
@@ -948,7 +948,7 @@ area. $S_{10}$ is a unit of surface brightness representing the number of 10th m
 Surface brightness in $S_{10}$ over a given solid angle $\Omega \: \left[ sr \right]$ can be converted to total irradiance $I \: \left[ \frac{W}{m^2} \right]$ via \cite{krag2003}:
 
 \begin{equation} \label{eq:s10toirrad}
- \frac{I \left[ \frac{W}{m^2} \right]}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
+ \frac{I}{S_{10}} = 10^{-10/2.5} \left( \Omega \frac{180^2}{\pi^2} \right)
   \int_{10^{-8}}^{10^{-6}}{ \mathcal{ZM}(\lambda) \: d\lambda} = 8.26617 \Omega \cdot 10^{-9}.
 \end{equation}
 
@@ -962,29 +962,29 @@ speed of light in vacuum. Quantum efficiency has units of photoelectrons, convey
 
 A second surface brightness unit is $\left[ \frac{mag}{arcsec^2} \right]$, also known as MPSAS (magnitude per square arcsecond) \cite{krag2003}. This quantity can be thought of as a generalized $S_{10}$, where instead of quantifying the number of stars of a certain
 magnitude in a solid angle, the equivalent magnitude of a single point source is measured. A surface
-brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_{mag}$ in 
+brightness $B_{10}$ in $S_{10}$ can be converted into surface brightness $B_\mathrm{mag}$ in 
 $\left[ \frac{mag}{arcsec^2} \right]$ by applying Equation \ref{eq:mag_to_irradiance}.
 
 \begin{equation} \label{s10_to_mag_per_a2}
-	B_{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
+	B_\mathrm{mag} = -2.5 \log_{10}\left( \frac{B_{10} \cdot 10^{-4}}{12960000} \right).
 \end{equation}
 
 In Equation \ref{s10_to_mag_per_a2} $B_{10}$ is converted to the total irradiance per square degree,
-converted square degrees to square arcseconds, and finally transformed into apparent magnitude. $B_{mag}$ in MPSAS is converted to irradiance per steradian using \ref{eq:mag_to_irradiance}:
+converted square degrees to square arcseconds, and finally transformed into apparent magnitude. $B_\mathrm{mag}$ in MPSAS is converted to irradiance per steradian --- radiance $R$ --- using \ref{eq:mag_to_irradiance} and the total solar irradiance $I_s$ via:
 
 \begin{equation} \label{eq:mpsas_to_irrad_per_ster}
-  I = \left( \frac{180}{ 3600\pi} \right)^2 I_s \cdot 10^{-\frac{B_{mag}}{2.5}}.
+  R = \left( \frac{180}{ 3600\pi} \right)^2 I_s \cdot 10^{-0.4 B_\mathrm{mag}}.
 \end{equation}
 
 \subsubsection{Candela} \label{sec:candela}
 
-Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_{cd}$ is converted to watts per steradian $B_{wsr}$ via \cite{nist_units}:
+Some light pollution datasets are given in units that include candela. Candela is the SI base unit of luminous intensity defined by the International Committee for Weights and Measures as "fixing the numerical value of the luminous efficacy of monochromatic radiation of frequency $540\cdot10^{12}$ Hz to be equal to exactly $683$" \cite{nist_units}. This means that an isotropic green light source with frequency $540\cdot10^{12}$ Hz ($\lambda = 555$ nm) has a luminous efficacy of $K_\mathrm{cd} = 683 \: \left[ lm/W \right]$ where lm stands for lumens. Luminous efficacy itself determines how well a source produces visible light. For a given wavelength, candela $B_\mathrm{cd}$ is converted to watts per steradian $B_\mathrm{wsr}$ via \cite{nist_units}:
 
 \begin{equation} \label{eq:cd_to_w_per_sr}
-  B_{wsr}(\lambda) = \frac{B_{cd}}{K_{cd}(\lambda)}.
+  B_\mathrm{wsr}(\lambda) = \frac{B_\mathrm{cd}}{K_\mathrm{cd}(\lambda)}.
 \end{equation}
 
-The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed by Sharpe et al.\ is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
+The luminous efficiency function $K_\mathrm{cd}(\lambda)$ models the human eye's response to the visible spectrum \cite{sharpe2005}. Different fits of this function exist; the function proposed by Sharpe et al.\ is adopted, displayed in Figure \ref{fig:luminous_efficiency} \cite{sharpe2005}.
 
 \begin{figure}[ht]
   \centering
@@ -993,10 +993,10 @@ The luminous efficiency function $K_{cd}(\lambda)$ models the human eye's respon
   \label{fig:luminous_efficiency}
 \end{figure}
 
-Candela per unit area can be converted into MPSAS as $B_{mag}(\lambda)$ by combining Equation \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding a formulation which is still a function of the source's wavelength:
+Candela per unit area can be converted into MPSAS as $B_\mathrm{mag}(\lambda)$ by combining Equation \ref{eq:cd_to_w_per_sr} with \ref{eq:irradiance_to_mag}, yielding a formulation which is still a function of the source's wavelength:
 
 \begin{equation} \label{eq:cd_per_m2_to_mpsas}
-  B_{mag}(\lambda) = -2.5 \log_{10}\left( \frac{B_{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_{cd}(\lambda) I_s} \right).
+  B_\mathrm{mag}(\lambda) = -2.5 \log_{10}\left( \frac{B_\mathrm{cd}}{\left( \frac{180}{ 3600\pi} \right)^2 K_\mathrm{cd}(\lambda) I_s} \right).
 \end{equation}
 
 \subsubsection{Photoelectron Counts}
@@ -1010,12 +1010,12 @@ through \cite{krag2003}:
 
 \begin{equation} \label{eq:sint}
  \mathcal{S}_\mathrm{int} = A_\mathrm{eff}
-	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_{sun}} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_s} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
 \end{equation}
 
 In Equation \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
-$\left[\frac{W}{m^2\cdot m} \right]$, $I_{sun}$ is the irradiance of the Sun, generally taken to be
+$\left[\frac{W}{m^2\cdot m} \right]$, $I_s$ is the irradiance of the Sun, generally taken to be
 the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$, and $A_\mathrm{eff}$ is the effective aperture area. Read literally, the integral term has
 units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
 radiation and second of integration time. The aperture diameter factor outside the integral accounts
@@ -1075,9 +1075,7 @@ perform better.
 Certain chemical reactions from 80-110 km altitude in the upper atmosphere release visible light
 \cite{krag2003}. This effect is known as
 airglow. Since these reactions are assumed to be isotropic ---  equally intense when integrated along any
-vertical line extending upwards from the surface. The airglow signal $\mathcal{A}_\mathrm{int}$ is modeled in a
-similar fashion to integrated starlight. Given the airglow spectra $\mathcal{A}(\lambda) \:
-\left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the sensor quantum efficiency $\textrm{QE}(\lambda)$, the atmospheric transmission $\textrm{ATM}(\lambda)$, as well as Plank's constant $h$ and the speed of light in vacuum $c$, the airglow signal is computed via \cite{krag2003}:
+vertical line extending upwards from the surface. The airglow signal $\mathcal{A}_\mathrm{int}$ is modeled in asimilar fashion to integrated starlight. Given the airglow spectra $\mathcal{A}(\lambda) \: \left[ \frac{W}{m^2\cdot m \cdot sr} \right]$, the sensor quantum efficiency $\textrm{QE}(\lambda)$, the atmospheric transmission $\textrm{ATM}(\lambda)$, as well as Plank's constant $h$ and the speed of light in vacuum $c$, the airglow signal is computed by integrating over a range of wavelengths $\lambda$ from the UV to IR bands via \cite{krag2003}:
 
 \begin{equation} \label{eq:aint}
  \mathcal{A}_\mathrm{int} = A_\mathrm{aperture}
@@ -1085,11 +1083,10 @@ similar fashion to integrated starlight. Given the airglow spectra $\mathcal{A}(
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
 \end{equation}
 
-The quantity $\mathcal{A}_\mathrm{int}$ has units $\left[ \frac{1}{s\cdot sr} \right]$, meaning that the
-mean airglow signal in ADU per pixel is simply given by:
+The quantity $\mathcal{A}_\mathrm{int}$ has units $\left[ \frac{1}{s\cdot sr} \right]$, meaning that the mean airglow signal in ADU per pixel $\bar{S}_\mathrm{airglow}$ is simply given by:
 
 \begin{equation} \label{eq:airglow_adu}
-  \bar{S}_{airglow} = \mathcal{A}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
+  \bar{S}_\mathrm{airglow} = \mathcal{A}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
 \end{equation}
 
 In Equation \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmass function which accounts for the accumulation of air along the optical path at different zenith angles \cite{frueh2019notes}. This airmass is termed \textit{relative} as it relates the ratio of absolute airmass at a zenith angle to the absolute airmass at zenith. Often, this function is approximated by the Van-Rhijn factor $\textrm{AM}(\theta_z) = \sec{\theta_z}$, which remains accurate up to $\theta_z \approx 70^\circ$ before diverging to infinity. Instead, a function proposed by Pickering is used \cite{pickering2002}.
@@ -1099,7 +1096,7 @@ In Equation \ref{eq:airglow_adu}, $\textrm{AM}(\theta_z)$ is the relative airmas
 \end{equation}
 
 
-Using Equation \ref{eq:pickering_airmass} instead of the Van-Rhijn factor enables the computation of background signals near the horizon without the singularity of $\sec \theta$. Figure \ref{fig:airmass_fcns} displays this comparison in action.
+Using Equation \ref{eq:pickering_airmass} instead of the Van-Rhijn factor enables the computation of background signals near the horizon without the singularity of $\sec \theta_z$. Figure \ref{fig:airmass_fcns} displays this comparison in action.
 
 \begin{figure}[ht]
   \centering
@@ -1132,10 +1129,10 @@ $14-15 \: \left[ \frac{mag}{arcsec^2} \right]$. To get accurate localized zenith
   \label{fig:pollution_data}
 \end{figure}
 
-The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{\mathrm{poll},z}$ in MPSAS, linearly interpolated from the World Atlas dataset, is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via:
+The mean light pollution CCD signal in ADU per pixel is formulated similarly to airglow. The station's zenith surface brightness $B_{\mathrm{poll},z}$ in MPSAS, linearly interpolated from the World Atlas dataset, is converted to irradiance per steradian via \ref{eq:mpsas_to_irrad_per_ster} and to ADU per pixel via the conversion factor $\mathcal{S}_\mathrm{int}$, the integration time $\Delta t$, and the pixel scale $s_\mathrm{pix}$, as $\bar{S}_\mathrm{pollution}$ via:
  
 \begin{equation} \label{eq:pollution_adu}
-  \bar{S}_{pollution} = B_{\mathrm{poll},z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
+  \bar{S}_\mathrm{pollution} = B_{\mathrm{poll},z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
 \end{equation}
 
 Note that Krag does not implement a specific light pollution model, but instead takes the dark sky site zenith brightness of $22$ MPSAS as input to an atmospherically scattered light model \cite{krag2003}. The formulation of the light pollution model in Equation \ref{eq:pollution_adu} is simply an adaptation of Krag's model with a variable zenith brightness driven by a light pollution dataset.
@@ -1165,10 +1162,10 @@ Equation \ref{eq:b_zenith_twilight} is valid from $95^\circ \leq \gamma \leq 105
   \label{fig:twilight_model}
 \end{figure}
 
-Computing the mean CCD signal in ADU per pixel due to the twilight brightness proceeds identically to the light pollution formulation. 
+Computing the mean CCD signal in ADU per pixel due to the twilight brightness proceeds identically to the light pollution formulation. This conversion from MPSAS to ADU uses the conversion factor $\mathcal{S}_\mathrm{int}$, the integration time $\Delta t$, and the pixel scale $s_\mathrm{pix}$, as $\bar{S}_\mathrm{twilight}$ via:
 
 \begin{equation} \label{eq:twilight_adu}
-  \bar{S}_{twilight} = B_{twi,z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2
+  \bar{S}_\mathrm{twilight} = B_{twi,z} \cdot \mathcal{S}_\mathrm{int} \cdot \textrm{AM}(\theta_z) \cdot \Delta t \cdot \left( \frac{\pi s_\mathrm{pix}}{648000} \right)^2.
 \end{equation}
 
 The mean twilight signal on the local observer hemisphere is displayed in Figure \ref{fig:twilight_hemi}.
@@ -1209,7 +1206,7 @@ using GAIA \cite{astroquery_gaia}, resulting in Figure
 \end{figure}
 
 With this map of exoatmospheric mean brightness of the night sky due to integrated
-starlight, the corresponding signal mean in the telescope CCD is computed, adopting Krag's formulation \cite{krag2003}.
+starlight, the corresponding signal mean in the telescope CCD $\mathcal{Z}$ is computed using the zero magnitude star spectrum $\mathcal{ZM}(\lambda)$, the quantum efficiency $\textrm{QE}(\lambda)$, and the atmospheric transmission $\textrm{ATM}(\lambda)$, adopting Krag's formulation \cite{krag2003}.
 
 \begin{equation} \label{eq:bint}
  \mathcal{Z} = A_\mathrm{aperture}
@@ -1217,19 +1214,14 @@ starlight, the corresponding signal mean in the telescope CCD is computed, adopt
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}  
 \end{equation}
 
-In Equation \ref{eq:bint}, $D$ is the telescope aperture diameter in meters, $h$ is Plank's constant in
-$\left[ \frac{m^2 kg}{s} \right]$, and $c$
-is the speed of light in vacuum in $\left[ \frac{m}{s} \right]$. The resulting quantity
-$\mathcal{Z}$ has units of $\left[ \frac{1}{s} \right]$, representing the mean total photons passing
-through the telescope aperture due to integrated starlight. 
+In Equation \ref{eq:bint}, $A_\mathrm{aperture}$ is the telescope aperture area in meters, $h$ is Plank's constant in $\left[ \frac{m^2 kg}{s} \right]$, and $c$ is the speed of light in vacuum in $\left[ \frac{m}{s} \right]$. The resulting quantity $\mathcal{Z}$ has units of $\left[ \frac{1}{s} \right]$, representing the mean total photons passing through the telescope aperture due to a zero magnitude star source per second of integration time. This quantity is used to compute the total signal in the CCD due to integrated starlight:
 
 \begin{equation} \label{eq:starlight_adu}
-  \bar{S}_{star} = 10^{-4} \cdot \mathcal{Z} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot
-  b_{is}
+  \bar{S}_\mathrm{star} = 10^{-4} \cdot \mathcal{Z} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot
+  B_{is},
 \end{equation}
 
-In Equation \ref{eq:starlight_adu}, $b_{is}$ is the integrated starlight brightness in $\left[ S_{10}
-\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_\mathrm{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$ and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\mathcal{Z}$. This yields $\bar{S}_{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
+In Equation \ref{eq:starlight_adu}, $B_{is}$ is the integrated starlight brightness in $\left[ S_{10}\right]$ computed by linearly interpolating the dataset in Figure \ref{fig:gaiapatched}, $s_\mathrm{pix}$ is the telescope pixel scale in $\left[ \frac{arcsecond}{pix} \right]$ and $\Delta t$ is the integration time in seconds. Note the addition of the $10^{-4}$ factor to reconcile catalog surface brightness in terms of 10th magnitude stars, and the 0th magnitude source in $\mathcal{Z}$. This yields $\bar{S}_\mathrm{star}$ with units $\left[ \frac{e^-}{pix^2} \right]$; photoelectron counts (ADU) per pixel. Figure \ref{fig:starlight_hemi} shows the background signal mean due to integrated starlight.
 
 \begin{figure}[ht]
   \centering
@@ -1241,28 +1233,28 @@ In Equation \ref{eq:starlight_adu}, $b_{is}$ is the integrated starlight brightn
 
 \subsubsection{Scattered Moonlight}
 
-Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $z_\mathrm{obs}$, the angle from the Moon to zenith $z_\mathrm{Moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component is formulated \cite{krag2003}:
+Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $\theta_\mathrm{obs}$, the angle from the Moon to zenith $\theta_\mathrm{Moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component $F_{ms}$ is formulated \cite{krag2003}:
 
 \begin{equation} \label{eq:mie_scattering_moon}
   F_{ms}(\lambda) = a_1 \left[ e^{-\left(\frac{\Psi}{\Psi_1}\right)} + a_2 e^{-\left(\frac{\pi - \Psi}{\Psi_2}\right)} \right] F_{rs}(\lambda).
 \end{equation}
 
-Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^\circ, 20^\circ]$, and $\Psi_2 \approx 50$ \cite{daniels1977}. Prior to any station-specific fitting, the center of each interval is chosen, yielding $a_1 = 75$, $a_2 = 0.015$, $\Psi_1 = 15^\circ$, and $\Psi_2 = 50^\circ$. $a_1$ and $a_2$ are dimensionless, such that $F_{ms}$ also has units of $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$. The total intensity of the scattered moonlight $F_{mt}$ following Krag's formulation \cite{krag2003}:
+Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^\circ, 20^\circ]$, and $\Psi_2 \approx 50$ \cite{daniels1977}. Prior to any station-specific fitting, the center of each interval is chosen, yielding $a_1 = 75$, $a_2 = 0.015$, $\Psi_1 = 15^\circ$, and $\Psi_2 = 50^\circ$. $a_1$ and $a_2$ are dimensionless, such that $F_{ms}$ also has units of $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$. The total intensity of the scattered moonlight $F_{mt}$, following Krag's formulation, is given by \cite{krag2003}:
 
 \begin{equation} \label{eq:total_scattered_moonlight}
   F_{mt} = f(\theta) \left[ F_{rs}(\lambda) + F_{ms}(\lambda) \right].
 \end{equation}
 
-in Equation \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_{corr}$ to account for the difference between the Sun's irradiance spectrum and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
+In Equation \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_\mathrm{corr}$ to account for the difference between the Sun's irradiance spectrum $\mathrm{SUN}(\lambda)$ and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
 
 \begin{equation} \label{eq:krag_f_corr}
-  f_{corr} = \frac{I_s}{\textrm{SUN}(550 \: \left[\textrm{nm}\right])}.
+  f_\mathrm{corr} = \frac{I_s}{\mathrm{SUN}(550 \: \left[\textrm{nm}\right])}.
 \end{equation}
 
-With all these pieces, the mean scattered moonlight signal in ADU per pixel is \cite{krag2003}:
+With all these pieces, the mean scattered moonlight signal in ADU per pixel is simply the product of the total scattering intensity $F_{mt}$, the irradiance to ADU conversion factor $\mathcal{S}_\mathrm{int}$, the pixel scale $s_\mathrm{pix}$, the integration time $\Delta t$, and the spectral correction factor $f_\mathrm{corr}$ \cite{krag2003}:
 
 \begin{equation} \label{eq:moonlight_adu}
-  \bar{S}_\mathrm{Moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_{corr}.
+  \bar{S}_\mathrm{Moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_\mathrm{corr}.
 \end{equation}
 
 \begin{figure}[ht]
@@ -1302,7 +1294,7 @@ The background signals are only defined in terms of their means, as each signal 
 This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. The background sources modeled in this work are reasonably assumed to be independent as they each originate from distinct physical processes.
 
 \begin{equation} \label{eq:background_poisson}
-  \lambda_\mathrm{background} = \bar{S}_{airglow} + \bar{S}_{pollution} + \bar{S}_{twilight} + \bar{S}_{star} + \bar{S}_\mathrm{Moon} + \bar{S}_{zod}
+  \lambda_\mathrm{background} = \bar{S}_\mathrm{airglow} + \bar{S}_\mathrm{pollution} + \bar{S}_\mathrm{twilight} + \bar{S}_\mathrm{star} + \bar{S}_\mathrm{Moon} + \bar{S}_{zod}
 \end{equation}
 
 Drawing samples from the Poisson distribution defined by $\lambda_\mathrm{background}$ computes the background of the CCD image. 
@@ -1313,7 +1305,7 @@ CCD sensors accumulate noise during both the integration time and readout phases
 
 \subsubsection{Dark Noise}
 
-The dark noise, also called the dark current or dark count, captures the temperature-dependent accumulation of electrons in the CCD pixel wells \cite{krag2003}. This noise source is modeled as a Poisson process with parameter $\lambda_{dark}$ \cite{frueh2019notes} and is assumed to be independent from the other sensor effects. This source accumulates with the integration time, giving it units of counts per second \cite{krag2003}.
+The dark noise, also called the dark current or dark count, captures the temperature-dependent accumulation of electrons in the CCD pixel wells \cite{krag2003}. This noise source is modeled as a Poisson process with parameter $\lambda_\mathrm{dark}$ \cite{frueh2019notes} and is assumed to be independent from the other sensor effects. This source accumulates with the integration time, giving it units of counts per second \cite{krag2003}.
 
 \subsubsection{Readout Noise}
 
@@ -1445,17 +1437,17 @@ Given the irradiance of the object observed by the telescope, the noisy light cu
 In Equation \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Equation \ref{eq:airy_variance} in arcseconds, and $s_\mathrm{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions:
 
 \begin{equation} \label{eq:noise_signal_grid}
-  C_{noise} = N_\mathrm{background} + N_{dark} + N_\mathrm{trunc} + N_\mathrm{read}.
+  C_{noise} = N_\mathrm{background} + N_\mathrm{dark} + N_\mathrm{trunc} + N_\mathrm{read}.
 \end{equation}
 
-In Equation \ref{eq:noise_signal_grid}, $N_\mathrm{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_\mathrm{background})$, $N_{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_{dark})$, $N_\mathrm{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_\mathrm{read}$ is drawn from $\mathrm{N}(0, \sigma_\mathrm{read}^2)$. 
+In Equation \ref{eq:noise_signal_grid}, $N_\mathrm{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_\mathrm{background})$, $N_\mathrm{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_\mathrm{dark})$, $N_\mathrm{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_\mathrm{read}$ is drawn from $\mathrm{N}(0, \sigma_\mathrm{read}^2)$. 
 
 Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_\mathrm{obj}, y_\mathrm{obj}\}$ is given by:
 
 \begin{align*} \numberthis \label{eq:noisy_counts}
   C_{noise,all} &= \sum_{i=1}^{A_\mathrm{Airy}}{C_{noise,i}} \\
   C_{obj,all} &= \sum_{x \in x_\mathrm{obj}, \: y \in x_\mathrm{obj}}{\bar{C}_\mathrm{obj}(x, y)} \\
-  C_{obj,meas} &= C_{noise,all} - A_\mathrm{Airy} \left( \Delta t \cdot \lambda_{dark} + \lambda_\mathrm{background} \right) 
+  C_{obj,meas} &= C_{noise,all} - A_\mathrm{Airy} \left( \Delta t \cdot \lambda_\mathrm{dark} + \lambda_\mathrm{background} \right) 
 \end{align*}
 
 In Equation \ref{eq:noisy_counts}, $A_\mathrm{Airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Equation \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Equation \ref{eq:count_to_irrad}:
