@@ -13,15 +13,15 @@
     \State $\vctr{n}\in \mathbb{S}^2$ \Comment{Outward-pointing surface normal vector at pixel coordinates}
     \State $(C_d, C_s, n) \in \mathbb{S}^2$ \Comment{Reflection coefficients and exponent for the BRDF}
     \Require $C_d + C_s \leq 1$ \Comment{Enforce energy conservation}
-    \State $MVP_{Sun} \in \mathbb{R}^{4 \times 4}$ \Comment{MVP matrix for the Sun camera}
+    \State $MVP_\mathrm{sun} \in \mathbb{R}^{4 \times 4}$ \Comment{MVP matrix for the Sun camera}
     \State $(x, y) \in \mathbb{Z}^2$ \Comment{Integer pixel coordinates from the observer camera}
     \State $R_{pix,obs} \in \mathbb{R}^3$ \Comment{World coordinates of the pixel; provided by OpenGL}
-    \State $\left[(x_{homo,Sun}, y_{homo,Sun}, ...\right] \gets MVP_{Sun} \left[ R_{pix,obs}, 1 \right]^T$
-    \State $x_{Sun} \gets \left(1 + p_{x, homo}\right) \frac{w_\mathrm{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
-    \State $y_{Sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_\mathrm{pix}}{2} $
-    \State $D_{Sun} \gets  d(x_{Sun}, y_{Sun})$ \Comment{Closest pixel depth to the Sun direction}
+    \State $\left[(x_{homo,Sun}, y_{homo,Sun}, ...\right] \gets MVP_\mathrm{sun} \left[ R_{pix,obs}, 1 \right]^T$
+    \State $x_\mathrm{sun} \gets \left(1 + p_{x, homo}\right) \frac{w_\mathrm{pix}}{2} $ \Comment{Homogeneous coordinates from the Sun camera}
+    \State $y_\mathrm{sun} \gets \left(1 + p_{y, homo}\right) \frac{a \cdot w_\mathrm{pix}}{2} $
+    \State $D_\mathrm{sun} \gets  d(x_\mathrm{sun}, y_\mathrm{sun})$ \Comment{Closest pixel depth to the Sun direction}
     \State $D_\mathrm{obs} \gets \left( \vctr{\ell} - \vctr{o} \right) \cdot \vctr{\ell}$ \Comment{Closest pixel depth in the Observer direction}
-    \If{$D_\mathrm{obs} > D_{Sun}$}
+    \If{$D_\mathrm{obs} > D_\mathrm{sun}$}
       \State $\delta_{ss} = 1$ \Comment{Pixel is self-shadowed}
     \Else 
       \State $\delta_{ss} = 0$ \Comment{Pixel may be illuminated}

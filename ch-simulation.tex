@@ -821,7 +821,7 @@ With these transformations, any topocentric observation directions in RA/Dec or 
 
 \subsection{Planetary Ephemerides} \label{sec:planet_ephem}
 
-The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and Moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_{Sun}$ and $\vctr{r}_\mathrm{Moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
+The Spacecraft, Planet, Instrument, C-matrix, and Events (SPICE) toolkit is used for the propagation of the Sun and Moon throughout the results presented in this work \cite{spice}. SPICE is maintained by the NASA Jet Propulsion Laboratory's Navigation and Ancillary Information Facility (NAIF) and provides the state of the art solutions for the positions and orientations of solar system bodies \cite{spice}. All calculations of $\vctr{r}_\mathrm{sun}$ and $\vctr{r}_\mathrm{moon}$ rely on queries to SPICE using the DE440s planetary ephemeris files.
 
 \section{The Charge Coupled Device (CCD)} \label{sec:ccd_performance}
 
@@ -896,7 +896,7 @@ In practice, computing the Airy disk or its Gaussian approximation on rectangula
 The area within the first maximum of the Airy disk is a function of the pixel scale $s_\mathrm{pix}$, the aperture area $A_\mathrm{aperture}$, and the incident wavelength $\lambda$ as \cite{frueh2019notes}:
 
 \begin{equation} \label{eq:airy_area}
-  A_\mathrm{Airy} = \pi \left(\frac{648000 / \pi}{s_\mathrm{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{A_\mathrm{aperture}}\right) \right)^2.
+  A_\mathrm{airy} = \pi \left(\frac{648000 / \pi}{s_\mathrm{pix}} \sin^{-1}\left(\frac{1.22 \lambda}{A_\mathrm{aperture}}\right) \right)^2.
 \end{equation}
 
 \subsection{Signal-to-Noise Ratio}
@@ -1010,11 +1010,11 @@ through \cite{krag2003}:
 
 \begin{equation} \label{eq:sint}
  \mathcal{S}_\mathrm{int} = A_\mathrm{eff}
-	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{SUN}(\lambda)}{I_s} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
+	\int_{10^{-8}}^{10^{-6}}{ \left( \frac{\textrm{sun}(\lambda)}{I_s} \right) \cdot \textrm{QE}(\lambda) \cdot \textrm{ATM}(\lambda)
   \cdot \left( \frac{\lambda}{h c} \right) \: d\lambda}.
 \end{equation}
 
-In Equation \ref{eq:sint}, $\textrm{SUN}(\lambda)$ is the spectrum of solar irradiance in 
+In Equation \ref{eq:sint}, $\textrm{sun}(\lambda)$ is the spectrum of solar irradiance in 
 $\left[\frac{W}{m^2\cdot m} \right]$, $I_s$ is the irradiance of the Sun, generally taken to be
 the solar constant $1361 \: \left[ \frac{W}{m^2} \right]$, and $A_\mathrm{eff}$ is the effective aperture area. Read literally, the integral term has
 units $\left[ \frac{1}{Ws} \right]$, giving the number of counts per incident Watt of solar
@@ -1233,7 +1233,7 @@ In Equation \ref{eq:starlight_adu}, $B_{is}$ is the integrated starlight brightn
 
 \subsubsection{Scattered Moonlight}
 
-Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $\theta_\mathrm{obs}$, the angle from the Moon to zenith $\theta_\mathrm{Moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component $F_{ms}$ is formulated \cite{krag2003}:
+Moonlight scattering through the atmosphere significantly increases background brightness \cite{krag2003}. This scattering effect can be decomposed into Rayleigh (isotropically distributed) and Mie (exponentially distributed) scattering modes. The Rayleigh scattered component is computed with Table 4 published by Daniels parameterized by the angle from the observation to zenith $\theta_\mathrm{obs}$, the angle from the Moon to zenith $\theta_\mathrm{moon}$, and the angle between the observation and the Moon on the horizon $\Delta Az$ \cite{daniels1977}. Interpolating this table yields the intensity of the Rayleigh scattering $F_{rs}$ in $10^{-10}$ $W/(cm^2 \cdot \mu m \cdot sr)$ \cite{krag2003}. The Mie scattered component $F_{ms}$ is formulated \cite{krag2003}:
 
 \begin{equation} \label{eq:mie_scattering_moon}
   F_{ms}(\lambda) = a_1 \left[ e^{-\left(\frac{\Psi}{\Psi_1}\right)} + a_2 e^{-\left(\frac{\pi - \Psi}{\Psi_2}\right)} \right] F_{rs}(\lambda).
@@ -1245,16 +1245,16 @@ Daniels recommends $a_1 \in [50, 100]$, $a_2 \in [0.01, 0.02]$, $\Psi_1 \in [10^
   F_{mt} = f(\theta) \left[ F_{rs}(\lambda) + F_{ms}(\lambda) \right].
 \end{equation}
 
-In Equation \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_\mathrm{corr}$ to account for the difference between the Sun's irradiance spectrum $\mathrm{SUN}(\lambda)$ and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
+In Equation \ref{eq:total_scattered_moonlight}, $f(\theta)$ is the lunar phase function which describes the fraction of the full Moon brightness reflected at an observer when the Sun-Moon-observer angle is $\theta$. This function is linearly interpolated within Table 3 in \cite{daniels1977}. Finally, Krag introduces a correction factor $f_\mathrm{corr}$ to account for the difference between the Sun's irradiance spectrum $\mathrm{sun}(\lambda)$ and the spectrum of scattered moonlight, defined to be \cite{krag2003}:
 
 \begin{equation} \label{eq:krag_f_corr}
-  f_\mathrm{corr} = \frac{I_s}{\mathrm{SUN}(550 \: \left[\textrm{nm}\right])}.
+  f_\mathrm{corr} = \frac{I_s}{\mathrm{sun}(550 \: \left[\textrm{nm}\right])}.
 \end{equation}
 
 With all these pieces, the mean scattered moonlight signal in ADU per pixel is simply the product of the total scattering intensity $F_{mt}$, the irradiance to ADU conversion factor $\mathcal{S}_\mathrm{int}$, the pixel scale $s_\mathrm{pix}$, the integration time $\Delta t$, and the spectral correction factor $f_\mathrm{corr}$ \cite{krag2003}:
 
 \begin{equation} \label{eq:moonlight_adu}
-  \bar{S}_\mathrm{Moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_\mathrm{corr}.
+  \bar{S}_\mathrm{moon} = F_{mt}(550 \: \left[\textrm{nm}\right]) \cdot \mathcal{S}_\mathrm{int} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot f_\mathrm{corr}.
 \end{equation}
 
 \begin{figure}[ht]
@@ -1267,10 +1267,10 @@ With all these pieces, the mean scattered moonlight signal in ADU per pixel is s
 
 \subsubsection{Zodiacal Light}
 
-Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light $B_\mathrm{zod}(\alpha, \delta)$ in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel via:
+Zodiacal light is an effect created by sunlight reflecting off of dust in the ecliptic plane \cite{krag2003}. Zodiacal light is strongest around the Sun --- an exclusion zone for most optical telescopes --- but also reaches a peak directly away from the Sun due to the opposition effect. This peak is known as the Gegenschein, meaning "opposing light". The zodiacal light brightness is linearly interpolated within Table 1 of \cite{roach1972} which is listed for convenience in Appendix \ref{data:roach_zod}. This reports the surface brightness of the zodiacal light $B_\mathrm{zod}(\alpha, \delta)$ in $S_{10}$, which is used without conversion to find the mean CCD signal in ADU per pixel using the pixel scale $s_\mathrm{pix}$ and the integration time $\Delta t$ via:
 
 \begin{equation} \label{eq:zodiacal_adu}
-  \bar{S}_{zod} = \mathcal{Z} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot B_\mathrm{zod}(\alpha, \delta) \cdot 10^{-4}.
+  \bar{S}_\mathrm{zod} = \mathcal{Z} \cdot \left( \frac{s_\mathrm{pix}}{3600} \right)^2 \cdot \Delta t \cdot B_\mathrm{zod}(\alpha, \delta) \cdot 10^{-4}.
 \end{equation}
 
 As in the integrated starlight signal, the $10^{-4}$ factor reconciles the $S_{10}$ surface brightness with the 0th magnitude source in $\mathcal{Z}$. 
@@ -1291,10 +1291,10 @@ The background signals are only defined in terms of their means, as each signal 
   P_\lambda(x=k) = \frac{\lambda^k e^{-\lambda}}{k!}.
 \end{equation}
 
-This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. The background sources modeled in this work are reasonably assumed to be independent as they each originate from distinct physical processes.
+This distribution has a useful property that $P_{\lambda_1 + \lambda_2}(x=k) = P_{\lambda_1}(x=k) + P_{\lambda_2}(x=k)$ so long as the distributions described by $\lambda_1$ and $\lambda_2$ are independent. The background sources modeled in this work are reasonably assumed to be independent as they each originate from distinct physical processes, yielding the overall Poisson parameter for the background $\lambda_\mathrm{background}$.
 
 \begin{equation} \label{eq:background_poisson}
-  \lambda_\mathrm{background} = \bar{S}_\mathrm{airglow} + \bar{S}_\mathrm{pollution} + \bar{S}_\mathrm{twilight} + \bar{S}_\mathrm{star} + \bar{S}_\mathrm{Moon} + \bar{S}_{zod}
+  \lambda_\mathrm{background} = \bar{S}_\mathrm{airglow} + \bar{S}_\mathrm{pollution} + \bar{S}_\mathrm{twilight} + \bar{S}_\mathrm{star} + \bar{S}_\mathrm{moon} + \bar{S}_\mathrm{zod}
 \end{equation}
 
 Drawing samples from the Poisson distribution defined by $\lambda_\mathrm{background}$ computes the background of the CCD image. 
@@ -1323,11 +1323,11 @@ Accurately simulating light curves requires realistic constraints on the observi
 
 \subsubsection{Earth Penumbra}
 
-The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_{Sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_{Sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_{Sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_{Sun}$ computed following Section \ref{sec:planet_ephem} and object in J2000, the local irradiance fraction is expressed \cite{krag2003}:
+The Earth casts a conical shadow into space. Outside this shadow, the fraction of received solar irradiance $f_\mathrm{sun}$ is assumed to be $1$. Inside the shadow, the central region of zero received solar irradiance $f_\mathrm{sun}=0$ is known as umbra, while the boundary between umbra and full Sun is known as the penumbra where $f_\mathrm{sun} \in (0,1)$. The precise gradient of the penumbra is defined by the geometry of the overlapping Earth and Sun disks from the perspective of the object. Given the position of the Sun $\vctr{r}_\mathrm{sun}$ computed following Section \ref{sec:planet_ephem} and object in J2000, the local irradiance fraction is expressed \cite{krag2003}:
 
 \begin{align*} \numberthis \label{eq:irradiance_fraction_angles}
-  \vctr{r}_{obj \rightarrow Sun} &= \vctr{r}_{Sun} - \vctr{r}_\mathrm{obj} \\
-  \epsilon_s &= \sin^{-1}\left( \frac{R_{Sun}}{\| \vctr{r}_{obj \rightarrow Sun} \|} \right) \\
+  \vctr{r}_{obj \rightarrow Sun} &= \vctr{r}_\mathrm{sun} - \vctr{r}_\mathrm{obj} \\
+  \epsilon_s &= \sin^{-1}\left( \frac{R_\mathrm{sun}}{\| \vctr{r}_{obj \rightarrow Sun} \|} \right) \\
   \epsilon_e &= \sin^{-1}\left( \frac{R_\mathrm{Earth}(\phi_\mathrm{obj})}{\| \vctr{r}_\mathrm{obj} \|} \right) \\
   \epsilon &= \cos^{-1} \left( -\unitv{r}_{obj \rightarrow Sun} \cdot \unitv{r}_\mathrm{obj} \right) \\
   \epsilon_1 &= \frac{\epsilon^2 - \epsilon_e^2 + \epsilon_s^2}{2 \epsilon} \\
@@ -1343,17 +1343,17 @@ The Earth casts a conical shadow into space. Outside this shadow, the fraction o
 \end{figure}
 \graphicspath{{/Users/liamrobinson/Documents/msthesis/static_images/aas_2022_figs}}
 
-In Equation \ref{eq:irradiance_fraction_angles}, $\vctr{r}_{obj \rightarrow Sun}$ is the vector from the object to the Sun in J2000, $\epsilon_s$ is the half-angle of the Sun disk at the object, $\epsilon_e$ is the half-angle of the Earth disk from the object as a function of the geodetic latitude of the object $\phi_\mathrm{obj}$. Additionally, $\epsilon$ is the angle between the center of the Earth and Sun from the perspective of the object, with $\epsilon_1$ and $\epsilon_2$ being the angles from the center of the Sun and Earth disks to the center of their overlap, if it exists \cite{krag2003}. These angles are defined in Figure \ref{fig:penumbra_angles}. Given these angles, the illumination fraction $f_{Sun}$ is computed:
+In Equation \ref{eq:irradiance_fraction_angles}, $\vctr{r}_{obj \rightarrow Sun}$ is the vector from the object to the Sun in J2000, $\epsilon_s$ is the half-angle of the Sun disk at the object, $\epsilon_e$ is the half-angle of the Earth disk from the object as a function of the geodetic latitude of the object $\phi_\mathrm{obj}$. Additionally, $\epsilon$ is the angle between the center of the Earth and Sun from the perspective of the object, with $\epsilon_1$ and $\epsilon_2$ being the angles from the center of the Sun and Earth disks to the center of their overlap, if it exists \cite{krag2003}. These angles are defined in Figure \ref{fig:penumbra_angles}. Given these angles, the illumination fraction $f_\mathrm{sun}$ is computed:
 
 \begin{equation} \label{eq:irradiance_fraction}
-  f_{Sun} = \begin{cases}
+  f_\mathrm{sun} = \begin{cases}
     1 & \epsilon \geq (\epsilon_s + \epsilon_e) \\ 
     0 & \epsilon \leq (\epsilon_e - \epsilon_s) \\ 
     \frac{a_1 - a_2}{\pi \epsilon_s^2} & \mathrm{else}
   \end{cases}.
 \end{equation}
 
-In Equation \ref{eq:irradiance_fraction}, the solid angles $a_1$ and $a_2$ are defined in Figure \ref{fig:penumbra_angles} and are computed via:
+In Equation \ref{eq:irradiance_fraction}, the solid angles $a_1$ and $a_2$ are defined graphically in Figure \ref{fig:penumbra_angles} and are computed via:
 
 \begin{align*} \numberthis \label{eq:penumbra_areas}
   a_1 &= \pi \epsilon_s^2 - \epsilon_s^2 \cos^{-1} \left(\frac{\epsilon_1}{\epsilon_s}\right)
@@ -1387,40 +1387,40 @@ In Equation \ref{eq:snr_exclusion}, $\nu_{\mathrm{SNR}} = 1$ implies that the ob
 
 \subsubsection{Moon Exclusion Angle}
 
-Focusing the irradiance of the Moon onto the sensor grid will seriously damage the CCD. For the Purdue Optical Ground Station, stray light from the Moon begins leaking into the optics around $30^\circ$ from the center of the Moon disk. This observation constraint is imposed for an arbitrary exclusion angle $\theta_{Moon,ex}$ via:
+Focusing the irradiance of the Moon onto the sensor grid will seriously damage the CCD. For the Purdue Optical Ground Station, stray light from the Moon begins leaking into the optics around $30^\circ$ from the center of the Moon disk. This observation constraint $\nu_\mathrm{moon}$ is imposed for an arbitrary exclusion angle $\theta_{Moon,ex}$ for a certain inertial position of the Moon $\vctr{r}_\mathrm{moon}$, observer $\vctr{r}_\mathrm{obs}$, and object $\vctr{r}_\mathrm{obj}$ via:
 
 \begin{equation} \label{eq:moon_exclusion}
-  \nu_\mathrm{Moon} = \begin{cases}
-    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{Moon} - \vctr{r}_\mathrm{obs} \right) \cdot \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_\mathrm{obs} \| \| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|} \right) > \theta_{Moon,ex}\\
+  \nu_\mathrm{moon} = \begin{cases}
+    1 & \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{moon} - \vctr{r}_\mathrm{obs} \right) \cdot \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)}{\| \vctr{r}_\mathrm{moon} - \vctr{r}_\mathrm{obs} \| \| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|} \right) > \theta_{Moon,ex}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
 
-In Equation \ref{eq:moon_exclusion}, $\nu_\mathrm{Moon} = 1$ implies that the observation is valid, with $\nu_\mathrm{Moon} = 0$ implying that the observation is too close to the Moon. $\vctr{r}_\mathrm{Moon}$ should be computed with SPICE following Section \ref{sec:planet_ephem}.
+In Equation \ref{eq:moon_exclusion}, $\nu_\mathrm{moon} = 1$ implies that the observation is valid, with $\nu_\mathrm{moon} = 0$ implying that the observation is too close to the Moon. $\vctr{r}_\mathrm{moon}$ should be computed with SPICE following Section \ref{sec:planet_ephem}.
 
 \subsubsection{Minimum Elevation}
 
-Due to the local topology at the observer location, an operator may assign a minimum angle from the horizon $\theta_{elev,min}$ for observations. Approximating the station inertial position $\vctr{r}_\mathrm{obs}$ as being aligned with zenith, this yields the condition:
+Due to the local topology at the observer location, an operator may assign a minimum angle from the horizon $\theta_{elev,min}$ for observations. Approximating the station inertial position $\vctr{r}_\mathrm{obs}$ as being aligned with zenith, this yields the condition $\nu_\mathrm{elevation}$ for the object inertial position $\vctr{r}_\mathrm{obj}$ and observer inertial position $\vctr{r}_\mathrm{obs}$:
 
 
 \begin{equation} \label{eq:elevation_exclusion}
-  \nu_{elevation} = \begin{cases}
-    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right) \cdot \left( \vctr{r}_\mathrm{obs} \right)}{\| \vctr{r}_\mathrm{Moon} - \vctr{r}_\mathrm{obs} \| \| \vctr{r}_\mathrm{obs} \|} \right) > \theta_{elev,min}\\
+  \nu_\mathrm{elevation} = \begin{cases}
+    1 & 90^\circ - \cos^{-1}\left( \frac{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right) \cdot \left( \vctr{r}_\mathrm{obs} \right)}{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \| \| \vctr{r}_\mathrm{obs} \|} \right) > \theta_{elev,min}\\
     0 & \mathrm{else}
   \end{cases}.
 \end{equation}
 
-In Equation \ref{eq:elevation_exclusion}, $\nu_{elevation} = 1$ implies that the observation is valid, with $\nu_{elevation} = 0$ implying that the observation is too close to the horizon.
+In Equation \ref{eq:elevation_exclusion}, $\nu_\mathrm{elevation} = 1$ implies that the observation is valid, with $\nu_\mathrm{elevation} = 0$ implying that the observation is too close to the horizon.
 
 \subsection{Mean Irradiance at The Observer}
 
-Given the normalized irradiance computed via Equation \ref{eq:lc_func_normalized} for convex objects or Equation \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the received mean irradiance at the telescope aperture is given by:
+Given the normalized irradiance computed via Equation \ref{eq:lc_func_normalized} for convex objects or Equation \ref{eq:lc_normalized_engine} for any object shaded using Algorithm \ref{alg:pix_shading}, the received mean irradiance at the telescope aperture is given by the normalized irradiance $\check{I}$, the observer position $\vctr{r}_\mathrm{obs}$, the object position $\vctr{r}_\mathrm{obj}$, the total solar irradiance $I_s$, and the solar illumination fraction $f_\mathrm{sun}$:
 
 \begin{equation} \label{eq:mean_irrad_at_aperture}
-  \bar{I} = \nu_{Moon,ex} \cdot \nu_{elevation} \cdot \nu_{\mathrm{SNR}} \frac{I_s f_{Sun} \check{I}}{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2}.
+  \bar{I} = \nu_{Moon,ex} \cdot \nu_\mathrm{elevation} \cdot \nu_{\mathrm{SNR}} \cdot \frac{I_s f_\mathrm{sun} \check{I}}{\left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2}.
 \end{equation}
 
-In Equation \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_{Sun}$ determines the solar irradiance incident on the object, and the remaining terms $\check{I} / \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count via Equation \ref{eq:irrad_to_count}, yielding $\bar{C}_\mathrm{all}$:
+In Equation \ref{eq:mean_irrad_at_aperture}, the conditions $\nu_{Moon,ex},\: \nu_\mathrm{elevation},\: \nu_{\mathrm{SNR}}$ determine whether the telescope can take the observation and identify the object in the image, $I_s f_\mathrm{sun}$ determines the solar irradiance incident on the object, and the remaining terms $\check{I} / \left( \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \right)^2$ dimensionalize the normalized irradiance. In order to sample a noisy light curve, this mean irradiance must be converted into a mean photoelectron count $\bar{C}_\mathrm{all}$ via Equation \ref{eq:irrad_to_count} as a function of the integration time $\Delta t$, the irradiance to count conversion factor $\mathcal{S}_\mathrm{int}$, and the mean irradiance $\bar{I}$ as:
 
 \begin{equation}
   \bar{C}_\mathrm{all} = \mathcal{S}_\mathrm{int} \cdot \bar{I} \cdot \Delta t.
@@ -1434,10 +1434,10 @@ Given the irradiance of the object observed by the telescope, the noisy light cu
   \bar{C}_\mathrm{obj}(x, y) = \frac{0.838 \bar{C}_\mathrm{all}}{2 \pi \sigma^2} \exp\left( - \frac{(x - x_0)^2 + (y - y_0)^2}{2 \sigma^2  s_\mathrm{pix}^2} \right).
 \end{equation}
 
-In Equation \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Equation \ref{eq:airy_variance} in arcseconds, and $s_\mathrm{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions:
+In Equation \ref{eq:obj_signal_grid}, $\left(x_0, y_0\right)$ are the exact pixel coordinates of the object centroid, $\sigma$ is the Gaussian standard deviation from Equation \ref{eq:airy_variance} in arcseconds, and $s_\mathrm{pix}$ is the pixel scale in arcseconds per pixel. Likewise, the total noise sampled in each pixel is given by samples from all the relevant source distributions is given by $C_\mathrm{noise}$:
 
 \begin{equation} \label{eq:noise_signal_grid}
-  C_{noise} = N_\mathrm{background} + N_\mathrm{dark} + N_\mathrm{trunc} + N_\mathrm{read}.
+  C_\mathrm{noise} = N_\mathrm{background} + N_\mathrm{dark} + N_\mathrm{trunc} + N_\mathrm{read}.
 \end{equation}
 
 In Equation \ref{eq:noise_signal_grid}, $N_\mathrm{background}$ is a sample drawn from $\mathrm{Pois}(\lambda_\mathrm{background})$, $N_\mathrm{dark}$ is drawn from $\mathrm{Pois}(\Delta t \cdot \lambda_\mathrm{dark})$, $N_\mathrm{trunc}$ is drawn from $\mathrm{Uniform}(-g/2, g/2)$, and $N_\mathrm{read}$ is drawn from $\mathrm{N}(0, \sigma_\mathrm{read}^2)$. 
@@ -1445,24 +1445,24 @@ In Equation \ref{eq:noise_signal_grid}, $N_\mathrm{background}$ is a sample draw
 Assuming perfect knowledge of the image background mean in the region around the object signal --- a reasonable assumption given that there are generally millions of background pixels in the image --- the counts $C_{obj,meas}$ attributed to the object pixels $\{x_\mathrm{obj}, y_\mathrm{obj}\}$ is given by:
 
 \begin{align*} \numberthis \label{eq:noisy_counts}
-  C_{noise,all} &= \sum_{i=1}^{A_\mathrm{Airy}}{C_{noise,i}} \\
+  C_{noise,all} &= \sum_{i=1}^{A_\mathrm{airy}}{C_{noise,i}} \\
   C_{obj,all} &= \sum_{x \in x_\mathrm{obj}, \: y \in x_\mathrm{obj}}{\bar{C}_\mathrm{obj}(x, y)} \\
-  C_{obj,meas} &= C_{noise,all} - A_\mathrm{Airy} \left( \Delta t \cdot \lambda_\mathrm{dark} + \lambda_\mathrm{background} \right) 
+  C_{obj,meas} &= C_{noise,all} - A_\mathrm{airy} \left( \Delta t \cdot \lambda_\mathrm{dark} + \lambda_\mathrm{background} \right) 
 \end{align*}
 
-In Equation \ref{eq:noisy_counts}, $A_\mathrm{Airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Equation \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance via Equation \ref{eq:count_to_irrad}:
+In Equation \ref{eq:noisy_counts}, $A_\mathrm{airy}$ is the area of the central maximum of the Airy disk in square pixels presented in Equation \ref{eq:airy_area}. The measured object signal $C_{obj,meas}$ can then be transformed into irradiance $I_{obj,meas}$ via Equation \ref{eq:count_to_irrad} using the integration time $\Delta t$ and the irradiance to count conversion factor $\mathcal{S}_\mathrm{int}$:
 
 \begin{equation} \label{eq:noisy_counts_to_irrad}
   I_{obj,meas} = \frac{C_{obj,meas}}{\mathrm{\mathcal{S}_\mathrm{int}} \cdot \Delta t}
 \end{equation}
 
-or to apparent magnitude by applying Equation \ref{eq:mag_to_irradiance}:
+or to apparent magnitude $m_{obj,meas}$ by applying Equation \ref{eq:mag_to_irradiance} using the zero point irradiance $I_0$:
 
 \begin{equation}
   m_{obj,meas} = -2.5 \log_{10}\left( \frac{I_{obj,meas}}{I_0} \right)
 \end{equation}
 
-or normalized irradiance by applying Equation \ref{eq:irradiance_to_norm_irradiance}:
+or normalized irradiance $\check{I}_{obj,meas}$ by applying Equation \ref{eq:irradiance_to_norm_irradiance} using the total solar irradiance $I_s$ and the position of the object $\vctr{r}_\mathrm{obj}$ and observer $\vctr{r}_\mathrm{obs}$ relative to some common origin:
 
 \begin{equation} \label{eq:ihat_meas}
   \check{I}_{obj,meas} = \frac{\| \vctr{r}_\mathrm{obj} - \vctr{r}_\mathrm{obs} \|^2}{I_s} I_{obj,meas}.
@@ -1508,7 +1508,7 @@ This section presents the entire process for simulating the normalized light cur
 
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Equation \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
 
-The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $\vctr{\vctr{q}(t)}$, $\vctr{\omega}(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case1_attitude}.
+The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M} = \mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $\vctr{q}(t)$, $\vctr{\omega}(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case1_attitude}.
 
 \begin{figure}[!htb]
   \centering
@@ -1578,7 +1578,7 @@ The second case deals with simulating a realistic noisy light curve for a comple
 
 To begin, the position of the object in TEME is computed using SGP4. That position is converted to ICRF using Eqs \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the station in ITRF is computed using Equation \ref{eq:lla_to_itrf} and converted to ICRF using Eqs \ref{eq:itrf_to_gtod}, \ref{eq:gtod_to_teme}, \ref{eq:teme_to_tod}, \ref{eq:tod_to_mod}, and \ref{eq:mod_to_icrf}. The position of the Sun is determined with SPICE following Section \ref{sec:planet_ephem}. 
 
-The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $\vctr{\vctr{q}(t)}$, $\vctr{\omega}(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case2_attitude}.
+The attitude profile of the object is propagated with Eqs \ref{eq:rbtf_dynamics} and \ref{eq:quat_kde} using $\vctr{M}=\mathbf{0}$ for torque free rigid body motion. The resulting attitude time history produces $\vctr{q}(t)$, $\vctr{\omega}(t)$, as well as the body frame vectors from the object to the Sun and observer depicted in Figure \ref{fig:case2_attitude}.
 
 \begin{figure}[!htb]
   \centering
