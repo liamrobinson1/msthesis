@@ -160,10 +160,10 @@ The face area $a$ is computed with:
     a = \frac{\| \left( v_2 - v_1 \right) \times \left( v_3 - v_1 \right)\|_2}{2}.
 \end{equation}
 
-The support $h_i$ of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\ , the first vertex $v_{i,1}$, and the face normal vector $\vctr{n}_i$:
+The support $h_i$ of the $i$th face --- the perpendicular distance from the origin to the plane defining the face --- is computed with the position of any vertex on that face, i.\,e.\ , the first vertex $v_{i,1}$, and the face normal vector $\unitv{n}_i$:
 
 \begin{equation} \label{eq:face_support}
-    h_i = v_{i,1} \cdot \vctr{n}_i.
+    h_i = v_{i,1} \cdot \unitv{n}_i.
 \end{equation}
 
 The volume of the object $v$ is computed:
@@ -175,7 +175,7 @@ The volume of the object $v$ is computed:
 In Equation \ref{eq:object_volume}, $\lvert F \rvert$ is the number of faces defining the object. $\vctr{h}$ and $\vctr{a}$ are column vectors collecting all face supports and areas. The Extended Gaussian Image $\vctr{E}$, a quantity defined in \ref{sec:egi_definition}, is computed row-wise for the $i$th face with:
 
 \begin{equation} \label{eq:egi_definition}
-    \vctr{E}_i = \vctr{a}_i \vctr{n}_i.
+    \vctr{E}_i = \vctr{a}_i \unitv{n}_i.
 \end{equation}
 
 \subsection{The Bidirectional Reflectance Distribution Function}
@@ -187,19 +187,19 @@ At the microscopic scale, the surface of an object is composed of facets ---  sm
 This discussion raises an important question; how should the macroscopic outcomes of the microscopic interactions of incident light on a surface be modeled? The bidirectional reflectance distribution function (BRDF) is a tool from computer graphics that addresses this problem. The BRDF is a function on the hemisphere which expresses the fraction of light per solid angle (radiance $\mathcal{R}$) leaving the surface in a given direction, divided by the incident power per unit area (irradiance $\mathcal{I}$). The general formulation for the BRDF reflectance fraction $f_r$ is given by \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_def}
-    f_r(\vctr{x}, \vctr{\ell}, \vctr{o}) = \frac{d\mathcal{R}\left(\vctr{x}, \vctr{o}\right)}{d\mathcal{I}\left(\vctr{\ell}, \vctr{x}\right)}.
+    f_r(\vctr{x}, \unitv{\ell}, \unitv{o}) = \frac{d\mathcal{R}\left(\vctr{x}, \unitv{o}\right)}{d\mathcal{I}\left(\unitv{\ell}, \vctr{x}\right)}.
 \end{equation}
 
-In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $\vctr{\ell} \in \mathbb{S}^2$ is the incoming illumination unit vector and $\vctr{o} \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, \vctr{\ell}, \vctr{o})$ and $f_r(\vctr{\ell}, \vctr{o})$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
+In Equation \ref{eq:brdf_def}, $\vctr{x} \in \mathbb{R}^3$ is the point on the object's surface where the BRDF is evaluated. $\unitv{\ell} \in \mathbb{S}^2$ is the incoming illumination unit vector and $\unitv{o} \in \mathbb{S}^2$ is the outgoing unit vector. Note that this work treats $f_r(\vctr{x}, \unitv{\ell}, \unitv{o})$ and $f_r(\unitv{\ell}, \unitv{o})$ as equivalent in later descriptions, leaving the evaluation point $\vctr{x}$ implied. This definition is useful for building intuition about the form of the BRDF, but to represent a physically plausible reflection process, a candidate function must satisfy three additional constraints. A physically plausible BRDF must conserve energy --- more energy cannot be reflected from the surface than was incident on it. It must also be reciprocal --- switching the observer and illumination directions should not change the BRDF value as the surface interaction. This reciprocity is sometimes known as the \textit{Helmholtz Reciprocity Rule} in literature \cite{montes2012}. Finally, plausible BRDFs are positive --- they take on nonnegative values for all valid inputs \cite{montes2012}. A surface cannot reflect negative light, so this is expected. Explicitly, energy conservation is expressed with \cite{montes2012}:
 
 \begin{equation} \label{eq:brdf_energy_cons}
-  \forall \vctr{\ell} \in \mathbb{S}^2 : \:\: \int_{\vctr{o} \in \mathbb{S}^2} f_r(\vctr{\ell}, \vctr{o}) \: d\mathbb{S}^2 \leq 1.
+  \forall \unitv{\ell} \in \mathbb{S}^2 : \:\: \int_{\unitv{o} \in \mathbb{S}^2} f_r(\unitv{\ell}, \unitv{o}) \: d\mathbb{S}^2 \leq 1.
 \end{equation}
 
-Equation \ref{eq:brdf_energy_cons} states that for all possible illumination directions $\vctr{\ell}$, integrating all possible outgoing observer directions $\vctr{o}$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
+Equation \ref{eq:brdf_energy_cons} states that for all possible illumination directions $\unitv{\ell}$, integrating all possible outgoing observer directions $\unitv{o}$ on the unit sphere cannot return greater than one from the energy conservation integral. Reciprocity can be formalized as:
 
 \begin{equation} \label{eq:brdf_reciprocity}
-  \forall \vctr{\ell}, \vctr{o} \in \mathbb{S}^2 : \:\: f_r(\vctr{\ell}, \vctr{o}) = f_r(\vctr{o}, \vctr{\ell}).
+  \forall \unitv{\ell}, \unitv{o} \in \mathbb{S}^2 : \:\: f_r(\unitv{\ell}, \unitv{o}) = f_r(\unitv{o}, \unitv{\ell}).
 \end{equation}
 
 Now that the requirements for a plausible physical BRDF have been established, a collection of commonly-used BRDFs can be presented. The following BRDFs are all energy conserving, reciprocal, and nonnegative. Real-world materials are modeled with these BRDFs by fitting the free parameters of a given BRDF to measured reflectance data \cite{matusik2003}. If a BRDF can be fit to the data with low error, that reflection function can be considered to be a faithful model for the true physics. 
@@ -209,7 +209,7 @@ Now that the requirements for a plausible physical BRDF have been established, a
 The simplest BRDF is one that reflects equally in all directions. This BRDF is termed Lambertian or diffuse.
 
 \begin{equation} \label{eq:brdf_lambertian}
-  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi}
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi}
 \end{equation}
 
 In Equation \ref{eq:brdf_lambertian}, $0 \leq C_d \leq 1$ is the surface's coefficient of diffuse reflection. For example, $C_d = 0.4$ means that the surface reflects $40\%$ of incident radiation and absorbs the other $60\%$. 
@@ -221,17 +221,17 @@ While the diffuse BRDF reflects energy isotropically, many real-world reflection
 A simple specular BRDF model is that developed by Phong in 1975 \cite{phong1975}. The Phong model splits the BRDF into a Lambertian term governed by $C_d$ and a specular term governed the coefficient of specular reflection $ 0 \leq C_s \leq 1$ and the specular exponent $n \geq 0$ \cite{duvenhage2013}. 
 
 \begin{equation} \label{eq:brdf_phong}
-  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{o} \cdot \vctr{r})^n}{\vctr{n} \cdot \vctr{\ell}}
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\unitv{o} \cdot \vctr{r})^n}{\unitv{n} \cdot \unitv{\ell}}
 \end{equation}
 
-In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\vctr{n} \cdot \vctr{\ell}) \vctr{n} - \vctr{\ell}}{\| 2 (\vctr{n} \cdot \vctr{\ell}) \vctr{n} - \vctr{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
+In Equation \ref{eq:brdf_phong}, $\vctr{r}$ is the reflected illumination vector, computed via $\hat{r} = \frac{2 (\unitv{n} \cdot \unitv{\ell}) \unitv{n} - \unitv{\ell}}{\| 2 (\unitv{n} \cdot \unitv{\ell}) \unitv{n} - \unitv{\ell} \|}$. As $n$ increases, the specular glint becomes sharper and more intense, eventually approaching a perfect mirror reflection. Because of the introduction of a new coefficient of reflection, a new constraint is needed to maintain energy conservation. Because $C_d$ and $C_s$ each represent the \textit{fraction} of light reflected in each mode, it should be clear that $C_d + C_s \leq 1$. This can also be reformulated with an explicit coefficient of absorption $C_a$ which captures the fraction of incident radiation absorbed by the surface, yielding $C_d + C_s + C_a = 1$. It must be noted that the Phong model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
 
 \subsubsection{Blinn-Phong}
 
-The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\vctr{h}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\vctr{h} = \vctr{\ell} + \vctr{o}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
+The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the specular lobe in terms of the halfway vector $\vctr{h}$ \cite{duvenhage2013}. This vector is halfway between the illumination and observer directions such that $\vctr{h} = \unitv{\ell} + \unitv{o}$ which needs to be normalized before use. As the halfway vector approaches the surface normal vector, the observer must be approaching the reflected illumination vector, leading to a more intense specular highlight. 
 
 \begin{equation} \label{eq:brdf_blinn_phong}
-  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\vctr{n} \cdot \vctr{h})^n}{4 (\vctr{n} \cdot \vctr{\ell})(\vctr{n} \cdot \vctr{o})}
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s \frac{n+2}{2\pi} (\unitv{n} \cdot \vctr{h})^n}{4 (\unitv{n} \cdot \unitv{\ell})(\unitv{n} \cdot \unitv{o})}
 \end{equation}
 
 \subsubsection{Glossy}
@@ -239,7 +239,7 @@ The Blinn-Phong BRDF is similar to the Phong BRDF, but it parameterizes the spec
 The so-called glossy BRDF simulates reflections from plastic materials using an Gaussian distribution around the specular scattering lobe \cite{duvenhage2013}:
 
 \begin{equation} \label{eq:brdf_glossy}
-  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\vctr{n} \cdot \vctr{\ell}\right)}  e^{\frac{-\left( \vctr{r} \cdot \vctr{o} \right)^2}{2\sigma^2}},
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{C_s}{2\pi \sigma^2 \left(\unitv{n} \cdot \unitv{\ell}\right)}  e^{\frac{-\left( \vctr{r} \cdot \unitv{o} \right)^2}{2\sigma^2}},
 \end{equation}
 
 where the parameter $\sigma$ controls the spread --- the standard deviation --- of the specular Gaussian. It must be noted that the Glossy model is only approximately reciprocal as it is based on the reflected incident vector $\vctr{r}$ instead of the halfway vector $\vctr{h}$ used by other models \cite{duvenhage2013}.
@@ -249,25 +249,25 @@ where the parameter $\sigma$ controls the spread --- the standard deviation --- 
 The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\vctr{h}$ \cite{cook1982}. A common formulation of this term is due to Beckmann, where $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}:
 
 \begin{equation} \label{eq:d_beckmann}
-  D_{ct} = \frac{1}{\pi \alpha^2 \left( \vctr{n} \cdot \vctr{h} \right)^4} \exp\left( \frac{1 - \left(\vctr{n} \cdot \vctr{h}\right)^2}{\alpha^2 \left( \vctr{n} \cdot \vctr{h} \right)^2} \right).
+  D_{ct} = \frac{1}{\pi \alpha^2 \left( \unitv{n} \cdot \vctr{h} \right)^4} \exp\left( \frac{1 - \left(\unitv{n} \cdot \vctr{h}\right)^2}{\alpha^2 \left( \unitv{n} \cdot \vctr{h} \right)^2} \right).
 \end{equation}
 
-The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\vctr{h}$ and $\vctr{\ell}$ respectively \cite{cook1982}:
+The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\vctr{h}$ and $\unitv{\ell}$ respectively \cite{cook1982}:
 
 \begin{equation} \label{eq:fresnel_approx}
-  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{h} \cdot \vctr{\ell} \right) \right) ^ 5.
+  F = C_s + \left( 1 - C_s \right) \left( 1 - \left( \vctr{h} \cdot \unitv{\ell} \right) \right) ^ 5.
 \end{equation}
 
 The geometric attenuation term $G_{ct}$ expresses how microfacets shadow each other, and can be approximated with \cite{cook1982}:
 
 \begin{equation} \label{eq:cook_torrance_g}
-  G_{ct} = \min \left\{ 1, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \vctr{o} \right)}{\vctr{o} \cdot \vctr{h}}, \frac{2\left(\vctr{n} \cdot \vctr{h}\right) \left(\vctr{n} \cdot \vctr{\ell}\right)}{\vctr{o} \cdot \vctr{h}} \right\}.
+  G_{ct} = \min \left\{ 1, \frac{2\left(\unitv{n} \cdot \vctr{h}\right) \left(\unitv{n} \cdot \unitv{o} \right)}{\unitv{o} \cdot \vctr{h}}, \frac{2\left(\unitv{n} \cdot \vctr{h}\right) \left(\unitv{n} \cdot \unitv{\ell}\right)}{\unitv{o} \cdot \vctr{h}} \right\}.
 \end{equation}
 
 The overall reflectance for the Cook-Torrance BRDF is given by:
 
 \begin{equation} \label{eq:brdf_cook_torrance}
-  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(\vctr{n} \cdot \vctr{\ell}\right) \left( \vctr{n} \cdot \vctr{o} \right)}
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} + \frac{D_{ct} \cdot G_{ct} \cdot F}{4 \left(\unitv{n} \cdot \unitv{\ell}\right) \left( \unitv{n} \cdot \unitv{o} \right)}
 \end{equation}
 
 \subsubsection{Oren-Nayar}
@@ -277,15 +277,15 @@ The Oren-Nayar BRDF is an improved model of diffuse reflectance for many real-wo
 \begin{align*} \numberthis
   A &= 1 - 0.5 \frac{\alpha^2}{\alpha^2 + 0.33} \\
   B &= 0.45 \frac{\alpha^2}{\alpha^2 + 0.09} \\
-  C &= \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{\ell}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{\ell}\right)\|} \cdot  \frac{\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)}{\|\mathrm{proj}_{\vctr{n}}\left(\vctr{o}\right)\|} \\
-  \beta &= \max \left\{ \cos^{-1}\left( \vctr{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\} \\
-  \gamma &= \min \left\{ \cos^{-1}\left( \vctr{\ell} \cdot \vctr{n} \right), \: \cos^{-1}\left( \vctr{o} \cdot \vctr{n} \right) \right\}. \\
+  C &= \frac{\mathrm{proj}_{\unitv{n}}\left(\unitv{\ell}\right)}{\|\mathrm{proj}_{\unitv{n}}\left(\unitv{\ell}\right)\|} \cdot  \frac{\mathrm{proj}_{\unitv{n}}\left(\unitv{o}\right)}{\|\mathrm{proj}_{\unitv{n}}\left(\unitv{o}\right)\|} \\
+  \beta &= \max \left\{ \cos^{-1}\left( \unitv{\ell} \cdot \unitv{n} \right), \: \cos^{-1}\left( \unitv{o} \cdot \unitv{n} \right) \right\} \\
+  \gamma &= \min \left\{ \cos^{-1}\left( \unitv{\ell} \cdot \unitv{n} \right), \: \cos^{-1}\left( \unitv{o} \cdot \unitv{n} \right) \right\}. \\
 \end{align*}
 
 With these values computed, the reflectance of the Oren-Nayar BRDF is given by \cite{oren1994}:
 
 \begin{equation}
-  f_r(\vctr{\ell}, \vctr{o}) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
+  f_r(\unitv{\ell}, \unitv{o}) = \frac{C_d}{\pi} \left(A + (B \max\left\{C, 0\right\} \sin\beta \tan\gamma) \right).
 \end{equation}
 
 \subsubsection{Ashikhmin-Shirley}
@@ -293,11 +293,11 @@ With these values computed, the reflectance of the Oren-Nayar BRDF is given by \
 The Ashikhmin-Shirley BRDF is unique among those presented in this section as it allows for anisotropic reflection which can be non-negligible for metals \cite{ashikhmin2000}. This model is parameterized by the diffuse reflection coefficient $C_d$, the specular reflection coefficient $C_s$, as well as two specular exponents $n_u$ and $n_v$. When $n_u = n_v$, the model behaves much like the Phong BRDF. The full BRDF is expressed \cite{ashikhmin2000}:
 
 \begin{align*} \numberthis \label{eq:brdf_ashikhmin_shirley}
-  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\vctr{n} \cdot \vctr{\ell}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\vctr{n} \cdot \vctr{o}}{2}\right)^5\right) \\
-  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( \vctr{n} \cdot \vctr{h} \right)
-  ^\frac{n_u \left(\vctr{h} \cdot \vctr{u} \right)^2 + n_v \left( \vctr{h} \cdot \vctr{v} \right)^2}{1 - \left(\vctr{h} \cdot \vctr{n}\right)^2}}
-  {\left(\vctr{h} \cdot \vctr{\ell}\right) \max\left\{ \vctr{n} \cdot \vctr{o}, \vctr{n} \cdot \vctr{\ell} \right\}} F \\
-  f_r(\vctr{\ell}, \vctr{o}) &= \rho_d + \rho_s. \\
+  \rho_d &= \frac{28 C_d}{23 \pi} (1 - C_s) \left(1 - \left(1 - \frac{\unitv{n} \cdot \unitv{\ell}}{2}\right)^5\right) \left(1 - \left(1 - \frac{\unitv{n} \cdot \unitv{o}}{2}\right)^5\right) \\
+  \rho_s &= \frac{\sqrt{(n_u+1)(n_v+1)}}{8 \pi} \frac{\left( \unitv{n} \cdot \vctr{h} \right)
+  ^\frac{n_u \left(\vctr{h} \cdot \vctr{u} \right)^2 + n_v \left( \vctr{h} \cdot \vctr{v} \right)^2}{1 - \left(\vctr{h} \cdot \unitv{n}\right)^2}}
+  {\left(\vctr{h} \cdot \unitv{\ell}\right) \max\left\{ \unitv{n} \cdot \unitv{o}, \unitv{n} \cdot \unitv{\ell} \right\}} F \\
+  f_r(\unitv{\ell}, \unitv{o}) &= \rho_d + \rho_s. \\
 \end{align*}
 
 In Equation \ref{eq:brdf_ashikhmin_shirley}, $F$ is the same Fresnel factor in Equation \ref{eq:fresnel_approx} while $\vctr{u}$ and $\vctr{v}$ are predefined surface basis vectors perpendicular to the surface normal.
@@ -389,27 +389,27 @@ To be precise, the normalized irradiance has units $m^2$ and can be interpreted 
 Light curve simulation for convex geometry can be solved semi-analytically as each face's contribution 
 to the measured irradiance can be computed individually \cite{kaasalainen2001}. 
 Determining whether a face is illuminated requires two horizon checks to determine visibility 
-from the Sun and to the observer. For a face $i$ at timestep $j$ with normal vector $\vctr{n}_i$, these horizon checks are expressed by the shadowing condition $\mu_{ij}$. 
+from the Sun and to the observer. For a face $i$ at timestep $j$ with normal vector $\unitv{n}_i$, these horizon checks are expressed by the shadowing condition $\mu_{ij}$. 
 
 \begin{equation} \label{eq:cvx_shadow_cond}
   \mu_{ij} = \begin{cases}
-    1 \text{ if } \left( \vctr{o}_j \cdot \vctr{n}_i \right) > 0 \text{ and } \left( \vctr{\ell}_j \cdot \vctr{n}_i \right) > 0 
+    1 \text{ if } \left( \unitv{o}_j \cdot \unitv{n}_i \right) > 0 \text{ and } \left( \unitv{\ell}_j \cdot \unitv{n}_i \right) > 0 
 	  \text{ and } \delta_{ij,\text{ss}} = 0 \text{ and } \delta_{ij,\text{os}} = 0\\
     0 \text{ otherwise } \\
   \end{cases}
 \end{equation}
 
-The unit vectors $\vctr{o}$ and $\vctr{\ell}$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\vctr{n}$ is chosen by convention for all mesh operations. The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing refers to otherwise visible faces blocked by other portions of the geometry.
+The unit vectors $\unitv{o}$ and $\unitv{\ell}$ point from the center of mass of the object to the observer and Sun, respectively. The outward-pointing face normal unit vector $\unitv{n}$ is chosen by convention for all mesh operations. The self-shadowing and observer-shadowing conditions, $\delta_{ij,\text{ss}}$ and $\delta_{ij,\text{os}}$, are always zero for convex polyhedra but are crucial for accurately simulating nonconvex geometry. For objects with concavities, self-shadowing refers to shadows cast by an object onto itself and observer-shadowing refers to otherwise visible faces blocked by other portions of the geometry.
 
 The irradiance $I$ received by the observer at timestep $j$ is the sum of the received irradiance from all faces, where the BRDF is evaluated at each face. Each contribution is expressed as the product of the
 normalized irradiance $\check{I}$. This can be scaled to adjust for the distance from the observer to
-the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF $f_r(\vctr{\ell}, \vctr{o})$, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
+the object and the solar constant to yield the noiseless received irradiance. For any physically plausible BRDF $f_r(\unitv{\ell}, \unitv{o})$, the normalized light curve for a convex object is expressed as a sum over all faces $i$ at time step $j$ \cite{fan2020thesis}:
 
 \begin{equation} \label{eq:lc_func_normalized}
-  \check{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(\vctr{\ell}_j, \vctr{o}_j) \left( \vctr{o}_j \cdot \vctr{n}_i \right) \left( \vctr{\ell}_j \cdot \vctr{n}_i \right)}.
+  \check{I}_{j} = \sum_{i=1}^{m}{\mu_{ij} a_i f_r(\unitv{\ell}_j, \unitv{o}_j) \left( \unitv{o}_j \cdot \unitv{n}_i \right) \left( \unitv{\ell}_j \cdot \unitv{n}_i \right)}.
 \end{equation}
 
-In Equation \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(\vctr{\ell}_j, \vctr{o}_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
+In Equation \ref{eq:lc_func_normalized}, $a_i$ is the area of the $i$th face. Note that $f_r(\unitv{\ell}_j, \unitv{o}_j)$ must be computed separately for each face to account for normal vector and coefficient of reflection differences. This normalized light curve can be dimensionalized by the total solar irradiance and the distance $r_j$ between the observer $\vctr{r}_\mathrm{obs}$ to the object center of mass $\vctr{r}_\mathrm{obj}$:
 
 \begin{equation} \label{eq:lc_func_norm_to_irrad}
   I_{j} = \frac{I_s \check{I}_j}{r_j^2}.
