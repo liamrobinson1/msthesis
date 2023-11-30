@@ -249,7 +249,7 @@ where the parameter $\sigma$ controls the spread --- the standard deviation --- 
 The Cook-Torrance explicitly accounts for the orientation of the microfacets making up the surface \cite{cook1982}. This model is built from a facet slope distribution term $D_{ct}$, a Fresnel term $F$, and a geometric attenuation factor $G_{ct}$. The slope distribution term describes the probability density of a given facet being oriented with a normal vector aligned with the halfway vector $\unitv{h}$ \cite{cook1982}. A common formulation of this term is due to Beckmann, where $\alpha \in [0, 1]$ is the roughness of the surface \cite{cook1982}:
 
 \begin{equation} \label{eq:d_beckmann}
-  D_{ct} = \frac{1}{\pi \alpha^2 \left( \unitv{n} \cdot \unitv{h} \right)^4} \exp\left( \frac{1 - \left(\unitv{n} \cdot \unitv{h}\right)^2}{\alpha^2 \left( \unitv{n} \cdot \unitv{h} \right)^2} \right).
+  D_{ct} = \frac{1}{\pi \alpha^2 \left( \unitv{n} \cdot \unitv{h} \right)^4} \exp\left( - \frac{1 - \left(\unitv{n} \cdot \unitv{h}\right)^2}{\alpha^2 \left( \unitv{n} \cdot \unitv{h} \right)^2} \right).
 \end{equation}
 
 The Fresnel term accounts for the variation in specular reflection due to the angle of incidence. In reality, this term is a function of wavelength, but it is often approximated as a function of the coefficient of specular reflection $C_s$ as well as the halfway and illumination directions $\unitv{h}$ and $\unitv{\ell}$ respectively \cite{cook1982}:
